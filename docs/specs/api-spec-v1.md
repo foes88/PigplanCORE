@@ -1,0 +1,538 @@
+# PigPlanCORE — API Specification v1.0
+> MVP 30 Endpoints · 2026.03.19
+> Base URL: `/api/v1`
+
+---
+
+## General Standards
+
+### Authentication
+```
+POST /auth/login → { access_token (15min), refresh_token (7d) }
+모든 요청: Authorization: Bearer {access_token}
+농장 스코프: X-Farm-Id: {farm_uuid} (필수)
+```
+
+### Response Envelope
+```json
+// 성공
+{ "data": { ... }, "cursor": "base64...", "has_more": true }
+
+// 에러
+{ "error": { "code": "ERR_VALIDATION", "message": "...", "details": { "field": "..." } } }
+```
+
+### Pagination
+- Cursor 기반 (오프라인 동기화 호환)
+- `?limit=100` (기본 100, 최대 1000)
+- `?cursor=base64...` (다음 페이지)
+
+### Date Format
+- ISO 8601: `2026-03-19T13:00:00Z`
+- Date only: `2026-03-19`
+
+### Error Codes
+| HTTP | Code | 의미 |
+|------|------|------|
+| 400 | ERR_VALIDATION | 필드 검증 실패 |
+| 401 | ERR_UNAUTHORIZED | 토큰 만료/무효 |
+| 403 | ERR_FORBIDDEN | 권한 없음 |
+| 404 | ERR_NOT_FOUND | 리소스 없음 |
+| 409 | ERR_CONFLICT | 동기화 충돌 |
+| 423 | ERR_PERIOD_LOCKED | 월마감 잠금 기간 |
+| 429 | ERR_RATE_LIMIT | 요청 초과 |
+
+---
+
+## Auth (3 endpoints)
+
+### POST /auth/login
+```json
+// Request
+{ "email": "farmer@example.com", "password": "..." }
+
+// Response 200
+{
+  "data": {
+    "access_token": "eyJ...",
+    "refresh_token": "eyJ...",
+    "expires_in": 900,
+    "user": {
+      "id": "uuid",
+      "name": "김농장",
+      "role": "FARM_OWNER",
+      "language": "ko",
+      "farms": [
+        { "id": "uuid", "name": "행복농장", "country": "KR" }
+      ]
+    }
+  }
+}
+```
+- Required role: NONE
+
+### POST /auth/refresh
+```json
+// Request
+{ "refresh_token": "eyJ..." }
+// Response 200
+{ "data": { "access_token": "eyJ...", "expires_in": 900 } }
+```
+
+### POST /auth/logout
+```json
+// Request (empty body, access_token in header)
+// Response 204 No Content
+// 서버: Redis blacklist에 토큰 추가
+```
+
+---
+
+## Farms (3 endpoints)
+
+### GET /farms
+사용자가 접근 가능한 농장 목록
+```json
+// Response 200
+{
+  "data": [
+    {
+      "id": "uuid",
+      "farm_code": "FARM-KR-001",
+      "name": "행복농장",
+      "country": "KR",
+      "unit_system": "METRIC",
+      "language": "ko",
+      "active_sow_count": 350,
+      "country_config": {
+        "weight_unit": "kg",
+        "currency": "KRW",
+        "date_format": "yyyy.MM.dd",
+        "grading_system": "KR_GRADE",
+        "has_asf_alert": true
+      }
+    }
+  ]
+}
+```
+- Required role: FARM_WORKER+
+
+### GET /farms/{farmId}
+농장 상세 + country_config
+- Required role: FARM_WORKER+
+
+### PUT /farms/{farmId}
+농장 설정 수정 (이름, 언어, 단위계, 알림채널)
+- Required role: FARM_OWNER+
+- 월마감 영향 없음
+
+---
+
+## Sows (5 endpoints)
+
+### GET /farms/{farmId}/sows
+```
+Query params:
+  ?status=ACTIVE,GESTATING    (쉼표 구분, 복수 가능)
+  ?parity_min=2&parity_max=5
+  ?ear_tag=A001               (부분 검색)
+  ?sort=-parity,entry_date    (- = DESC)
+  ?limit=100&cursor=...
+```
+```json
+// Response 200
+{
+  "data": [
+    {
+      "id": "uuid",
+      "ear_tag": "A001",
+      "parity": 3,
+      "breed": "LY",
+      "status": "GESTATING",
+      "entry_date": "2024-06-15",
+      "last_event": { "type": "MATING_AI", "date": "2026-03-01" },
+      "next_expected": { "type": "FARROWING", "date": "2026-06-23" }
+    }
+  ],
+  "cursor": "base64...",
+  "has_more": true,
+  "total_count": 350
+}
+```
+- Required role: FARM_WORKER+
+
+### POST /farms/{farmId}/sows
+```json
+// Request
+{
+  "ear_tag": "A051",
+  "breed": "LY",
+  "entry_date": "2026-03-19",
+  "entry_type": "GILT",
+  "building_id": "uuid"
+}
+// Response 201
+{ "data": { "id": "uuid", "ear_tag": "A051", ... } }
+```
+- Validation: ear_tag UNIQUE per farm, entry_date <= today
+- Required role: FARM_MANAGER+
+
+### GET /farms/{farmId}/sows/{sowId}
+개체 전체 정보 + 최근 이벤트 요약
+- Required role: FARM_WORKER+
+
+### PUT /farms/{farmId}/sows/{sowId}
+- Required role: FARM_MANAGER+
+- 월마감 기간 데이터 수정 시 423 반환
+
+### GET /farms/{farmId}/sows/{sowId}/timeline
+```json
+// Response 200 — 시간순 전체 이벤트
+{
+  "data": [
+    { "type": "ENTRY", "date": "2024-06-15", "detail": { "entry_type": "GILT" } },
+    { "type": "MATING_AI", "date": "2024-12-01", "detail": { "boar": "B012" } },
+    { "type": "FARROWING", "date": "2025-03-25", "detail": { "born_alive": 14, "stillborn": 1 } },
+    { "type": "WEANING", "date": "2025-04-15", "detail": { "weaned_count": 12, "age_days": 21 } }
+  ]
+}
+```
+
+---
+
+## Events (8 endpoints)
+
+### POST /sows/{sowId}/matings
+```json
+{
+  "mating_date": "2026-03-19",
+  "mating_type": "AI",
+  "boar_id": "uuid",
+  "semen_source": "PIC Korea",
+  "semen_batch": "PIC-2026-0319",
+  "mating_number": 1,
+  "notes": ""
+}
+```
+- Validation: mating_date <= today, sow.status must be ACTIVE/WEANED/DRY
+- Side effect: sow.status → GESTATING (after mating_number=1)
+- Required role: FARM_WORKER+
+
+### POST /sows/{sowId}/pregnancy-checks
+```json
+{
+  "check_date": "2026-04-10",
+  "check_method": "ULTRASOUND",
+  "result": "POSITIVE"
+}
+```
+- Side effect: NEGATIVE → sow.status ACTIVE + alert "RETURN_TO_ESTRUS"
+
+### POST /sows/{sowId}/farrowings
+```json
+{
+  "farrowing_date": "2026-07-11",
+  "total_born": 15,
+  "born_alive": 13,
+  "stillborn": 1,
+  "mummified": 1,
+  "avg_birth_weight_kg": 1.4,
+  "assisted": false,
+  "cross_fostered_in": 0,
+  "cross_fostered_out": 2
+}
+```
+- Validation: born_alive + stillborn + mummified = total_born
+- Validation: born_alive <= total_born
+- Side effect: sow.status → LACTATING, sow.parity += 1
+
+### POST /sows/{sowId}/weanings
+```json
+{
+  "weaning_date": "2026-08-01",
+  "farrowing_id": "uuid",
+  "weaned_count": 11,
+  "weaning_age_days": 21,
+  "avg_weaning_weight_kg": 6.8,
+  "destination": "NURSERY"
+}
+```
+- Validation: weaning_age_days 14~42, weaned_count <= born_alive
+- Side effect: sow.status → WEANED
+
+### POST /sows/{sowId}/removals
+```json
+{
+  "removal_date": "2026-09-15",
+  "removal_type": "CULL",
+  "reason_category": "LOW_PRODUCTION",
+  "reason_detail": "PSY below farm average for 2 consecutive parities",
+  "body_weight_kg": 210,
+  "destination": "도축장A"
+}
+```
+- Side effect: sow.status → CULLED/DEAD
+
+### POST /farms/{farmId}/health-events
+```json
+{
+  "sow_id": "uuid",
+  "event_date": "2026-03-19",
+  "event_type": "DISEASE",
+  "disease_code": "PRRS",
+  "severity": "MODERATE",
+  "affected_count": 3,
+  "notes": "PRRSV-2 의심, PCR 검사 의뢰"
+}
+```
+- ASF인 경우: severity=SEVERE 자동 설정, alert 자동 생성
+
+### POST /farms/{farmId}/vaccinations
+```json
+{
+  "sow_id": "uuid",
+  "vaccine_name": "Ingelvac PRRS MLV",
+  "manufacturer": "Boehringer Ingelheim",
+  "batch_no": "BI-2026-0319",
+  "vaccination_date": "2026-03-19",
+  "next_due_date": "2026-09-19",
+  "dose_count": 1
+}
+```
+
+### POST /farms/{farmId}/medications
+```json
+{
+  "sow_id": "uuid",
+  "medication_date": "2026-03-19",
+  "drug_name": "Amoxicillin",
+  "active_substance": "Amoxicillin trihydrate",
+  "antibiotic_flag": true,
+  "antibiotic_class": "PENICILLIN",
+  "dose_mg": 5000,
+  "treatment_days": 5,
+  "withdrawal_days": 7,
+  "prescribed_by": "Dr. Kim"
+}
+```
+- 자동 계산: withdrawal_end_date = medication_date + withdrawal_days
+- EU 농장: ddda_value 자동 계산
+- US 농장: vfd_number 필수 검증
+
+---
+
+## KPI (3 endpoints)
+
+### GET /farms/{farmId}/kpi
+```json
+// Query: ?period=2026-03
+{
+  "data": {
+    "period": "2026-03",
+    "active_sows": 350,
+    "metrics": {
+      "psy": { "value": 23.4, "benchmark": 21.9, "percentile": 65, "status": "GREEN" },
+      "npd": { "value": 38, "benchmark": 40, "status": "GREEN" },
+      "farrowing_rate": { "value": 81.5, "benchmark": 80, "status": "GREEN" },
+      "pre_weaning_mortality": { "value": 14.2, "benchmark": 15, "status": "GREEN" },
+      "sow_mortality": { "value": 8.5, "benchmark": 14.5, "status": "GREEN" }
+    },
+    "roi_insights": [
+      {
+        "metric": "PSY",
+        "current": 23.4,
+        "benchmark": 21.9,
+        "delta": 1.5,
+        "value_per_unit": 50000,
+        "total_value": 26250000,
+        "currency": "KRW",
+        "message": "PSY 1.5두 초과 → 연 2,625만원 추가 수익"
+      }
+    ]
+  }
+}
+```
+
+### GET /farms/{farmId}/kpi/trend
+```json
+// Query: ?months=12&metric=psy,npd,farrowing_rate
+{
+  "data": [
+    { "period": "2025-04", "psy": 22.1, "npd": 41, "farrowing_rate": 79.5 },
+    { "period": "2025-05", "psy": 22.4, "npd": 40, "farrowing_rate": 80.1 },
+    ...
+  ]
+}
+```
+
+### GET /farms/{farmId}/kpi/benchmark
+```json
+{
+  "data": {
+    "farm_country": "KR",
+    "benchmarks": {
+      "national_avg": { "psy": 21.9, "fcr": 3.26, "npd": 40 },
+      "top_10pct": { "psy": 32.5, "fcr": 2.6, "npd": 30 },
+      "bottom_30pct": { "psy": 20.8, "fcr": 3.8, "npd": 50 }
+    },
+    "farm_ranking": { "psy_percentile": 65, "fcr_percentile": 55 }
+  }
+}
+```
+
+---
+
+## Alerts (2 endpoints)
+
+### GET /farms/{farmId}/alerts
+```json
+// Query: ?severity=CRITICAL,WARNING&unread_only=true
+{
+  "data": [
+    {
+      "id": "uuid",
+      "alert_type": "FARROWING_DUE",
+      "severity": "INFO",
+      "title": "A012 분만 예정 (3일 후)",
+      "message": "모돈 A012, 산차 4, 예정일 2026-03-22",
+      "entity_type": "sows",
+      "entity_id": "uuid",
+      "created_at": "2026-03-19T03:00:00Z",
+      "read_at": null
+    }
+  ]
+}
+```
+
+### PUT /alerts/{alertId}/read
+```json
+// Response 200
+{ "data": { "id": "uuid", "read_at": "2026-03-19T13:00:00Z" } }
+```
+
+---
+
+## Sync (2 endpoints)
+
+### POST /sync
+모바일 → 서버 오프라인 변경사항 일괄 업로드
+```json
+// Request
+{
+  "device_id": "android-uuid-001",
+  "farm_id": "uuid",
+  "last_sync_at": "2026-03-18T10:00:00Z",
+  "changes": [
+    {
+      "entity_type": "matings",
+      "operation": "INSERT",
+      "entity_id": "local-uuid-001",
+      "data": { "sow_id": "uuid", "mating_date": "2026-03-19", "mating_type": "AI" },
+      "offline_created_at": "2026-03-19T08:30:00+07:00"
+    },
+    {
+      "entity_type": "farrowings",
+      "operation": "INSERT",
+      "entity_id": "local-uuid-002",
+      "data": { "sow_id": "uuid", "farrowing_date": "2026-03-19", "born_alive": 13 },
+      "offline_created_at": "2026-03-19T09:15:00+07:00"
+    }
+  ]
+}
+
+// Response 200
+{
+  "data": {
+    "accepted": 2,
+    "conflicts": 0,
+    "server_changes_since": "2026-03-18T10:00:00Z",
+    "server_changes": [ ... ]  // 서버 측 변경분 포함
+  }
+}
+```
+
+### 충돌 해결 규칙
+```
+1. 같은 entity_id가 서버에서도 수정된 경우 → CONFLICT
+2. 해결: Last-Write-Wins (offline_created_at vs server.updated_at)
+3. 패배한 버전 → audit_log에 보존
+4. 응답에 conflict 상세 포함 → 모바일에서 사용자에게 표시 (옵션)
+```
+
+### GET /sync/changes
+서버 → 모바일 변경분 다운로드
+```
+Query: ?since=2026-03-18T10:00:00Z&farm_id=uuid
+```
+```json
+{
+  "data": {
+    "changes": [
+      {
+        "entity_type": "sows",
+        "entity_id": "uuid",
+        "operation": "UPDATE",
+        "data": { "status": "LACTATING", "parity": 4 },
+        "updated_at": "2026-03-19T11:00:00Z"
+      }
+    ],
+    "server_time": "2026-03-19T13:00:00Z"
+  }
+}
+```
+
+---
+
+## Dashboard (2 endpoints)
+
+### GET /farms/{farmId}/dashboard
+```json
+{
+  "data": {
+    "active_sows": 350,
+    "gestating": 180,
+    "lactating": 45,
+    "due_this_week": 8,
+    "recent_events": [
+      { "type": "FARROWING", "sow": "A012", "date": "2026-03-18", "born_alive": 14 },
+      { "type": "WEANING", "sow": "A008", "date": "2026-03-17", "weaned": 12 }
+    ],
+    "alerts_unread": 3,
+    "kpi_snapshot": { "psy": 23.4, "npd": 38, "farrowing_rate": 81.5 }
+  }
+}
+```
+
+### GET /farms/{farmId}/reports/sow-card/{sowId}
+개체 모돈 카드 (인쇄용)
+- Response: HTML 또는 PDF
+
+---
+
+## Users (2 endpoints)
+
+### GET /users/me
+### PUT /users/me
+```json
+{ "name": "김농장", "language": "ko", "notification_channel": "KAKAOTALK" }
+```
+
+---
+
+## Role-based Access Matrix
+
+| Endpoint | ADMIN | COMPANY | FARM_OWNER | FARM_MANAGER | FARM_WORKER | VIEWER |
+|----------|-------|---------|------------|-------------|-------------|--------|
+| Auth | ALL | ALL | ALL | ALL | ALL | ALL |
+| GET farms | ALL | ORG | OWN | ASSIGNED | ASSIGNED | ASSIGNED |
+| PUT farms | ALL | ORG | OWN | - | - | - |
+| GET sows | ALL | ORG | OWN | ASSIGNED | ASSIGNED | ASSIGNED |
+| POST sows | ALL | ORG | OWN | OWN | - | - |
+| POST events | ALL | ORG | OWN | OWN | OWN | - |
+| GET kpi | ALL | ORG | OWN | ASSIGNED | ASSIGNED | ASSIGNED |
+| POST sync | ALL | ORG | OWN | OWN | OWN | - |
+| GET alerts | ALL | ORG | OWN | ASSIGNED | ASSIGNED | ASSIGNED |
+
+---
+
+*이 문서는 MVP 30개 엔드포인트의 기준이다. OpenAPI 3.1 YAML은 이 문서 기반으로 생성.*
