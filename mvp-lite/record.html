@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE Lite — Record Event</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="shell">
+
+<nav class="side">
+  <div class="side-brand">PigPlan<span>CORE</span></div>
+  <a href="index.html"><span class="i">📋</span> Dashboard</a>
+  <a href="sows.html"><span class="i">🐷</span> Sow Mgmt</a>
+  <a class="on" href="record.html"><span class="i">✏️</span> Record Event</a>
+  <a href="kpi.html"><span class="i">📊</span> KPI</a>
+  <div class="side-foot">v1.0 Lite</div>
+</nav>
+
+<div class="main">
+
+  <div class="top">
+    <div>
+      <h1>Record Event</h1>
+      <div class="top-meta">Select event type and enter details</div>
+    </div>
+    <a href="index.html" class="btn btn-ghost">← Back</a>
+  </div>
+
+  <!-- Event Type -->
+  <div class="actions" style="margin-bottom:24px">
+    <button class="act" id="btn-mating" onclick="showForm('mating')" style="background:var(--primary);color:#fff;border-color:var(--primary)">💉 Breeding</button>
+    <button class="act" id="btn-farrowing" onclick="showForm('farrowing')">🐖 Farrowing</button>
+    <button class="act" id="btn-weaning" onclick="showForm('weaning')">🌱 Weaning</button>
+    <button class="act" id="btn-treatment" onclick="showForm('treatment')">💊 Treatment</button>
+    <button class="act" id="btn-weight" onclick="showForm('weight')">⚖️ Weight</button>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- Form -->
+    <div class="card">
+      <div class="card-head" id="form-title">💉 Breeding Record</div>
+      <div class="card-body">
+
+        <!-- Mating Form (default) -->
+        <div id="form-mating">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Sow ID</label>
+              <select class="form-select">
+                <option>Select sow...</option>
+                <option>#A-015 (NPD 42d)</option>
+                <option>#A-023 (NPD 38d)</option>
+                <option>#A-031 (NPD 22d)</option>
+                <option>#A-048 (Heat detected)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input class="form-input" type="date" value="2026-03-19">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Service Type</label>
+              <select class="form-select">
+                <option>AI (Artificial)</option>
+                <option>Natural</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Boar ID</label>
+              <select class="form-select">
+                <option>Select boar...</option>
+                <option>Duroc #D-001</option>
+                <option>Yorkshire #Y-003</option>
+                <option>Landrace #L-002</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes (optional)</label>
+            <textarea class="form-input" rows="2" placeholder="Standing heat confirmed, good response..."></textarea>
+          </div>
+        </div>
+
+        <!-- Farrowing Form -->
+        <div id="form-farrowing" style="display:none">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Sow ID</label>
+              <select class="form-select">
+                <option>Select sow...</option>
+                <option style="color:var(--danger)">#A-042 (D115 OVERDUE)</option>
+                <option>#A-067 (D113)</option>
+                <option>#A-089 (D110)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input class="form-input" type="date" value="2026-03-19">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Born Alive</label>
+              <input class="form-input" type="number" value="12" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Stillborn</label>
+              <input class="form-input" type="number" value="1" min="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Mummies</label>
+              <input class="form-input" type="number" value="0" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Born</label>
+              <input class="form-input" type="number" value="13" min="0" readonly style="background:#f9fafb">
+              <div class="form-hint">Auto-calculated</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea class="form-input" rows="2" placeholder="Assisted delivery, duration..."></textarea>
+          </div>
+        </div>
+
+        <!-- Weaning Form -->
+        <div id="form-weaning" style="display:none">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Sow ID</label>
+              <select class="form-select">
+                <option>Select sow...</option>
+                <option>#A-018 (D21)</option>
+                <option>#A-025 (D21)</option>
+                <option>#A-039 (D21)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input class="form-input" type="date" value="2026-03-19">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Piglets Weaned</label>
+              <input class="form-input" type="number" value="11" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Avg Piglet Weight (kg)</label>
+              <input class="form-input" type="number" value="6.8" step="0.1">
+            </div>
+          </div>
+        </div>
+
+        <!-- Treatment Form -->
+        <div id="form-treatment" style="display:none">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Animal ID</label>
+              <input class="form-input" placeholder="#A-042 or Pen F-06">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input class="form-input" type="date" value="2026-03-19">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Diagnosis</label>
+              <select class="form-select">
+                <option>Select...</option>
+                <option>Lameness</option>
+                <option>Respiratory</option>
+                <option>Diarrhea</option>
+                <option>Mastitis</option>
+                <option>Dystocia</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Medication</label>
+              <input class="form-input" placeholder="Drug name + dosage">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Withdrawal Period (days)</label>
+            <input class="form-input" type="number" value="14">
+            <div class="form-hint">Shipment blocked until withdrawal period ends</div>
+          </div>
+        </div>
+
+        <!-- Weight Form -->
+        <div id="form-weight" style="display:none">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Animal / Group</label>
+              <input class="form-input" placeholder="#A-042 or Pen F-01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input class="form-input" type="date" value="2026-03-19">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Weight (kg)</label>
+              <input class="form-input" type="number" placeholder="112.5" step="0.1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Method</label>
+              <select class="form-select">
+                <option>Scale</option>
+                <option>Estimate</option>
+                <option>Tape measure</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;display:flex;gap:8px">
+          <button class="btn" style="flex:1;justify-content:center;padding:12px">Save Record</button>
+          <a href="index.html" class="btn btn-ghost" style="justify-content:center;padding:12px">Cancel</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side info -->
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">Quick Guide</div>
+        <div class="card-body" style="font-size:11px;color:var(--text2);line-height:1.8">
+          <strong>Breeding:</strong> Record mating after standing heat confirmed<br>
+          <strong>Farrowing:</strong> Record born alive, stillborn, mummies<br>
+          <strong>Weaning:</strong> Record piglets weaned + avg weight<br>
+          <strong>Treatment:</strong> Drug, dosage, withdrawal period<br>
+          <strong>Weight:</strong> Individual or group average
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">Recent Records</div>
+        <div class="card-body">
+          <div class="task"><div class="task-dot" style="background:var(--success)"></div><div class="task-info"><div class="task-title">#B-018 Farrowed</div><div class="task-desc">Born alive: 13 · Stillborn: 0</div></div><div class="task-time">Today</div></div>
+          <div class="task"><div class="task-dot" style="background:var(--primary)"></div><div class="task-info"><div class="task-title">#A-048 Heat detected</div><div class="task-desc">Standing heat confirmed</div></div><div class="task-time">Mar 13</div></div>
+          <div class="task"><div class="task-dot" style="background:#3B82F6"></div><div class="task-info"><div class="task-title">Preg Check — 4 sows</div><div class="task-desc">All confirmed positive</div></div><div class="task-time">Mar 12</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+var titles = { mating: '💉 Breeding Record', farrowing: '🐖 Farrowing Record', weaning: '🌱 Weaning Record', treatment: '💊 Treatment Record', weight: '⚖️ Weight Record' };
+function showForm(type) {
+  ['mating','farrowing','weaning','treatment','weight'].forEach(function(t) {
+    document.getElementById('form-' + t).style.display = t === type ? '' : 'none';
+    document.getElementById('btn-' + t).style.background = t === type ? 'var(--primary)' : '';
+    document.getElementById('btn-' + t).style.color = t === type ? '#fff' : '';
+    document.getElementById('btn-' + t).style.borderColor = t === type ? 'var(--primary)' : '';
+  });
+  document.getElementById('form-title').textContent = titles[type];
+}
+// Auto-select from URL
+var p = new URLSearchParams(location.search);
+if (p.get('event')) showForm(p.get('event'));
+</script>
+</body>
+</html>

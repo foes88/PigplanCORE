@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE Lite</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="shell">
+
+<nav class="side">
+  <div class="side-brand">PigPlan<span>CORE</span></div>
+  <a class="on" href="index.html"><span class="i">📋</span> Dashboard</a>
+  <a href="sows.html"><span class="i">🐷</span> Sow Mgmt</a>
+  <a href="record.html"><span class="i">✏️</span> Record Event</a>
+  <a href="kpi.html"><span class="i">📊</span> KPI</a>
+  <div class="side-foot">v1.0 Lite</div>
+</nav>
+
+<div class="main">
+
+  <div class="top">
+    <div>
+      <h1>Today's Operations</h1>
+      <div class="top-meta">2026.03.19 (Thu) · 안성 1농장 · 680 sows</div>
+    </div>
+    <a href="record.html" class="btn">+ Record Event</a>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert-banner critical">
+    <span style="font-size:16px">🚨</span>
+    <div class="alert-text"><strong>#A-042 Farrowing Overdue (D115)</strong> — Expected yesterday. Immediate attention required.</div>
+    <a href="record.html?event=farrowing" class="btn" style="background:var(--danger)">Record</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Breeding Due</div>
+      <div class="stat-val">12</div>
+      <div class="stat-sub">today</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Farrowing Due</div>
+      <div class="stat-val">5</div>
+      <div class="stat-sub down">1 overdue</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Weaning Due</div>
+      <div class="stat-val">3</div>
+      <div class="stat-sub">this week</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">PSY</div>
+      <div class="stat-val">24.3</div>
+      <div class="stat-sub up">+1.2 vs last month</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">NPD</div>
+      <div class="stat-val">38d</div>
+      <div class="stat-sub down">target: 30d</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Health Alerts</div>
+      <div class="stat-val" style="color:var(--danger)">2</div>
+      <div class="stat-sub down">1 critical</div>
+    </div>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="pipe">
+    <a href="record.html?event=mating" class="pipe-item"><div class="pipe-icon">💉</div><div class="pipe-count">12</div><div class="pipe-name">Breeding</div></a>
+    <div class="pipe-item"><div class="pipe-icon">🔍</div><div class="pipe-count">8</div><div class="pipe-name">Preg Check</div></div>
+    <div class="pipe-item active"><div class="pipe-icon">🤰</div><div class="pipe-count">218</div><div class="pipe-name">Gestation</div></div>
+    <a href="record.html?event=farrowing" class="pipe-item"><div class="pipe-icon">🐖</div><div class="pipe-count">5</div><div class="pipe-name">Farrowing</div></a>
+    <div class="pipe-item"><div class="pipe-icon">🍼</div><div class="pipe-count">85</div><div class="pipe-name">Lactation</div></div>
+    <a href="record.html?event=weaning" class="pipe-item"><div class="pipe-icon">🌱</div><div class="pipe-count">3</div><div class="pipe-name">Weaning</div></a>
+  </div>
+
+  <!-- Today's Tasks + Herd Summary -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head">Today's Tasks <span class="tag tag-info">2/7</span></div>
+      <div class="card-body">
+        <div class="task">
+          <div class="task-dot" style="background:var(--success)"></div>
+          <div class="task-info"><div class="task-title" style="text-decoration:line-through;color:var(--text3)">Morning feed — Barn A, B, C</div></div>
+          <div class="task-time">06:30</div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:var(--success)"></div>
+          <div class="task-info"><div class="task-title" style="text-decoration:line-through;color:var(--text3)">Pregnancy check — 4 sows (D28)</div></div>
+          <div class="task-time">08:00</div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:var(--danger)"></div>
+          <div class="task-info">
+            <div class="task-title" style="color:var(--danger);font-weight:600">Farrowing — #A-042 (D115 OVERDUE)</div>
+            <div class="task-desc">Check sow immediately</div>
+          </div>
+          <div class="task-time" style="color:var(--danger)">ASAP</div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:var(--primary)"></div>
+          <div class="task-info">
+            <div class="task-title">Breeding — 12 sows (post-weaning)</div>
+            <div class="task-desc">Barn C · Technician assigned</div>
+          </div>
+          <div class="task-time">15:00</div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:var(--warning)"></div>
+          <div class="task-info">
+            <div class="task-title">Weaning — 3 sows (D21)</div>
+            <div class="task-desc">#A-018, #A-025, #A-039</div>
+          </div>
+          <div class="task-time">PM</div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#3B82F6"></div>
+          <div class="task-info">
+            <div class="task-title">Vaccine — PCV2 batch (32 piglets)</div>
+          </div>
+          <div class="task-time">PM</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">Herd Summary</div>
+      <div class="card-body">
+        <table>
+          <tr><td>Gestating</td><td class="r mono" style="font-weight:700">218</td><td class="r"><span class="tag tag-ok">Normal</span></td></tr>
+          <tr><td>Lactating</td><td class="r mono" style="font-weight:700">85</td><td class="r"><span class="tag tag-ok">Avg D14</span></td></tr>
+          <tr><td>Open / NPD</td><td class="r mono" style="font-weight:700;color:var(--warning)">42</td><td class="r"><span class="tag tag-warn">8 over 30d</span></td></tr>
+          <tr><td>Weaned (waiting)</td><td class="r mono" style="font-weight:700">35</td><td class="r"><span class="tag tag-muted">OK</span></td></tr>
+          <tr><td>Finisher</td><td class="r mono" style="font-weight:700">340</td><td class="r"><span class="tag tag-ok">Ship ready</span></td></tr>
+          <tr><td>Critical</td><td class="r mono" style="font-weight:700;color:var(--danger)">3</td><td class="r"><span class="tag tag-bad">Action</span></td></tr>
+          <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">Total Herd</td><td class="r mono" style="font-weight:700;font-size:14px">680</td><td></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

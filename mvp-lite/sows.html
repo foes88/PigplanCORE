@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE Lite — Sow Management</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="shell">
+
+<nav class="side">
+  <div class="side-brand">PigPlan<span>CORE</span></div>
+  <a href="index.html"><span class="i">📋</span> Dashboard</a>
+  <a class="on" href="sows.html"><span class="i">🐷</span> Sow Mgmt</a>
+  <a href="record.html"><span class="i">✏️</span> Record Event</a>
+  <a href="kpi.html"><span class="i">📊</span> KPI</a>
+  <div class="side-foot">v1.0 Lite</div>
+</nav>
+
+<div class="main">
+
+  <div class="top">
+    <div>
+      <h1>Sow Management</h1>
+      <div class="top-meta">680 sows · Last sync: 5 min ago</div>
+    </div>
+    <a href="record.html" class="btn">+ Record Event</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Total</div><div class="stat-val">680</div></div>
+    <div class="stat"><div class="stat-label">Gestating</div><div class="stat-val">218</div></div>
+    <div class="stat"><div class="stat-label">Lactating</div><div class="stat-val">85</div></div>
+    <div class="stat"><div class="stat-label">Open/NPD</div><div class="stat-val" style="color:var(--warning)">42</div><div class="stat-sub down">8 over 30d</div></div>
+  </div>
+
+  <!-- Filter -->
+  <div class="actions">
+    <button class="act" style="background:var(--primary);color:#fff;border-color:var(--primary)">All (680)</button>
+    <button class="act">Gestating (218)</button>
+    <button class="act">Lactating (85)</button>
+    <button class="act">Open/NPD (42)</button>
+    <button class="act" style="color:var(--danger)">Critical (3)</button>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr><th>Ear Tag</th><th>P</th><th>Status</th><th>Location</th><th>Last Event</th><th>Next Expected</th><th class="r">NPD</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr style="background:var(--danger-light)">
+          <td class="mono" style="font-weight:700">#A-042</td><td>3</td>
+          <td><span class="tag tag-bad">Overdue D115</span></td>
+          <td>분만사B-12</td><td>Mating · Nov 25</td><td style="color:var(--danger);font-weight:600">Farrowing · Mar 18</td>
+          <td class="r">—</td>
+          <td><a href="record.html?event=farrowing" class="btn" style="padding:4px 10px;font-size:10px;background:var(--danger)">Record</a></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-067</td><td>5</td>
+          <td><span class="tag tag-warn">D113</span></td>
+          <td>분만사B-14</td><td>Mating · Nov 27</td><td>Farrowing · Mar 20</td>
+          <td class="r">—</td>
+          <td><span style="font-size:10px;color:var(--primary);font-weight:600">View</span></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-089</td><td>2</td>
+          <td><span class="tag tag-info">D110</span></td>
+          <td>분만사B-08</td><td>Mating · Nov 30</td><td>Farrowing · Mar 23</td>
+          <td class="r">—</td>
+          <td><span style="font-size:10px;color:var(--primary);font-weight:600">View</span></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-001</td><td>4</td>
+          <td><span class="tag tag-ok">D82</span></td>
+          <td>임신사A</td><td>Preg Check + · Jan 20</td><td>Farrowing · Apr 22</td>
+          <td class="r">—</td>
+          <td><span style="font-size:10px;color:var(--primary);font-weight:600">View</span></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-018</td><td>4</td>
+          <td><span class="tag tag-ok">Lactating D21</span></td>
+          <td>분만사B-03</td><td>Farrowed · Feb 26</td><td style="color:var(--warning)">Weaning · Mar 19</td>
+          <td class="r">—</td>
+          <td><a href="record.html?event=weaning" style="font-size:10px;color:var(--primary);font-weight:600">Wean</a></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-025</td><td>3</td>
+          <td><span class="tag tag-ok">Lactating D21</span></td>
+          <td>분만사B-05</td><td>Farrowed · Feb 26</td><td style="color:var(--warning)">Weaning · Mar 19</td>
+          <td class="r">—</td>
+          <td><a href="record.html?event=weaning" style="font-size:10px;color:var(--primary);font-weight:600">Wean</a></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-015</td><td>5</td>
+          <td><span class="tag tag-bad">NPD 42d</span></td>
+          <td>대기사C</td><td>Weaned · Feb 05</td><td>Breeding due</td>
+          <td class="r mono" style="color:var(--danger);font-weight:700">42d</td>
+          <td><a href="record.html?event=mating" style="font-size:10px;color:var(--primary);font-weight:600">Breed</a></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-023</td><td>7</td>
+          <td><span class="tag tag-bad">NPD 38d</span></td>
+          <td>대기사C</td><td>Weaned · Feb 09</td><td>Breeding due</td>
+          <td class="r mono" style="color:var(--danger);font-weight:700">38d</td>
+          <td><span style="font-size:10px;color:var(--warning);font-weight:600">Cull?</span></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-031</td><td>4</td>
+          <td><span class="tag tag-warn">NPD 22d</span></td>
+          <td>대기사C</td><td>Weaned · Feb 25</td><td>Breeding due</td>
+          <td class="r mono" style="color:var(--warning)">22d</td>
+          <td><a href="record.html?event=mating" style="font-size:10px;color:var(--primary);font-weight:600">Breed</a></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-048</td><td>2</td>
+          <td><span class="tag tag-ok">Heat Detected</span></td>
+          <td>교배사D</td><td>Heat · Mar 13</td><td>Breeding ready</td>
+          <td class="r mono">6d</td>
+          <td><a href="record.html?event=mating" style="font-size:10px;color:var(--primary);font-weight:600">Breed</a></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>
