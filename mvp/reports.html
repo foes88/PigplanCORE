@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — Reports</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:24px}
+.report-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:all .15s;cursor:pointer}
+.report-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.rc-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.rc-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.rc-info .rn{font-size:13px;font-weight:700}
+.rc-info .rd{font-size:10px;color:var(--text-3)}
+.rc-desc{font-size:11px;color:var(--text-2);line-height:1.6;margin-bottom:14px}
+.rc-meta{display:flex;gap:16px;font-size:10px;color:var(--text-3)}
+.rc-meta strong{color:var(--text-1)}
+.rc-actions{display:flex;gap:8px;margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
+.rc-actions button{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)}
+.rc-actions button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.recent-table{width:100%;border-collapse:collapse}
+.recent-table th{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text-3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
+.recent-table td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border)}
+.recent-table tr:hover td{background:var(--bg)}
+.section-label{font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div></div>
+  <div class="nav-label">Today</div>
+  <a class="nav-item" href="index.html"><span class="ni">📋</span> Today's Work</a>
+  <a class="nav-item" href="kpi.html"><span class="ni">📊</span> Dashboard</a>
+  <div class="nav-label">Breeding Cycle</div>
+  <a class="nav-item" href="breeding.html"><span class="ni">🔄</span> Pipeline View</a>
+  <a class="nav-item" href="record.html?event=mating"><span class="ni">💉</span> Breeding</a>
+  <a class="nav-item" href="record.html?event=farrowing"><span class="ni">🐖</span> Farrowing</a>
+  <a class="nav-item" href="record.html?event=weaning"><span class="ni">🌱</span> Weaning</a>
+  <div class="nav-label">Management</div>
+  <a class="nav-item" href="sows.html"><span class="ni">🐷</span> Sow Mgmt</a>
+  <a class="nav-item" href="fattening.html"><span class="ni">🐗</span> Fattening</a>
+  <a class="nav-item" href="feed.html"><span class="ni">🌾</span> Feed &amp; Cost</a>
+  <a class="nav-item" href="health.html"><span class="ni">💊</span> Health</a>
+  <a class="nav-item" href="shipment.html"><span class="ni">📦</span> Shipment</a>
+  <div class="nav-label">Intelligence</div>
+  <a class="nav-item" href="ai-insights.html"><span class="ni">🧠</span> AI Insights</a>
+  <a class="nav-item active" href="reports.html"><span class="ni">📋</span> Reports</a>
+  <a class="nav-item" href="settings.html"><span class="ni">⚙️</span> Settings</a>
+  <div class="sidebar-footer">PigPlanCORE v1.0 · © 2026 Wiselake</div>
+</aside>
+
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <h2>Reports</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right">
+    <button class="btn">📅 Mar 2026</button>
+    <div class="settings-dropdown" id="settingsDropdown"><div class="dd-trigger" onclick="toggleSettingsDropdown(event)"><span class="lang-label">🌐 EN</span> ▾</div><div class="dd-menu"><div class="dd-section"><div class="dd-section-label">Language</div><div class="dd-option lang-option active" data-lang="en" onclick="setLang('en')">🇺🇸 English <span class="check">✓</span></div><div class="dd-option lang-option" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어 <span class="check" style="display:none">✓</span></div><div class="dd-option lang-option" data-lang="vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt <span class="check" style="display:none">✓</span></div></div><div class="dd-divider"></div><div class="dd-section"><div class="dd-section-label">Unit System</div><div class="dd-option unit-option active" data-units="METRIC" onclick="setUnits('METRIC')">📏 Metric (kg, °C) <span class="check">✓</span></div><div class="dd-option unit-option" data-units="IMPERIAL" onclick="setUnits('IMPERIAL')">📐 Imperial (lb, °F) <span class="check" style="display:none">✓</span></div></div></div></div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Monthly Reports -->
+  <div class="section-label">Monthly Reports</div>
+  <div class="report-grid">
+    <div class="report-card">
+      <div class="rc-top">
+        <div class="rc-icon" style="background:var(--primary-light)">📊</div>
+        <div class="rc-info"><div class="rn">Monthly KPI Summary</div><div class="rd">Production performance overview</div></div>
+      </div>
+      <div class="rc-desc">PSY, farrowing rate, NPD, mortality, FCR — with trend analysis and benchmark comparison. Includes AI-generated improvement suggestions.</div>
+      <div class="rc-meta"><span>Period: <strong>Mar 2026</strong></span><span>Format: <strong>PDF / Excel</strong></span></div>
+      <div class="rc-actions"><button class="primary">Generate</button><button>Schedule</button></div>
+    </div>
+
+    <div class="report-card">
+      <div class="rc-top">
+        <div class="rc-icon" style="background:var(--accent-light)">💰</div>
+        <div class="rc-info"><div class="rn">Financial Report</div><div class="rd">Revenue, costs & profitability</div></div>
+      </div>
+      <div class="rc-desc">Feed costs, veterinary expenses, labor, shipment revenue, and net margin. Cost-per-pig analysis by production stage.</div>
+      <div class="rc-meta"><span>Period: <strong>Mar 2026</strong></span><span>Format: <strong>PDF / Excel</strong></span></div>
+      <div class="rc-actions"><button class="primary">Generate</button><button>Schedule</button></div>
+    </div>
+
+    <div class="report-card">
+      <div class="rc-top">
+        <div class="rc-icon" style="background:var(--blue-light)">🐷</div>
+        <div class="rc-info"><div class="rn">Herd Inventory Report</div><div class="rd">Complete herd status snapshot</div></div>
+      </div>
+      <div class="rc-desc">Sow inventory by status, parity distribution, age analysis. Fattening pen status, nursery counts. Gilt replacement pipeline.</div>
+      <div class="rc-meta"><span>As of: <strong>Mar 19, 2026</strong></span><span>Format: <strong>PDF / Excel</strong></span></div>
+      <div class="rc-actions"><button class="primary">Generate</button><button>Schedule</button></div>
+    </div>
+  </div>
+
+  <!-- Breeding & Health Reports -->
+  <div class="section-label">Breeding & Health</div>
+  <div class="report-grid">
+    <div class="report-card">
+      <div class="rc-top">
+        <div class="rc-icon" style="background:var(--purple-light)">🔄</div>
+        <div class="rc-info"><div class="rn">Breeding Performance</div><div class="rd">Conception, farrowing & litter analysis</div></div>
+      </div>
+      <div class="rc-desc">Breeding success by boar, technician, and time-of-day. Conception rate trends, repeat breeders, litter size analysis by parity.</div>
+      <div class="rc-meta"><span>Period: <strong>Q1 2026</strong></span><span>Format: <strong>PDF / Excel</strong></span></div>
+      <div class="rc-actions"><button class="primary">Generate</button><button>Schedule</button></div>
+    </div>
+
+    <div class="report-card">
+      <div class="rc-top">
+        <div class="rc-icon" style="background:var(--danger-light)">💊</div>
+        <div class="rc-info"><div class="rn">Health & Mortality Report</div><div class="rd">Disease incidents & treatment log</div></div>
+      </div>
+      <div class="rc-desc">Mortality by stage, cause-of-death analysis, antibiotic usage, vaccination compliance. Disease incident timeline.</div>
+      <div class="rc-meta"><span>Period: <strong>Mar 2026</strong></span><span>Format: <strong>PDF / Excel</strong></span></div>
+      <div class="rc-actions"><button class="primary">Generate</button><button>Schedule</button></div>
+    </div>
+
+    <div class="report-card">
+      <div class="rc-top">
+        <div class="rc-icon" style="background:var(--success-light)">🌾</div>
+        <div class="rc-info"><div class="rn">Feed Efficiency Report</div><div class="rd">FCR analysis & cost optimization</div></div>
+      </div>
+      <div class="rc-desc">FCR by pen, feed consumption vs budget, bin usage tracking, AI optimization impact. Supplier price comparison.</div>
+      <div class="rc-meta"><span>Period: <strong>Mar 2026</strong></span><span>Format: <strong>PDF / Excel</strong></span></div>
+      <div class="rc-actions"><button class="primary">Generate</button><button>Schedule</button></div>
+    </div>
+  </div>
+
+  <!-- Compliance & Government -->
+  <div class="section-label">Compliance & Government</div>
+  <div class="report-grid">
+    <div class="report-card">
+      <div class="rc-top">
+        <div class="rc-icon" style="background:var(--bg)">🏛</div>
+        <div class="rc-info"><div class="rn">Government Livestock Report</div><div class="rd">축산업 허가 관련 보고서</div></div>
+      </div>
+      <div class="rc-desc">Monthly herd count, movement records, mortality report. Formatted for Korean MAFRA (농림축산식품부) submission requirements.</div>
+      <div class="rc-meta"><span>Due: <strong>Mar 31, 2026</strong></span><span>Format: <strong>Official PDF</strong></span></div>
+      <div class="rc-actions"><button class="primary">Generate</button><button>Auto-submit</button></div>
+    </div>
+
+    <div class="report-card">
+      <div class="rc-top">
+        <div class="rc-icon" style="background:var(--bg)">💉</div>
+        <div class="rc-info"><div class="rn">Antibiotic Usage Report</div><div class="rd">항생제 사용 보고서</div></div>
+      </div>
+      <div class="rc-desc">Antibiotic usage log, withdrawal period compliance, AMR (항생제 내성) monitoring. Required for food safety certification.</div>
+      <div class="rc-meta"><span>Period: <strong>Q1 2026</strong></span><span>Format: <strong>Official PDF</strong></span></div>
+      <div class="rc-actions"><button class="primary">Generate</button><button>Schedule</button></div>
+    </div>
+
+    <div class="report-card">
+      <div class="rc-top">
+        <div class="rc-icon" style="background:var(--bg)">📋</div>
+        <div class="rc-info"><div class="rn">Audit Trail Report</div><div class="rd">Data change history</div></div>
+      </div>
+      <div class="rc-desc">Complete audit log of all data modifications, user actions, and system events. For compliance and data integrity verification.</div>
+      <div class="rc-meta"><span>Period: <strong>Custom range</strong></span><span>Format: <strong>CSV / PDF</strong></span></div>
+      <div class="rc-actions"><button class="primary">Generate</button></div>
+    </div>
+  </div>
+
+  <!-- Recently Generated -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">📁 Recently Generated Reports</span></div>
+    <div style="padding:0">
+      <table class="recent-table">
+        <thead><tr><th>Report</th><th>Period</th><th>Generated</th><th>By</th><th>Format</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Monthly KPI Summary</td><td>Feb 2026</td><td>Mar 1, 2026</td><td>Auto (scheduled)</td><td>PDF</td><td><button style="padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--primary);color:#fff;border:none">Download</button></td></tr>
+          <tr><td style="font-weight:600">Financial Report</td><td>Feb 2026</td><td>Mar 2, 2026</td><td>김농장</td><td>Excel</td><td><button style="padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--primary);color:#fff;border:none">Download</button></td></tr>
+          <tr><td style="font-weight:600">Government Livestock Report</td><td>Feb 2026</td><td>Feb 28, 2026</td><td>Auto (scheduled)</td><td>PDF</td><td><button style="padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--primary);color:#fff;border:none">Download</button></td></tr>
+          <tr><td style="font-weight:600">Health & Mortality Report</td><td>Feb 2026</td><td>Mar 1, 2026</td><td>Auto (scheduled)</td><td>PDF</td><td><button style="padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:var(--primary);color:#fff;border:none">Download</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script src="data/mock-data.js"></script>
+<script src="js/shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — Shipment</title>
+<link rel="stylesheet" href="css/global.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+.ship-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:1024px){.ship-row{grid-template-columns:repeat(2,1fr)}}
+.ship-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;border-top:3px solid var(--border)}
+.ship-card .sv{font-family:'JetBrains Mono';font-size:22px;font-weight:700}
+.ship-card .sl{font-size:10px;color:var(--text-3);margin-top:2px}
+.ship-card .sc{font-family:'JetBrains Mono';font-size:10px;margin-top:4px}
+.ship-table{width:100%;border-collapse:collapse}
+.ship-table th{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text-3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
+.ship-table td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border)}
+.ship-table tr:hover td{background:var(--bg)}
+.ship-table td.r{text-align:right;font-family:'JetBrains Mono';font-size:11px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:1024px){.two-col{grid-template-columns:1fr}}
+.chart-wrap{height:220px;position:relative}
+.buyer-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.buyer-item:last-child{border-bottom:none}
+.buyer-avatar{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.buyer-info{flex:1}
+.buyer-info .bn{font-size:12px;font-weight:600}
+.buyer-info .bd{font-size:10px;color:var(--text-3)}
+.buyer-value{text-align:right}
+.buyer-value .bv{font-family:'JetBrains Mono';font-size:14px;font-weight:700}
+.buyer-value .bs{font-size:9px;color:var(--text-3)}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div></div>
+  <div class="nav-label">Today</div>
+  <a class="nav-item" href="index.html"><span class="ni">📋</span> Today's Work</a>
+  <a class="nav-item" href="kpi.html"><span class="ni">📊</span> Dashboard</a>
+  <div class="nav-label">Breeding Cycle</div>
+  <a class="nav-item" href="breeding.html"><span class="ni">🔄</span> Pipeline View</a>
+  <a class="nav-item" href="record.html?event=mating"><span class="ni">💉</span> Breeding</a>
+  <a class="nav-item" href="record.html?event=farrowing"><span class="ni">🐖</span> Farrowing</a>
+  <a class="nav-item" href="record.html?event=weaning"><span class="ni">🌱</span> Weaning</a>
+  <div class="nav-label">Management</div>
+  <a class="nav-item" href="sows.html"><span class="ni">🐷</span> Sow Mgmt</a>
+  <a class="nav-item" href="fattening.html"><span class="ni">🐗</span> Fattening</a>
+  <a class="nav-item" href="feed.html"><span class="ni">🌾</span> Feed &amp; Cost</a>
+  <a class="nav-item" href="health.html"><span class="ni">💊</span> Health</a>
+  <a class="nav-item active" href="shipment.html"><span class="ni">📦</span> Shipment</a>
+  <div class="nav-label">Intelligence</div>
+  <a class="nav-item" href="ai-insights.html"><span class="ni">🧠</span> AI Insights</a>
+  <a class="nav-item" href="reports.html"><span class="ni">📋</span> Reports</a>
+  <a class="nav-item" href="settings.html"><span class="ni">⚙️</span> Settings</a>
+  <div class="sidebar-footer">PigPlanCORE v1.0 · © 2026 Wiselake</div>
+</aside>
+
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <h2>Shipment Management</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right">
+    <button class="btn">📅 Mar 2026</button>
+    <button class="btn">⬇ Export</button>
+    <div class="settings-dropdown" id="settingsDropdown"><div class="dd-trigger" onclick="toggleSettingsDropdown(event)"><span class="lang-label">🌐 EN</span> ▾</div><div class="dd-menu"><div class="dd-section"><div class="dd-section-label">Language</div><div class="dd-option lang-option active" data-lang="en" onclick="setLang('en')">🇺🇸 English <span class="check">✓</span></div><div class="dd-option lang-option" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어 <span class="check" style="display:none">✓</span></div><div class="dd-option lang-option" data-lang="vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt <span class="check" style="display:none">✓</span></div></div><div class="dd-divider"></div><div class="dd-section"><div class="dd-section-label">Unit System</div><div class="dd-option unit-option active" data-units="METRIC" onclick="setUnits('METRIC')">📏 Metric (kg, °C) <span class="check">✓</span></div><div class="dd-option unit-option" data-units="IMPERIAL" onclick="setUnits('IMPERIAL')">📐 Imperial (lb, °F) <span class="check" style="display:none">✓</span></div></div></div></div>
+    <a href="record.html?event=shipment" class="btn btn-primary">＋ New Shipment</a>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Summary -->
+  <div class="ship-row">
+    <div class="ship-card" style="border-top-color:var(--primary)">
+      <div class="sv">58</div>
+      <div class="sl">Ship Ready (110+ kg)</div>
+      <div class="sc" style="color:var(--success)">Pen F-01 — Avg 112 kg</div>
+    </div>
+    <div class="ship-card" style="border-top-color:var(--accent)">
+      <div class="sv">₩298M</div>
+      <div class="sl">Revenue This Month</div>
+      <div class="sc" style="color:var(--success)">▲ +8.2% vs last month</div>
+    </div>
+    <div class="ship-card" style="border-top-color:var(--blue)">
+      <div class="sv">₩5,140</div>
+      <div class="sl">Avg Market Price / kg</div>
+      <div class="sc" style="color:var(--success)">▲ +120 vs last week</div>
+    </div>
+    <div class="ship-card" style="border-top-color:var(--success)">
+      <div class="sv">3</div>
+      <div class="sl">Shipments This Month</div>
+      <div class="sc">Next: Mar 22 (Pen F-01)</div>
+    </div>
+  </div>
+
+  <!-- Upcoming & Recent Shipments -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><span class="card-title">📦 Shipment Schedule</span></div>
+    <div style="padding:0">
+      <table class="ship-table">
+        <thead><tr><th>Date</th><th>Source</th><th class="r">Head</th><th class="r">Avg Weight</th><th>Buyer</th><th class="r">Price/kg</th><th class="r">Total Revenue</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr style="background:var(--primary-light)"><td style="font-weight:700">Mar 22</td><td>Pen F-01</td><td class="r" style="font-weight:700">58</td><td class="r">112 kg</td><td>한돈 유통</td><td class="r">₩5,140</td><td class="r" style="font-weight:700">₩33.4M</td><td><span class="pill" style="background:var(--primary-light);color:var(--primary)">Scheduled</span></td></tr>
+          <tr><td>Mar 14</td><td>Pen F-07 (prev)</td><td class="r">55</td><td class="r">108 kg</td><td>CJ 프레시웨이</td><td class="r">₩5,020</td><td class="r">₩29.8M</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr><td>Mar 08</td><td>Cull sows (5)</td><td class="r">5</td><td class="r">185 kg</td><td>안성 도축장</td><td class="r">₩2,800</td><td class="r">₩2.6M</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr><td>Mar 03</td><td>Pen F-08 (prev)</td><td class="r">60</td><td class="r">115 kg</td><td>롯데푸드</td><td class="r">₩5,080</td><td class="r">₩35.1M</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr><td>Feb 25</td><td>Pen F-09 (prev)</td><td class="r">52</td><td class="r">110 kg</td><td>한돈 유통</td><td class="r">₩4,950</td><td class="r">₩28.3M</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <!-- Revenue Chart -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Monthly Revenue</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chartRevenue"></canvas></div></div>
+    </div>
+
+    <!-- Buyers -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Top Buyers (YTD)</span></div>
+      <div class="card-body">
+        <div class="buyer-item">
+          <div class="buyer-avatar" style="background:var(--primary-light)">🏢</div>
+          <div class="buyer-info"><div class="bn">한돈 유통</div><div class="bd">Regular buyer · 12 shipments YTD</div></div>
+          <div class="buyer-value"><div class="bv">₩385M</div><div class="bs">42% of revenue</div></div>
+        </div>
+        <div class="buyer-item">
+          <div class="buyer-avatar" style="background:var(--blue-light)">🏢</div>
+          <div class="buyer-info"><div class="bn">CJ 프레시웨이</div><div class="bd">Contract buyer · 8 shipments YTD</div></div>
+          <div class="buyer-value"><div class="bv">₩268M</div><div class="bs">29% of revenue</div></div>
+        </div>
+        <div class="buyer-item">
+          <div class="buyer-avatar" style="background:var(--accent-light)">🏢</div>
+          <div class="buyer-info"><div class="bn">롯데푸드</div><div class="bd">Spot buyer · 5 shipments YTD</div></div>
+          <div class="buyer-value"><div class="bv">₩178M</div><div class="bs">19% of revenue</div></div>
+        </div>
+        <div class="buyer-item">
+          <div class="buyer-avatar" style="background:var(--bg)">🏪</div>
+          <div class="buyer-info"><div class="bn">기타 (안성 도축장 등)</div><div class="bd">Cull sows + spot sales</div></div>
+          <div class="buyer-value"><div class="bv">₩92M</div><div class="bs">10% of revenue</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Market Price -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">📈 Market Price Trend (돼지 도매가)</span></div>
+    <div class="card-body"><div class="chart-wrap"><canvas id="chartPrice"></canvas></div></div>
+  </div>
+
+</main>
+
+<script>
+var cc = { primary: '#0D7C66', accent: '#E8820E', danger: '#DC2626', blue: '#2563EB', gray: '#94A3B8', border: '#E2E8F0' };
+var months = ['Oct','Nov','Dec','Jan','Feb','Mar'];
+
+new Chart(document.getElementById('chartRevenue'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Revenue (₩M)', data: [245,268,282,255,275,298],
+      backgroundColor: 'rgba(13,124,102,.6)', borderRadius: 6
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { min: 200, max: 350, grid: { color: cc.border }, ticks: { font: { size: 10, family: 'JetBrains Mono' }, callback: v => '₩'+v+'M' } }, x: { grid: { display: false } } }
+  }
+});
+
+var weeks = ['W1 Jan','W2','W3','W4','W1 Feb','W2','W3','W4','W1 Mar','W2','W3','W4'];
+new Chart(document.getElementById('chartPrice'), {
+  type: 'line',
+  data: {
+    labels: weeks,
+    datasets: [{
+      label: 'Market Price (₩/kg)', data: [4850,4880,4920,4890,4950,4980,5010,5020,5050,5080,5020,5140],
+      borderColor: cc.primary, backgroundColor: 'rgba(13,124,102,.08)', fill: true, tension: .4, borderWidth: 2, pointRadius: 3
+    },{
+      label: 'My Avg Sell Price', data: [4800,4830,4870,4850,4900,4940,4980,4990,5020,5060,5000,5100],
+      borderColor: cc.accent, borderDash: [4,4], tension: .4, borderWidth: 2, pointRadius: 3, fill: false
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 10 }, usePointStyle: true } } },
+    scales: { y: { min: 4700, max: 5300, grid: { color: cc.border }, ticks: { font: { size: 10, family: 'JetBrains Mono' }, callback: v => '₩'+v.toLocaleString() } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } }
+  }
+});
+</script>
+<script src="data/mock-data.js"></script>
+<script src="js/shared.js"></script>
+</body>
+</html>

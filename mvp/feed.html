@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — Feed & Cost</title>
+<link rel="stylesheet" href="css/global.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+.cost-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:1024px){.cost-row{grid-template-columns:repeat(2,1fr)}}
+.cost-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;border-top:3px solid var(--border)}
+.cost-card .cv{font-family:'JetBrains Mono';font-size:22px;font-weight:700}
+.cost-card .cl{font-size:10px;color:var(--text-3);margin-top:2px}
+.cost-card .cc{font-family:'JetBrains Mono';font-size:10px;margin-top:4px}
+.bin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+.bin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.bin-name{font-weight:700;font-size:12px;margin-bottom:8px}
+.bin-gauge{width:80px;height:80px;border-radius:50%;border:6px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;position:relative}
+.bin-gauge .pct{font-family:'JetBrains Mono';font-size:18px;font-weight:700}
+.bin-info{font-size:10px;color:var(--text-3)}
+.bin-info strong{color:var(--text-1)}
+.feed-table{width:100%;border-collapse:collapse}
+.feed-table th{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text-3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
+.feed-table td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border)}
+.feed-table tr:hover td{background:var(--bg)}
+.feed-table td.r{text-align:right;font-family:'JetBrains Mono';font-size:11px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:1024px){.chart-grid{grid-template-columns:1fr}}
+.chart-wrap{height:220px;position:relative}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div></div>
+  <div class="nav-label">Today</div>
+  <a class="nav-item" href="index.html"><span class="ni">📋</span> Today's Work</a>
+  <a class="nav-item" href="kpi.html"><span class="ni">📊</span> Dashboard</a>
+  <div class="nav-label">Breeding Cycle</div>
+  <a class="nav-item" href="breeding.html"><span class="ni">🔄</span> Pipeline View</a>
+  <a class="nav-item" href="record.html?event=mating"><span class="ni">💉</span> Breeding</a>
+  <a class="nav-item" href="record.html?event=farrowing"><span class="ni">🐖</span> Farrowing</a>
+  <a class="nav-item" href="record.html?event=weaning"><span class="ni">🌱</span> Weaning</a>
+  <div class="nav-label">Management</div>
+  <a class="nav-item" href="sows.html"><span class="ni">🐷</span> Sow Mgmt</a>
+  <a class="nav-item" href="fattening.html"><span class="ni">🐗</span> Fattening</a>
+  <a class="nav-item active" href="feed.html"><span class="ni">🌾</span> Feed &amp; Cost</a>
+  <a class="nav-item" href="health.html"><span class="ni">💊</span> Health</a>
+  <a class="nav-item" href="shipment.html"><span class="ni">📦</span> Shipment</a>
+  <div class="nav-label">Intelligence</div>
+  <a class="nav-item" href="ai-insights.html"><span class="ni">🧠</span> AI Insights</a>
+  <a class="nav-item" href="reports.html"><span class="ni">📋</span> Reports</a>
+  <a class="nav-item" href="settings.html"><span class="ni">⚙️</span> Settings</a>
+  <div class="sidebar-footer">PigPlanCORE v1.0 · © 2026 Wiselake</div>
+</aside>
+
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <h2>Feed & Cost Management</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right">
+    <button class="btn">📅 Mar 2026</button>
+    <button class="btn">⬇ Export</button>
+    <div class="settings-dropdown" id="settingsDropdown"><div class="dd-trigger" onclick="toggleSettingsDropdown(event)"><span class="lang-label">🌐 EN</span> ▾</div><div class="dd-menu"><div class="dd-section"><div class="dd-section-label">Language</div><div class="dd-option lang-option active" data-lang="en" onclick="setLang('en')">🇺🇸 English <span class="check">✓</span></div><div class="dd-option lang-option" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어 <span class="check" style="display:none">✓</span></div><div class="dd-option lang-option" data-lang="vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt <span class="check" style="display:none">✓</span></div></div><div class="dd-divider"></div><div class="dd-section"><div class="dd-section-label">Unit System</div><div class="dd-option unit-option active" data-units="METRIC" onclick="setUnits('METRIC')">📏 Metric (kg, °C) <span class="check">✓</span></div><div class="dd-option unit-option" data-units="IMPERIAL" onclick="setUnits('IMPERIAL')">📐 Imperial (lb, °F) <span class="check" style="display:none">✓</span></div></div></div></div>
+    <a href="record.html" class="btn btn-primary">＋ Record</a>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Cost Summary -->
+  <div class="cost-row">
+    <div class="cost-card" style="border-top-color:var(--primary)">
+      <div class="cv">₩48.2M</div>
+      <div class="cl">Monthly Feed Cost</div>
+      <div class="cc" style="color:var(--success)">▼ -3.2% vs last month</div>
+    </div>
+    <div class="cost-card" style="border-top-color:var(--accent)">
+      <div class="cv">₩142K</div>
+      <div class="cl">Cost per Head / Month</div>
+      <div class="cc" style="color:var(--text-3)">Target: ₩135K</div>
+    </div>
+    <div class="cost-card" style="border-top-color:var(--blue)">
+      <div class="cv">12.8 ton</div>
+      <div class="cl">Daily Consumption</div>
+      <div class="cc" style="color:var(--text-3)">Avg 2.6 kg/head/day</div>
+    </div>
+    <div class="cost-card" style="border-top-color:var(--success)">
+      <div class="cv">₩840K</div>
+      <div class="cl">AI Savings This Month</div>
+      <div class="cc" style="color:var(--purple)">🧠 Ration optimization applied</div>
+    </div>
+  </div>
+
+  <!-- Feed Bins -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><span class="card-title">🏗 Feed Bin Status</span><span class="card-badge" style="background:var(--danger-light);color:var(--danger)">1 low</span></div>
+  </div>
+  <div class="bin-grid">
+    <div class="bin-card">
+      <div class="bin-name">Bin #1 — Sow Feed</div>
+      <div class="bin-gauge" style="border-color:var(--success)"><span class="pct" style="color:var(--success)">72%</span></div>
+      <div class="bin-info"><strong>5.4 ton</strong> / 7.5 ton capacity<br>Est. 8 days remaining</div>
+    </div>
+    <div class="bin-card">
+      <div class="bin-name">Bin #2 — Grower Feed</div>
+      <div class="bin-gauge" style="border-color:var(--accent)"><span class="pct" style="color:var(--accent)">45%</span></div>
+      <div class="bin-info"><strong>3.4 ton</strong> / 7.5 ton capacity<br>Est. 4 days remaining</div>
+    </div>
+    <div class="bin-card" style="border:1px solid var(--danger)">
+      <div class="bin-name" style="color:var(--danger)">Bin #3 — Finisher Feed ⚠</div>
+      <div class="bin-gauge" style="border-color:var(--danger)"><span class="pct" style="color:var(--danger)">8%</span></div>
+      <div class="bin-info"><strong>0.6 ton</strong> / 7.5 ton capacity<br><strong style="color:var(--danger)">Delivery today 4PM</strong></div>
+    </div>
+    <div class="bin-card">
+      <div class="bin-name">Bin #4 — Nursery Feed</div>
+      <div class="bin-gauge" style="border-color:var(--success)"><span class="pct" style="color:var(--success)">88%</span></div>
+      <div class="bin-info"><strong>4.4 ton</strong> / 5.0 ton capacity<br>Est. 12 days remaining</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Monthly Feed Cost Trend</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chartCost"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Cost Breakdown by Category</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chartBreakdown"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- Feed Schedule -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">📋 Feed Schedule — Today</span></div>
+    <div style="padding:0">
+      <table class="feed-table">
+        <thead><tr><th>Time</th><th>Barn / Group</th><th>Feed Type</th><th class="r">Amount</th><th class="r">Cost</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>06:00</td><td>Barn A — Gestating (218 sows)</td><td>Sow Gestation Feed</td><td class="r">567 kg</td><td class="r">₩283K</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr><td>06:30</td><td>Barn B — Lactating (85 sows)</td><td>Sow Lactation Feed</td><td class="r">510 kg</td><td class="r">₩280K</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr><td>07:00</td><td>Nursery (120 piglets)</td><td>Nursery Starter</td><td class="r">84 kg</td><td class="r">₩67K</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr><td>07:30</td><td>Pen F-01~F-06 (340 head)</td><td>Finisher Feed</td><td class="r">884 kg</td><td class="r">₩398K</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr style="background:var(--primary-light)"><td>12:00</td><td>Barn B — Lactating (85 sows)</td><td>Sow Lactation Feed</td><td class="r">340 kg</td><td class="r">₩187K</td><td><span class="pill" style="background:var(--blue-light);color:var(--blue)">Scheduled</span></td></tr>
+          <tr><td>17:00</td><td>All barns — Evening round</td><td>Mixed</td><td class="r">1,420 kg</td><td class="r">₩695K</td><td><span class="pill" style="background:var(--bg);color:var(--text-3)">Pending</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+var cc = { primary: '#0D7C66', accent: '#E8820E', danger: '#DC2626', blue: '#2563EB', purple: '#7C3AED', gray: '#94A3B8', border: '#E2E8F0' };
+var months = ['Oct','Nov','Dec','Jan','Feb','Mar'];
+
+new Chart(document.getElementById('chartCost'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Feed Cost (₩M)', data: [51.2,50.8,52.1,49.8,49.6,48.2],
+      backgroundColor: 'rgba(13,124,102,.6)', borderRadius: 6
+    },{
+      label: 'Budget', data: [52,52,52,50,50,50],
+      type: 'line', borderColor: cc.gray, borderDash: [4,4], borderWidth: 1, pointRadius: 0, fill: false
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 10 }, usePointStyle: true } } },
+    scales: { y: { min: 40, max: 60, grid: { color: cc.border }, ticks: { font: { size: 10, family: 'JetBrains Mono' }, callback: v => '₩'+v+'M' } }, x: { grid: { display: false } } }
+  }
+});
+
+new Chart(document.getElementById('chartBreakdown'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Sow Feed (38%)','Finisher Feed (35%)','Nursery Feed (12%)','Supplements (8%)','Other (7%)'],
+    datasets: [{
+      data: [38,35,12,8,7],
+      backgroundColor: [cc.primary,'rgba(13,124,102,.5)',cc.accent,cc.blue,cc.gray],
+      borderWidth: 2, borderColor: '#fff'
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'right', labels: { font: { size: 10 }, padding: 12, usePointStyle: true } } }
+  }
+});
+</script>
+<script src="data/mock-data.js"></script>
+<script src="js/shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — Fattening</title>
+<link rel="stylesheet" href="css/global.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:1024px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;border-left:4px solid var(--border)}
+.stat-card .sv{font-family:'JetBrains Mono';font-size:22px;font-weight:700}
+.stat-card .sl{font-size:10px;color:var(--text-3);margin-top:2px}
+.stat-card .sc{font-family:'JetBrains Mono';font-size:10px;margin-top:4px}
+.pen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.pen-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .15s}
+.pen-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.pen-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.pen-name{font-weight:700;font-size:13px}
+.pen-status{font-size:9px;font-weight:600;padding:3px 8px;border-radius:4px}
+.pen-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.pen-stat{text-align:center;padding:8px;background:var(--bg);border-radius:8px}
+.pen-stat .pv{font-family:'JetBrains Mono';font-size:14px;font-weight:700}
+.pen-stat .pl{font-size:9px;color:var(--text-3)}
+.pen-bar{height:6px;background:var(--border);border-radius:3px;margin-top:8px}
+.pen-bar .fill{height:100%;border-radius:3px;transition:width .3s}
+.pen-days{display:flex;justify-content:space-between;font-size:9px;color:var(--text-3);margin-top:4px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1024px){.chart-grid{grid-template-columns:1fr}}
+.chart-wrap{height:220px;position:relative}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div></div>
+  <div class="nav-label">Today</div>
+  <a class="nav-item" href="index.html"><span class="ni">📋</span> Today's Work</a>
+  <a class="nav-item" href="kpi.html"><span class="ni">📊</span> Dashboard</a>
+  <div class="nav-label">Breeding Cycle</div>
+  <a class="nav-item" href="breeding.html"><span class="ni">🔄</span> Pipeline View</a>
+  <a class="nav-item" href="record.html?event=mating"><span class="ni">💉</span> Breeding</a>
+  <a class="nav-item" href="record.html?event=farrowing"><span class="ni">🐖</span> Farrowing</a>
+  <a class="nav-item" href="record.html?event=weaning"><span class="ni">🌱</span> Weaning</a>
+  <div class="nav-label">Management</div>
+  <a class="nav-item" href="sows.html"><span class="ni">🐷</span> Sow Mgmt</a>
+  <a class="nav-item active" href="fattening.html"><span class="ni">🐗</span> Fattening</a>
+  <a class="nav-item" href="feed.html"><span class="ni">🌾</span> Feed &amp; Cost</a>
+  <a class="nav-item" href="health.html"><span class="ni">💊</span> Health</a>
+  <a class="nav-item" href="shipment.html"><span class="ni">📦</span> Shipment</a>
+  <div class="nav-label">Intelligence</div>
+  <a class="nav-item" href="ai-insights.html"><span class="ni">🧠</span> AI Insights</a>
+  <a class="nav-item" href="reports.html"><span class="ni">📋</span> Reports</a>
+  <a class="nav-item" href="settings.html"><span class="ni">⚙️</span> Settings</a>
+  <div class="sidebar-footer">PigPlanCORE v1.0 · © 2026 Wiselake</div>
+</aside>
+
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <h2>Fattening Management</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right">
+    <span class="top-date">2026.03.19 (Thu)</span>
+    <div class="settings-dropdown" id="settingsDropdown"><div class="dd-trigger" onclick="toggleSettingsDropdown(event)"><span class="lang-label">🌐 EN</span> ▾</div><div class="dd-menu"><div class="dd-section"><div class="dd-section-label">Language</div><div class="dd-option lang-option active" data-lang="en" onclick="setLang('en')">🇺🇸 English <span class="check">✓</span></div><div class="dd-option lang-option" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어 <span class="check" style="display:none">✓</span></div><div class="dd-option lang-option" data-lang="vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt <span class="check" style="display:none">✓</span></div></div><div class="dd-divider"></div><div class="dd-section"><div class="dd-section-label">Unit System</div><div class="dd-option unit-option active" data-units="METRIC" onclick="setUnits('METRIC')">📏 Metric (kg, °C) <span class="check">✓</span></div><div class="dd-option unit-option" data-units="IMPERIAL" onclick="setUnits('IMPERIAL')">📐 Imperial (lb, °F) <span class="check" style="display:none">✓</span></div></div></div></div>
+    <a href="record.html" class="btn btn-primary">＋ Record</a>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Summary Stats -->
+  <div class="stat-row">
+    <div class="stat-card" style="border-left-color:var(--primary)">
+      <div class="sv">340</div>
+      <div class="sl">Total Fattening Pigs</div>
+      <div class="sc" style="color:var(--success)">▲ +45 from nursery this week</div>
+    </div>
+    <div class="stat-card" style="border-left-color:var(--accent)">
+      <div class="sv">82.5 kg</div>
+      <div class="sl">Average Weight</div>
+      <div class="sc" style="color:var(--success)">▲ +0.78 kg/day ADG</div>
+    </div>
+    <div class="stat-card" style="border-left-color:var(--blue)">
+      <div class="sv">2.68</div>
+      <div class="sl">FCR (Feed Conversion Ratio)</div>
+      <div class="sc" style="color:var(--success)">Target: 2.60</div>
+    </div>
+    <div class="stat-card" style="border-left-color:var(--danger)">
+      <div class="sv">1.2%</div>
+      <div class="sl">Mortality Rate (30d)</div>
+      <div class="sc" style="color:var(--success)">▲ Below benchmark 2%</div>
+    </div>
+  </div>
+
+  <!-- Pen Cards -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><span class="card-title">🐗 Pen Overview</span><span class="card-badge" style="background:var(--primary-light);color:var(--primary)">6 pens active</span></div>
+  </div>
+
+  <div class="pen-grid">
+    <div class="pen-card">
+      <div class="pen-header">
+        <div class="pen-name">Pen F-01</div>
+        <div class="pen-status" style="background:var(--success-light);color:var(--success)">Ship Ready</div>
+      </div>
+      <div class="pen-stats">
+        <div class="pen-stat"><div class="pv">58</div><div class="pl">Head</div></div>
+        <div class="pen-stat"><div class="pv">112 kg</div><div class="pl">Avg Weight</div></div>
+        <div class="pen-stat"><div class="pv">2.61</div><div class="pl">FCR</div></div>
+      </div>
+      <div class="pen-bar"><div class="fill" style="width:100%;background:var(--success)"></div></div>
+      <div class="pen-days"><span>D0 (Entry)</span><span style="font-weight:700;color:var(--success)">D165 — Ready</span><span>D170 (Target)</span></div>
+    </div>
+
+    <div class="pen-card">
+      <div class="pen-header">
+        <div class="pen-name">Pen F-02</div>
+        <div class="pen-status" style="background:var(--accent-light);color:var(--accent)">Growing</div>
+      </div>
+      <div class="pen-stats">
+        <div class="pen-stat"><div class="pv">62</div><div class="pl">Head</div></div>
+        <div class="pen-stat"><div class="pv">95 kg</div><div class="pl">Avg Weight</div></div>
+        <div class="pen-stat"><div class="pv">2.65</div><div class="pl">FCR</div></div>
+      </div>
+      <div class="pen-bar"><div class="fill" style="width:82%;background:var(--accent)"></div></div>
+      <div class="pen-days"><span>D0</span><span>D140</span><span>D170</span></div>
+    </div>
+
+    <div class="pen-card">
+      <div class="pen-header">
+        <div class="pen-name">Pen F-03</div>
+        <div class="pen-status" style="background:var(--accent-light);color:var(--accent)">Growing</div>
+      </div>
+      <div class="pen-stats">
+        <div class="pen-stat"><div class="pv">60</div><div class="pl">Head</div></div>
+        <div class="pen-stat"><div class="pv">78 kg</div><div class="pl">Avg Weight</div></div>
+        <div class="pen-stat"><div class="pv">2.72</div><div class="pl">FCR</div></div>
+      </div>
+      <div class="pen-bar"><div class="fill" style="width:65%;background:var(--primary)"></div></div>
+      <div class="pen-days"><span>D0</span><span>D110</span><span>D170</span></div>
+    </div>
+
+    <div class="pen-card">
+      <div class="pen-header">
+        <div class="pen-name">Pen F-04</div>
+        <div class="pen-status" style="background:var(--blue-light);color:var(--blue)">Starter</div>
+      </div>
+      <div class="pen-stats">
+        <div class="pen-stat"><div class="pv">55</div><div class="pl">Head</div></div>
+        <div class="pen-stat"><div class="pv">45 kg</div><div class="pl">Avg Weight</div></div>
+        <div class="pen-stat"><div class="pv">2.80</div><div class="pl">FCR</div></div>
+      </div>
+      <div class="pen-bar"><div class="fill" style="width:35%;background:var(--blue)"></div></div>
+      <div class="pen-days"><span>D0</span><span>D60</span><span>D170</span></div>
+    </div>
+
+    <div class="pen-card">
+      <div class="pen-header">
+        <div class="pen-name">Pen F-05</div>
+        <div class="pen-status" style="background:var(--blue-light);color:var(--blue)">Starter</div>
+      </div>
+      <div class="pen-stats">
+        <div class="pen-stat"><div class="pv">60</div><div class="pl">Head</div></div>
+        <div class="pen-stat"><div class="pv">32 kg</div><div class="pl">Avg Weight</div></div>
+        <div class="pen-stat"><div class="pv">3.01</div><div class="pl">FCR</div></div>
+      </div>
+      <div class="pen-bar"><div class="fill" style="width:18%;background:var(--blue)"></div></div>
+      <div class="pen-days"><span>D0</span><span>D30</span><span>D170</span></div>
+    </div>
+
+    <div class="pen-card">
+      <div class="pen-header">
+        <div class="pen-name">Pen F-06</div>
+        <div class="pen-status" style="background:var(--danger-light);color:var(--danger)">Alert</div>
+      </div>
+      <div class="pen-stats">
+        <div class="pen-stat"><div class="pv">45</div><div class="pl">Head</div></div>
+        <div class="pen-stat"><div class="pv">88 kg</div><div class="pl">Avg Weight</div></div>
+        <div class="pen-stat"><div class="pv" style="color:var(--danger)">3.15</div><div class="pl">FCR</div></div>
+      </div>
+      <div class="pen-bar"><div class="fill" style="width:75%;background:var(--danger)"></div></div>
+      <div class="pen-days"><span>D0</span><span style="color:var(--danger)">D128 — FCR high</span><span>D170</span></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Weight Growth Curve</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chartGrowth"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">FCR by Pen</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chartFCR"></canvas></div></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+var cc = { primary: '#0D7C66', accent: '#E8820E', danger: '#DC2626', blue: '#2563EB', purple: '#7C3AED', gray: '#94A3B8', border: '#E2E8F0' };
+
+new Chart(document.getElementById('chartGrowth'), {
+  type: 'line',
+  data: {
+    labels: ['D0','D20','D40','D60','D80','D100','D120','D140','D160','D170'],
+    datasets: [{
+      label: 'Pen F-01 (actual)', data: [25,35,48,62,75,88,98,106,111,112],
+      borderColor: cc.primary, backgroundColor: 'rgba(13,124,102,.08)', fill: true, tension: .4, borderWidth: 2, pointRadius: 3
+    },{
+      label: 'Pen F-06 (slow)', data: [25,33,44,56,65,73,80,88,null,null],
+      borderColor: cc.danger, borderDash: [4,4], tension: .4, borderWidth: 2, pointRadius: 3, fill: false
+    },{
+      label: 'Target curve', data: [25,36,50,64,77,89,99,107,113,115],
+      borderColor: cc.gray, borderDash: [6,3], borderWidth: 1, pointRadius: 0, fill: false
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 10 }, usePointStyle: true } } },
+    scales: { y: { min: 0, max: 130, grid: { color: cc.border }, ticks: { font: { size: 10, family: 'JetBrains Mono' }, callback: v => v + ' kg' } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } }
+  }
+});
+
+new Chart(document.getElementById('chartFCR'), {
+  type: 'bar',
+  data: {
+    labels: ['F-01','F-02','F-03','F-04','F-05','F-06'],
+    datasets: [{
+      label: 'FCR', data: [2.61,2.65,2.72,2.80,3.01,3.15],
+      backgroundColor: ['rgba(13,124,102,.7)','rgba(13,124,102,.7)','rgba(232,130,14,.7)','rgba(37,99,235,.7)','rgba(37,99,235,.7)','rgba(220,38,38,.7)'],
+      borderRadius: 6
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+    plugins: { legend: { display: false },
+      annotation: { annotations: { target: { type: 'line', xMin: 2.60, xMax: 2.60, borderColor: cc.gray, borderDash: [4,4], borderWidth: 1 } } }
+    },
+    scales: { x: { min: 2.4, max: 3.3, grid: { color: cc.border }, ticks: { font: { size: 10, family: 'JetBrains Mono' } } }, y: { grid: { display: false }, ticks: { font: { size: 11, weight: 600 } } } }
+  }
+});
+</script>
+<script src="data/mock-data.js"></script>
+<script src="js/shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — Health</title>
+<link rel="stylesheet" href="css/global.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+.health-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:1024px){.health-row{grid-template-columns:repeat(2,1fr)}}
+.h-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;border-left:4px solid var(--border)}
+.h-card .hv{font-family:'JetBrains Mono';font-size:22px;font-weight:700}
+.h-card .hl{font-size:10px;color:var(--text-3);margin-top:2px}
+.h-card .hc{font-family:'JetBrains Mono';font-size:10px;margin-top:4px}
+.alert-banner{background:linear-gradient(135deg,#FEF2F2,#FFF);border:1px solid #FECACA;border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start}
+.alert-banner .ab-icon{font-size:24px;flex-shrink:0}
+.alert-banner .ab-title{font-weight:700;color:var(--danger);font-size:13px;margin-bottom:4px}
+.alert-banner .ab-desc{font-size:11px;color:var(--text-2);line-height:1.6}
+.alert-banner .ab-actions{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.alert-banner .ab-actions button{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer}
+.alert-banner .ab-actions .primary{background:var(--danger);color:#fff;border:none}
+.alert-banner .ab-actions .secondary{background:var(--surface);color:var(--text-2);border:1px solid var(--border)}
+.vacc-table,.treat-table{width:100%;border-collapse:collapse}
+.vacc-table th,.treat-table th{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text-3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
+.vacc-table td,.treat-table td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border)}
+.vacc-table tr:hover td,.treat-table tr:hover td{background:var(--bg)}
+.vacc-table td.r,.treat-table td.r{text-align:right;font-family:'JetBrains Mono';font-size:11px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:1024px){.two-col{grid-template-columns:1fr}}
+.chart-wrap{height:220px;position:relative}
+.disease-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.disease-item:last-child{border-bottom:none}
+.disease-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.disease-info{flex:1}
+.disease-info .dn{font-size:12px;font-weight:600}
+.disease-info .dd{font-size:10px;color:var(--text-3)}
+.disease-count{font-family:'JetBrains Mono';font-size:14px;font-weight:700}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div></div>
+  <div class="nav-label">Today</div>
+  <a class="nav-item" href="index.html"><span class="ni">📋</span> Today's Work</a>
+  <a class="nav-item" href="kpi.html"><span class="ni">📊</span> Dashboard</a>
+  <div class="nav-label">Breeding Cycle</div>
+  <a class="nav-item" href="breeding.html"><span class="ni">🔄</span> Pipeline View</a>
+  <a class="nav-item" href="record.html?event=mating"><span class="ni">💉</span> Breeding</a>
+  <a class="nav-item" href="record.html?event=farrowing"><span class="ni">🐖</span> Farrowing</a>
+  <a class="nav-item" href="record.html?event=weaning"><span class="ni">🌱</span> Weaning</a>
+  <div class="nav-label">Management</div>
+  <a class="nav-item" href="sows.html"><span class="ni">🐷</span> Sow Mgmt</a>
+  <a class="nav-item" href="fattening.html"><span class="ni">🐗</span> Fattening</a>
+  <a class="nav-item" href="feed.html"><span class="ni">🌾</span> Feed &amp; Cost</a>
+  <a class="nav-item active" href="health.html"><span class="ni">💊</span> Health</a>
+  <a class="nav-item" href="shipment.html"><span class="ni">📦</span> Shipment</a>
+  <div class="nav-label">Intelligence</div>
+  <a class="nav-item" href="ai-insights.html"><span class="ni">🧠</span> AI Insights</a>
+  <a class="nav-item" href="reports.html"><span class="ni">📋</span> Reports</a>
+  <a class="nav-item" href="settings.html"><span class="ni">⚙️</span> Settings</a>
+  <div class="sidebar-footer">PigPlanCORE v1.0 · © 2026 Wiselake</div>
+</aside>
+
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <h2>Health & Biosecurity</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right">
+    <span class="top-date">2026.03.19 (Thu)</span>
+    <div class="settings-dropdown" id="settingsDropdown"><div class="dd-trigger" onclick="toggleSettingsDropdown(event)"><span class="lang-label">🌐 EN</span> ▾</div><div class="dd-menu"><div class="dd-section"><div class="dd-section-label">Language</div><div class="dd-option lang-option active" data-lang="en" onclick="setLang('en')">🇺🇸 English <span class="check">✓</span></div><div class="dd-option lang-option" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어 <span class="check" style="display:none">✓</span></div><div class="dd-option lang-option" data-lang="vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt <span class="check" style="display:none">✓</span></div></div><div class="dd-divider"></div><div class="dd-section"><div class="dd-section-label">Unit System</div><div class="dd-option unit-option active" data-units="METRIC" onclick="setUnits('METRIC')">📏 Metric (kg, °C) <span class="check">✓</span></div><div class="dd-option unit-option" data-units="IMPERIAL" onclick="setUnits('IMPERIAL')">📐 Imperial (lb, °F) <span class="check" style="display:none">✓</span></div></div></div></div>
+    <a href="record.html?event=treatment" class="btn btn-primary">＋ Treatment</a>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- PRRS Alert Banner -->
+  <div class="alert-banner">
+    <div class="ab-icon">🚨</div>
+    <div>
+      <div class="ab-title">PRRS Suspected — 평택 위탁농 (87% AI confidence)</div>
+      <div class="ab-desc">Mortality pattern matches PRRS outbreak signature. 3 sows died in 48h (Mar 17-18). Recommend immediate isolation, PCR testing, and enhanced biosecurity protocols. Neighboring farms within 3km have been notified.</div>
+    </div>
+    <div class="ab-actions">
+      <button class="primary">View Protocol</button>
+      <button class="secondary">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- Health Summary -->
+  <div class="health-row">
+    <div class="h-card" style="border-left-color:var(--success)">
+      <div class="hv" style="color:var(--success)">Good</div>
+      <div class="hl">Overall Herd Health</div>
+      <div class="hc">Last vet visit: 2 days ago</div>
+    </div>
+    <div class="h-card" style="border-left-color:var(--danger)">
+      <div class="hv">7</div>
+      <div class="hl">Active Treatments</div>
+      <div class="hc" style="color:var(--danger)">2 critical, 5 routine</div>
+    </div>
+    <div class="h-card" style="border-left-color:var(--blue)">
+      <div class="hv">32</div>
+      <div class="hl">Vaccines Due This Week</div>
+      <div class="hc" style="color:var(--blue)">PCV2 batch — Nursery</div>
+    </div>
+    <div class="h-card" style="border-left-color:var(--accent)">
+      <div class="hv">2.1%</div>
+      <div class="hl">Mortality Rate (30d)</div>
+      <div class="hc" style="color:var(--accent)">▲ Up from 1.5% — 평택 impact</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <!-- Active Treatments -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">💊 Active Treatments</span><span class="card-badge" style="background:var(--danger-light);color:var(--danger)">7 active</span></div>
+      <div style="padding:0">
+        <table class="treat-table">
+          <thead><tr><th>Animal</th><th>Diagnosis</th><th>Treatment</th><th>Day</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--danger-light)"><td style="font-weight:600">#A-042</td><td>Dystocia risk</td><td>Oxytocin standby</td><td class="r">D1</td><td><span class="pill" style="background:var(--danger-light);color:var(--danger)">Critical</span></td></tr>
+            <tr style="background:var(--danger-light)"><td style="font-weight:600">평택 Barn 2</td><td>PRRS suspected</td><td>Isolation + PCR</td><td class="r">D2</td><td><span class="pill" style="background:var(--danger-light);color:var(--danger)">Critical</span></td></tr>
+            <tr><td>#B-055</td><td>Lameness (rear left)</td><td>Meloxicam 0.4mg/kg</td><td class="r">D3/5</td><td><span class="pill" style="background:var(--accent-light);color:var(--accent)">Ongoing</span></td></tr>
+            <tr><td>#A-089</td><td>Mastitis (mild)</td><td>Amoxicillin</td><td class="r">D2/3</td><td><span class="pill" style="background:var(--accent-light);color:var(--accent)">Ongoing</span></td></tr>
+            <tr><td>Pen F-06 (3 head)</td><td>Respiratory</td><td>Tiamulin + ventilation</td><td class="r">D5/7</td><td><span class="pill" style="background:var(--blue-light);color:var(--blue)">Improving</span></td></tr>
+            <tr><td>#C-012</td><td>Diarrhea</td><td>Electrolytes + antibiotics</td><td class="r">D1/3</td><td><span class="pill" style="background:var(--accent-light);color:var(--accent)">Ongoing</span></td></tr>
+            <tr><td>Nursery Grp 7</td><td>Coccidiosis</td><td>Toltrazuril</td><td class="r">D4/5</td><td><span class="pill" style="background:var(--success-light);color:var(--success)">Resolving</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Disease Tracking -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">🦠 Disease Incidents (90 days)</span></div>
+      <div class="card-body">
+        <div class="disease-item">
+          <div class="disease-dot" style="background:var(--danger)"></div>
+          <div class="disease-info"><div class="dn">PRRS (Suspected)</div><div class="dd">평택 위탁농 · Mar 17 · Under investigation</div></div>
+          <div class="disease-count" style="color:var(--danger)">3 deaths</div>
+        </div>
+        <div class="disease-item">
+          <div class="disease-dot" style="background:var(--accent)"></div>
+          <div class="disease-info"><div class="dn">Respiratory Disease</div><div class="dd">Pen F-06 · Mar 12 · Improving</div></div>
+          <div class="disease-count">3 cases</div>
+        </div>
+        <div class="disease-item">
+          <div class="disease-dot" style="background:var(--blue)"></div>
+          <div class="disease-info"><div class="dn">Coccidiosis</div><div class="dd">Nursery · Mar 8 · Resolving</div></div>
+          <div class="disease-count">8 cases</div>
+        </div>
+        <div class="disease-item">
+          <div class="disease-dot" style="background:var(--success)"></div>
+          <div class="disease-info"><div class="dn">Lameness</div><div class="dd">Various · Ongoing routine</div></div>
+          <div class="disease-count">5 cases</div>
+        </div>
+        <div class="disease-item">
+          <div class="disease-dot" style="background:var(--success)"></div>
+          <div class="disease-info"><div class="dn">E. coli (Piglet Scours)</div><div class="dd">Feb 20 · Resolved</div></div>
+          <div class="disease-count" style="color:var(--text-3)">12 cases ✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vaccination Schedule -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><span class="card-title">💉 Vaccination Schedule — This Month</span></div>
+    <div style="padding:0">
+      <table class="vacc-table">
+        <thead><tr><th>Date</th><th>Vaccine</th><th>Target Group</th><th class="r">Head</th><th>Batch</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Mar 10</td><td>PRRS MLV</td><td>Sow — Breeding group</td><td class="r">24</td><td>B-2026-09</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr><td>Mar 12</td><td>PCV2</td><td>Nursery — 3 week old</td><td class="r">45</td><td>B-2026-10</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr><td>Mar 15</td><td>Mycoplasma</td><td>Nursery — 1 week old</td><td class="r">38</td><td>B-2026-10</td><td><span class="pill pill-good">Done ✓</span></td></tr>
+          <tr style="background:var(--blue-light)"><td style="font-weight:700">Mar 19</td><td style="font-weight:700">PCV2 (2nd dose)</td><td>Nursery — 5 week old</td><td class="r" style="font-weight:700">32</td><td>B-2026-11</td><td><span class="pill" style="background:var(--blue-light);color:var(--blue)">Today</span></td></tr>
+          <tr><td>Mar 22</td><td>E. coli + Clostridium</td><td>Sow — Pre-farrowing</td><td class="r">18</td><td>B-2026-11</td><td><span class="pill" style="background:var(--bg);color:var(--text-3)">Scheduled</span></td></tr>
+          <tr><td>Mar 28</td><td>PRRS MLV</td><td>Gilt — New intake</td><td class="r">8</td><td>B-2026-12</td><td><span class="pill" style="background:var(--bg);color:var(--text-3)">Scheduled</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mortality Chart -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">📊 Mortality Trend (12 months)</span></div>
+    <div class="card-body"><div class="chart-wrap"><canvas id="chartMortality"></canvas></div></div>
+  </div>
+
+</main>
+
+<script>
+var cc = { primary: '#0D7C66', accent: '#E8820E', danger: '#DC2626', blue: '#2563EB', gray: '#94A3B8', border: '#E2E8F0' };
+var months = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+
+new Chart(document.getElementById('chartMortality'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Sow Mortality %', data: [1.2,1.1,1.3,1.0,1.1,0.9,1.0,1.2,1.1,1.0,1.5,2.1],
+      borderColor: cc.danger, backgroundColor: 'rgba(220,38,38,.08)', fill: true, tension: .4, borderWidth: 2, pointRadius: 3
+    },{
+      label: 'Pre-wean Mortality %', data: [15.2,14.8,14.5,15.0,14.2,13.8,14.0,13.5,14.1,13.8,14.0,14.2],
+      borderColor: cc.accent, tension: .4, borderWidth: 2, pointRadius: 3, fill: false
+    },{
+      label: 'Benchmark 2%', data: Array(12).fill(2),
+      borderColor: cc.gray, borderDash: [4,4], borderWidth: 1, pointRadius: 0, fill: false
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 10 }, usePointStyle: true } } },
+    scales: { y: { min: 0, max: 18, grid: { color: cc.border }, ticks: { font: { size: 10, family: 'JetBrains Mono' }, callback: v => v + '%' } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } }
+  }
+});
+</script>
+<script src="data/mock-data.js"></script>
+<script src="js/shared.js"></script>
+</body>
+</html>

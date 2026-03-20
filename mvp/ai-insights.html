@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — AI Insights</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+.ai-hero{background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:var(--radius);padding:24px;margin-bottom:20px;color:#fff}
+.ai-hero-title{font-size:18px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.ai-hero-sub{font-size:11px;color:rgba(255,255,255,.5)}
+.ai-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+@media(max-width:1024px){.ai-stats{grid-template-columns:repeat(2,1fr)}}
+.ai-stat{background:rgba(255,255,255,.06);border-radius:10px;padding:14px;text-align:center}
+.ai-stat .asv{font-family:'JetBrains Mono';font-size:20px;font-weight:700}
+.ai-stat .asl{font-size:9px;color:rgba(255,255,255,.4);margin-top:2px}
+.insight-list{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
+.ins-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;border-left:4px solid var(--border);transition:all .15s}
+.ins-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.ins-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ins-type{font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.ins-time{font-size:10px;color:var(--text-3);margin-left:auto}
+.ins-conf{font-family:'JetBrains Mono';font-size:10px;padding:2px 6px;border-radius:4px;background:var(--bg);color:var(--text-3)}
+.ins-title{font-size:14px;font-weight:700;margin-bottom:6px}
+.ins-desc{font-size:12px;color:var(--text-2);line-height:1.7;margin-bottom:12px}
+.ins-impact{display:flex;gap:20px;margin-bottom:12px;padding:10px 14px;background:var(--bg);border-radius:8px}
+.ins-impact-item{font-size:11px}
+.ins-impact-item strong{font-family:'JetBrains Mono'}
+.ins-actions{display:flex;gap:8px}
+.ins-actions button{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)}
+.ins-actions button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.ins-actions button.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1024px){.two-col{grid-template-columns:1fr}}
+.pred-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.pred-item:last-child{border-bottom:none}
+.pred-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.pred-info{flex:1}
+.pred-info .pn{font-size:12px;font-weight:600;margin-bottom:2px}
+.pred-info .pd{font-size:10px;color:var(--text-3)}
+.pred-value{font-family:'JetBrains Mono';font-size:14px;font-weight:700;text-align:right}
+.pred-value .ps{font-size:9px;font-weight:400;color:var(--text-3)}
+.anomaly-item{padding:14px;background:var(--bg);border-radius:10px;margin-bottom:10px}
+.anomaly-item:last-child{margin-bottom:0}
+.anomaly-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.anomaly-level{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px}
+.anomaly-title{font-size:12px;font-weight:600}
+.anomaly-desc{font-size:11px;color:var(--text-2);line-height:1.6}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div></div>
+  <div class="nav-label">Today</div>
+  <a class="nav-item" href="index.html"><span class="ni">📋</span> Today's Work</a>
+  <a class="nav-item" href="kpi.html"><span class="ni">📊</span> Dashboard</a>
+  <div class="nav-label">Breeding Cycle</div>
+  <a class="nav-item" href="breeding.html"><span class="ni">🔄</span> Pipeline View</a>
+  <a class="nav-item" href="record.html?event=mating"><span class="ni">💉</span> Breeding</a>
+  <a class="nav-item" href="record.html?event=farrowing"><span class="ni">🐖</span> Farrowing</a>
+  <a class="nav-item" href="record.html?event=weaning"><span class="ni">🌱</span> Weaning</a>
+  <div class="nav-label">Management</div>
+  <a class="nav-item" href="sows.html"><span class="ni">🐷</span> Sow Mgmt</a>
+  <a class="nav-item" href="fattening.html"><span class="ni">🐗</span> Fattening</a>
+  <a class="nav-item" href="feed.html"><span class="ni">🌾</span> Feed &amp; Cost</a>
+  <a class="nav-item" href="health.html"><span class="ni">💊</span> Health</a>
+  <a class="nav-item" href="shipment.html"><span class="ni">📦</span> Shipment</a>
+  <div class="nav-label">Intelligence</div>
+  <a class="nav-item active" href="ai-insights.html"><span class="ni">🧠</span> AI Insights</a>
+  <a class="nav-item" href="reports.html"><span class="ni">📋</span> Reports</a>
+  <a class="nav-item" href="settings.html"><span class="ni">⚙️</span> Settings</a>
+  <div class="sidebar-footer">PigPlanCORE v1.0 · © 2026 Wiselake</div>
+</aside>
+
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <h2>AI Intelligence Center</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right">
+    <span class="top-date">2026.03.19 (Thu)</span>
+    <div class="settings-dropdown" id="settingsDropdown"><div class="dd-trigger" onclick="toggleSettingsDropdown(event)"><span class="lang-label">🌐 EN</span> ▾</div><div class="dd-menu"><div class="dd-section"><div class="dd-section-label">Language</div><div class="dd-option lang-option active" data-lang="en" onclick="setLang('en')">🇺🇸 English <span class="check">✓</span></div><div class="dd-option lang-option" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어 <span class="check" style="display:none">✓</span></div><div class="dd-option lang-option" data-lang="vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt <span class="check" style="display:none">✓</span></div></div><div class="dd-divider"></div><div class="dd-section"><div class="dd-section-label">Unit System</div><div class="dd-option unit-option active" data-units="METRIC" onclick="setUnits('METRIC')">📏 Metric (kg, °C) <span class="check">✓</span></div><div class="dd-option unit-option" data-units="IMPERIAL" onclick="setUnits('IMPERIAL')">📐 Imperial (lb, °F) <span class="check" style="display:none">✓</span></div></div></div></div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- AI Hero -->
+  <div class="ai-hero">
+    <div class="ai-hero-title">🧠 PigPlanCORE AI Engine</div>
+    <div class="ai-hero-sub">Real-time analysis of 680 sows · 340 fatteners · 14 months of historical data</div>
+    <div class="ai-stats">
+      <div class="ai-stat"><div class="asv" style="color:var(--success)">₩93.6M</div><div class="asl">Total Savings Identified (YTD)</div></div>
+      <div class="ai-stat"><div class="asv" style="color:var(--purple)">47</div><div class="asl">Insights Generated (30d)</div></div>
+      <div class="ai-stat"><div class="asv" style="color:#fff">89%</div><div class="asl">Prediction Accuracy</div></div>
+      <div class="ai-stat"><div class="asv" style="color:var(--danger)">1</div><div class="asl">Active Anomaly</div></div>
+    </div>
+  </div>
+
+  <!-- Insight Cards -->
+  <div class="insight-list">
+
+    <!-- Critical -->
+    <div class="ins-card" style="border-left-color:var(--danger);background:linear-gradient(90deg,#FEF2F2,#fff)">
+      <div class="ins-top">
+        <div class="ins-type" style="background:var(--danger-light);color:var(--danger)">Critical Alert</div>
+        <div class="ins-conf">87% confidence</div>
+        <div class="ins-time">2 hours ago</div>
+      </div>
+      <div class="ins-title" style="color:var(--danger)">🚨 PRRS Outbreak Risk — 평택 위탁농</div>
+      <div class="ins-desc">Mortality pattern analysis detected PRRS-like signature. 3 sow deaths in 48h (normally 0.2/week). Respiratory symptoms + fever cluster in Barn 2. Pattern matches 87% with known PRRS outbreaks from national disease database.</div>
+      <div class="ins-impact">
+        <div class="ins-impact-item">Potential loss: <strong style="color:var(--danger)">₩150M+</strong> if uncontained</div>
+        <div class="ins-impact-item">Affected: <strong>~120 head</strong> in proximity</div>
+        <div class="ins-impact-item">Action window: <strong style="color:var(--danger)">24-48h</strong></div>
+      </div>
+      <div class="ins-actions">
+        <button class="danger">Execute Isolation Protocol</button>
+        <button>View Disease Map</button>
+        <button>Request PCR Test</button>
+      </div>
+    </div>
+
+    <!-- Feed Optimization -->
+    <div class="ins-card" style="border-left-color:var(--accent)">
+      <div class="ins-top">
+        <div class="ins-type" style="background:var(--accent-light);color:var(--accent)">Optimization</div>
+        <div class="ins-conf">94% confidence</div>
+        <div class="ins-time">Today</div>
+      </div>
+      <div class="ins-title">🌾 Feed Ration Adjustment — Barn A Gestating Sows</div>
+      <div class="ins-desc">FCR analysis shows Barn A gestating sows are overfed by ~8%. Body condition scoring (via weight data) indicates current 2.8kg/day exceeds optimal 2.6kg/day. No impact on reproduction performance predicted.</div>
+      <div class="ins-impact">
+        <div class="ins-impact-item">Monthly savings: <strong style="color:var(--success)">₩840K</strong></div>
+        <div class="ins-impact-item">Affected: <strong>42 sows</strong></div>
+        <div class="ins-impact-item">Risk: <strong style="color:var(--success)">Low</strong></div>
+      </div>
+      <div class="ins-actions">
+        <button class="primary">Apply Recommendation</button>
+        <button>Run Simulation</button>
+        <button>Dismiss</button>
+      </div>
+    </div>
+
+    <!-- Farrowing Forecast -->
+    <div class="ins-card" style="border-left-color:var(--purple)">
+      <div class="ins-top">
+        <div class="ins-type" style="background:var(--purple-light);color:var(--purple)">Prediction</div>
+        <div class="ins-conf">91% accuracy</div>
+        <div class="ins-time">1h ago</div>
+      </div>
+      <div class="ins-title">🔮 Farrowing Forecast — Next 14 Days</div>
+      <div class="ins-desc">23 sows predicted to farrow. Expected avg litter: 12.4. 3 high-risk sows identified (P7+, history of large litters). #A-055 and #A-078 predicted 15+ litter — pre-assign foster mothers recommended.</div>
+      <div class="ins-impact">
+        <div class="ins-impact-item">Expected piglets: <strong>~285</strong></div>
+        <div class="ins-impact-item">High-risk sows: <strong style="color:var(--accent)">3</strong></div>
+        <div class="ins-impact-item">Foster mothers needed: <strong>2</strong></div>
+      </div>
+      <div class="ins-actions">
+        <button class="primary">View Schedule</button>
+        <button>Adjust Assignments</button>
+      </div>
+    </div>
+
+    <!-- Breeding Timing -->
+    <div class="ins-card" style="border-left-color:var(--blue)">
+      <div class="ins-top">
+        <div class="ins-type" style="background:var(--blue-light);color:var(--blue)">Recommendation</div>
+        <div class="ins-conf">85% confidence</div>
+        <div class="ins-time">Today</div>
+      </div>
+      <div class="ins-title">💉 Optimal Breeding Timing — 12 Post-weaning Sows</div>
+      <div class="ins-desc">Based on historical estrus detection patterns and WEI (Wean-to-Estrus Interval) data, optimal breeding window for today's group is 14:30-16:00. Second service recommended at +12h for sows with WEI > 5d.</div>
+      <div class="ins-impact">
+        <div class="ins-impact-item">Expected conception rate: <strong style="color:var(--success)">92%</strong> (vs 85% random)</div>
+        <div class="ins-impact-item">Sows: <strong>12</strong></div>
+      </div>
+      <div class="ins-actions">
+        <button class="primary">Accept Schedule</button>
+        <button>Modify</button>
+      </div>
+    </div>
+
+    <!-- Market Timing -->
+    <div class="ins-card" style="border-left-color:var(--success)">
+      <div class="ins-top">
+        <div class="ins-type" style="background:var(--success-light);color:var(--success)">Market Intelligence</div>
+        <div class="ins-conf">78% confidence</div>
+        <div class="ins-time">Yesterday</div>
+      </div>
+      <div class="ins-title">📈 Ship Timing Recommendation — Pen F-01</div>
+      <div class="ins-desc">Market price trending upward (₩5,140/kg, +2.3% weekly). Model predicts continued rise for 5-7 days before seasonal dip. Pen F-01 pigs at 112kg — optimal shipping weight reached. Recommend shipping by Mar 22.</div>
+      <div class="ins-impact">
+        <div class="ins-impact-item">Extra revenue if shipped now vs next week: <strong style="color:var(--success)">₩1.2M</strong></div>
+        <div class="ins-impact-item">Feed cost if delayed: <strong style="color:var(--danger)">-₩380K</strong></div>
+      </div>
+      <div class="ins-actions">
+        <button class="primary">Schedule Shipment</button>
+        <button>View Market Data</button>
+      </div>
+    </div>
+
+    <!-- Achievement -->
+    <div class="ins-card" style="border-left-color:var(--success)">
+      <div class="ins-top">
+        <div class="ins-type" style="background:var(--success-light);color:var(--success)">Achievement</div>
+        <div class="ins-time">Yesterday</div>
+      </div>
+      <div class="ins-title">✅ 안성 1농장 PSY 27.1 — National Top 10%</div>
+      <div class="ins-desc">Breeding efficiency improved 12% since January protocol change. Key factors: optimized breeding timing (+7% conception), reduced NPD (-5 days), lower pre-wean mortality (-1.2%).</div>
+    </div>
+  </div>
+
+  <!-- Bottom: Predictions & Anomalies -->
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><span class="card-title">⚡ Predictions (Next 30 days)</span></div>
+      <div class="card-body">
+        <div class="pred-item">
+          <div class="pred-icon" style="background:var(--primary-light)">🐷</div>
+          <div class="pred-info"><div class="pn">PSY Forecast (Next Month)</div><div class="pd">Based on current pipeline + historical trend</div></div>
+          <div class="pred-value" style="color:var(--success)">24.8<div class="ps">▲ +0.5 from current</div></div>
+        </div>
+        <div class="pred-item">
+          <div class="pred-icon" style="background:var(--accent-light)">🔄</div>
+          <div class="pred-info"><div class="pn">Farrowing Rate Forecast</div><div class="pd">Current breeding group performance</div></div>
+          <div class="pred-value">84.1%<div class="ps">▲ recovering to target</div></div>
+        </div>
+        <div class="pred-item">
+          <div class="pred-icon" style="background:var(--blue-light)">📦</div>
+          <div class="pred-info"><div class="pn">Shipments Forecast</div><div class="pd">Pen F-01 (58), F-02 (62 est.)</div></div>
+          <div class="pred-value">120 head<div class="ps">₩62M estimated</div></div>
+        </div>
+        <div class="pred-item">
+          <div class="pred-icon" style="background:var(--success-light)">🌾</div>
+          <div class="pred-info"><div class="pn">Feed Cost Forecast</div><div class="pd">With AI optimization applied</div></div>
+          <div class="pred-value" style="color:var(--success)">₩47.4M<div class="ps">▼ -₩800K savings</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">🎯 Anomaly Detection</span></div>
+      <div class="card-body">
+        <div class="anomaly-item" style="border-left:3px solid var(--danger)">
+          <div class="anomaly-header">
+            <div class="anomaly-level" style="background:var(--danger-light);color:var(--danger)">Critical</div>
+            <div class="anomaly-title">평택 Mortality Spike</div>
+          </div>
+          <div class="anomaly-desc">3 deaths in 48h — 15x above normal rate. PRRS pattern match 87%. Auto-triggered biosecurity alert.</div>
+        </div>
+        <div class="anomaly-item" style="border-left:3px solid var(--accent)">
+          <div class="anomaly-header">
+            <div class="anomaly-level" style="background:var(--accent-light);color:var(--accent)">Warning</div>
+            <div class="anomaly-title">Pen F-06 FCR Deviation</div>
+          </div>
+          <div class="anomaly-desc">FCR 3.15 — 21% above target. Possible causes: respiratory illness, feed quality issue, or overcrowding stress.</div>
+        </div>
+        <div class="anomaly-item" style="border-left:3px solid var(--blue)">
+          <div class="anomaly-header">
+            <div class="anomaly-level" style="background:var(--blue-light);color:var(--blue)">Info</div>
+            <div class="anomaly-title">Water Consumption Drop — Barn C</div>
+          </div>
+          <div class="anomaly-desc">15% decrease in water intake over 3 days. Often precedes health issues. Monitor closely.</div>
+        </div>
+        <div class="anomaly-item" style="border-left:3px solid var(--success)">
+          <div class="anomaly-header">
+            <div class="anomaly-level" style="background:var(--success-light);color:var(--success)">Resolved</div>
+            <div class="anomaly-title">E. coli Cluster — Nursery</div>
+          </div>
+          <div class="anomaly-desc">Feb 20 outbreak resolved. Treatment completed. No recurrence in 27 days.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="data/mock-data.js"></script>
+<script src="js/shared.js"></script>
+</body>
+</html>
