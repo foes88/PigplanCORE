@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — 05 Breeding & Farrowing Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#0D7C66;--primary-light:#E8F5F1;--accent:#E8820E;--accent-light:#FFF4E5;--danger:#DC2626;--danger-light:#FEF2F2;--success:#16A34A;--success-light:#F0FDF4;--blue:#2563EB;--blue-light:#EFF6FF;--purple:#7C3AED;--purple-light:#F5F3FF;--bg:#F4F6F8;--surface:#FFFFFF;--border:#E2E8F0;--text-1:#0F172A;--text-2:#475569;--text-3:#94A3B8;--sidebar-w:240px;--topbar-h:56px;--radius:12px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-1);min-height:100vh}
+
+.sidebar{width:var(--sidebar-w);height:100vh;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;z-index:200;display:flex;flex-direction:column}
+.sidebar-brand{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sidebar-brand .logo{width:32px;height:32px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.sidebar-brand .name{font-size:14px;font-weight:700}.sidebar-brand .name span{color:var(--primary)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:12px;font-weight:500;color:var(--text-2);cursor:pointer;margin:1px 8px;border-radius:8px;transition:all .12s}
+.nav-item:hover{background:var(--bg)}
+.nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.nav-item .ni{width:18px;text-align:center;font-size:14px}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);padding:16px 16px 6px}
+
+.topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;position:fixed;top:0;left:var(--sidebar-w);right:0;z-index:100}
+.topbar h2{font-size:15px;font-weight:700}
+.top-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn{font-family:inherit;font-size:11px;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.main{margin-left:var(--sidebar-w);margin-top:var(--topbar-h);padding:24px 28px 60px}
+
+/* ── Pipeline ── */
+.pipeline{display:flex;gap:0;margin-bottom:28px;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.pipe-stage{flex:1;padding:18px 20px;text-align:center;border-right:1px solid var(--border);position:relative;cursor:pointer;transition:all .15s}
+.pipe-stage:last-child{border-right:none}
+.pipe-stage:hover{background:var(--bg)}
+.pipe-stage.active{background:var(--primary-light)}
+.pipe-stage .ps-icon{font-size:24px;margin-bottom:6px}
+.pipe-stage .ps-name{font-size:11px;font-weight:700;margin-bottom:4px}
+.pipe-stage .ps-count{font-family:'JetBrains Mono';font-size:22px;font-weight:700}
+.pipe-stage .ps-sub{font-size:10px;color:var(--text-3);margin-top:2px}
+.pipe-stage .ps-status{margin-top:8px;display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.ps-tag{font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px}
+.pipe-arrow{position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:16px;height:16px;background:var(--surface);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text-3);z-index:2}
+
+/* ── Stage Detail ── */
+.stage-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.stage-header h3{font-size:16px;font-weight:800}
+.stage-tabs{display:flex;gap:4px}
+.stage-tab{font-family:inherit;font-size:11px;font-weight:600;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-3);cursor:pointer}
+.stage-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ── Timeline ── */
+.timeline{position:relative;padding-left:24px;margin-bottom:24px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;padding:12px 0 12px 20px}
+.tl-dot{position:absolute;left:-20px;top:16px;width:12px;height:12px;border-radius:50%;border:2px solid var(--surface)}
+.tl-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:all .12s}
+.tl-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.tl-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.tl-header .sow-id{font-family:'JetBrains Mono';font-size:13px;font-weight:600}
+.tl-header .tl-status{font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px}
+.tl-info{display:flex;gap:16px;margin-bottom:8px}
+.tl-info .ti{font-size:11px;color:var(--text-2)}
+.tl-info .ti strong{color:var(--text-1)}
+.tl-progress{display:flex;align-items:center;gap:8px}
+.tl-progress .bar{flex:1;height:6px;background:var(--border);border-radius:3px}
+.tl-progress .fill{height:100%;border-radius:3px}
+.tl-progress .pct{font-family:'JetBrains Mono';font-size:10px;font-weight:600;min-width:32px}
+.tl-actions{display:flex;gap:6px;margin-top:8px}
+.tl-actions button{font-family:inherit;font-size:10px;font-weight:600;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);cursor:pointer}
+.tl-actions button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ── Side Cards ── */
+.side-grid{display:grid;grid-template-columns:1fr 340px;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:700}
+.card-body{padding:16px 18px}
+
+/* ── Schedule ── */
+.schedule-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.schedule-item:last-child{border-bottom:none}
+.sch-date{font-family:'JetBrains Mono';font-size:10px;font-weight:600;color:var(--text-3);min-width:48px;text-align:center;padding-top:2px}
+.sch-date .day{font-size:18px;font-weight:700;color:var(--text-1)}
+.sch-info{flex:1}
+.sch-info .sname{font-size:12px;font-weight:600;margin-bottom:2px}
+.sch-info .sdesc{font-size:10px;color:var(--text-2)}
+.sch-count{font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--primary);padding:4px 10px;background:var(--primary-light);border-radius:8px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span></div></div>
+  <div class="nav-label">Overview</div>
+  <div class="nav-item"><span class="ni">📊</span> Dashboard</div>
+  <div class="nav-label">Breeding Cycle</div>
+  <div class="nav-item active"><span class="ni">🔄</span> Pipeline View</div>
+  <div class="nav-item"><span class="ni">💉</span> Breeding</div>
+  <div class="nav-item"><span class="ni">🤰</span> Gestation</div>
+  <div class="nav-item"><span class="ni">🐖</span> Farrowing</div>
+  <div class="nav-item"><span class="ni">🍼</span> Lactation</div>
+  <div class="nav-item"><span class="ni">🌱</span> Weaning</div>
+  <div class="nav-label">Management</div>
+  <div class="nav-item"><span class="ni">🐷</span> Sow Mgmt</div>
+  <div class="nav-item"><span class="ni">🌾</span> Feed</div>
+  <div class="nav-item"><span class="ni">💊</span> Health</div>
+  <div class="nav-item"><span class="ni">📋</span> Reports</div>
+</aside>
+
+<header class="topbar">
+  <h2>Breeding Pipeline — 안성 1농장</h2>
+  <div class="top-right">
+    <button class="btn">📅 Weekly View</button>
+    <button class="btn-primary btn">＋ Record Event</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Pipeline -->
+  <div class="pipeline">
+    <div class="pipe-stage">
+      <div class="ps-icon">💉</div>
+      <div class="ps-name">Breeding</div>
+      <div class="ps-count">12</div>
+      <div class="ps-sub">sows scheduled</div>
+      <div class="ps-status"><span class="ps-tag" style="background:var(--blue-light);color:var(--blue)">Today: 12</span></div>
+      <div class="pipe-arrow">→</div>
+    </div>
+    <div class="pipe-stage">
+      <div class="ps-icon">🔍</div>
+      <div class="ps-name">Preg Check</div>
+      <div class="ps-count">8</div>
+      <div class="ps-sub">due this week</div>
+      <div class="ps-status"><span class="ps-tag" style="background:var(--accent-light);color:var(--accent)">4 overdue</span></div>
+      <div class="pipe-arrow">→</div>
+    </div>
+    <div class="pipe-stage active">
+      <div class="ps-icon">🤰</div>
+      <div class="ps-name">Gestation</div>
+      <div class="ps-count">218</div>
+      <div class="ps-sub">sows in gestation</div>
+      <div class="ps-status"><span class="ps-tag" style="background:var(--success-light);color:var(--success)">On track</span></div>
+      <div class="pipe-arrow">→</div>
+    </div>
+    <div class="pipe-stage">
+      <div class="ps-icon">🐖</div>
+      <div class="ps-name">Farrowing</div>
+      <div class="ps-count">5</div>
+      <div class="ps-sub">due this week</div>
+      <div class="ps-status"><span class="ps-tag" style="background:var(--danger-light);color:var(--danger)">1 overdue</span></div>
+      <div class="pipe-arrow">→</div>
+    </div>
+    <div class="pipe-stage">
+      <div class="ps-icon">🍼</div>
+      <div class="ps-name">Lactation</div>
+      <div class="ps-count">85</div>
+      <div class="ps-sub">sows nursing</div>
+      <div class="ps-status"><span class="ps-tag" style="background:var(--success-light);color:var(--success)">Avg D14</span></div>
+      <div class="pipe-arrow">→</div>
+    </div>
+    <div class="pipe-stage">
+      <div class="ps-icon">🌱</div>
+      <div class="ps-name">Weaning</div>
+      <div class="ps-count">3</div>
+      <div class="ps-sub">due this week</div>
+      <div class="ps-status"><span class="ps-tag" style="background:var(--blue-light);color:var(--blue)">D21 target</span></div>
+    </div>
+  </div>
+
+  <!-- Stage Detail + Side -->
+  <div class="side-grid">
+    <div>
+      <div class="stage-header">
+        <h3>🐖 Farrowing — Active & Upcoming</h3>
+        <div class="stage-tabs">
+          <div class="stage-tab">All</div>
+          <div class="stage-tab active">Due Soon</div>
+          <div class="stage-tab">In Progress</div>
+          <div class="stage-tab">Completed</div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--danger)"></div>
+          <div class="tl-card" style="border-left:3px solid var(--danger)">
+            <div class="tl-header">
+              <span class="sow-id">#A-042</span>
+              <span class="tl-status" style="background:var(--danger-light);color:var(--danger)">Overdue D115</span>
+            </div>
+            <div class="tl-info">
+              <span class="ti">Parity <strong>3</strong></span>
+              <span class="ti">Bred <strong>Nov 25</strong></span>
+              <span class="ti">Due <strong>Mar 18</strong></span>
+              <span class="ti">Barn <strong>D-12</strong></span>
+            </div>
+            <div class="tl-progress"><div class="bar"><div class="fill" style="width:100%;background:var(--danger)"></div></div><div class="pct" style="color:var(--danger)">D115</div></div>
+            <div class="tl-actions"><button class="primary">🐖 Record Farrowing</button><button>View Sow</button><button>Add Note</button></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--accent)"></div>
+          <div class="tl-card" style="border-left:3px solid var(--accent)">
+            <div class="tl-header">
+              <span class="sow-id">#A-067</span>
+              <span class="tl-status" style="background:var(--accent-light);color:var(--accent)">Due Tomorrow D113</span>
+            </div>
+            <div class="tl-info">
+              <span class="ti">Parity <strong>5</strong></span>
+              <span class="ti">Bred <strong>Nov 27</strong></span>
+              <span class="ti">Due <strong>Mar 20</strong></span>
+              <span class="ti">Barn <strong>D-14</strong></span>
+            </div>
+            <div class="tl-progress"><div class="bar"><div class="fill" style="width:99%;background:var(--accent)"></div></div><div class="pct">D113</div></div>
+            <div class="tl-actions"><button>View Sow</button><button>Prepare Crate</button></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--primary)"></div>
+          <div class="tl-card">
+            <div class="tl-header">
+              <span class="sow-id">#A-089</span>
+              <span class="tl-status" style="background:var(--primary-light);color:var(--primary)">D110 — 4 days to go</span>
+            </div>
+            <div class="tl-info">
+              <span class="ti">Parity <strong>2</strong></span>
+              <span class="ti">Bred <strong>Nov 30</strong></span>
+              <span class="ti">Due <strong>Mar 23</strong></span>
+              <span class="ti">Barn <strong>D-08</strong></span>
+            </div>
+            <div class="tl-progress"><div class="bar"><div class="fill" style="width:96%;background:var(--primary)"></div></div><div class="pct">D110</div></div>
+            <div class="tl-actions"><button>View Sow</button></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--success)"></div>
+          <div class="tl-card" style="border-left:3px solid var(--success)">
+            <div class="tl-header">
+              <span class="sow-id">#B-018</span>
+              <span class="tl-status" style="background:var(--success-light);color:var(--success)">✓ Completed Today</span>
+            </div>
+            <div class="tl-info">
+              <span class="ti">Parity <strong>5</strong></span>
+              <span class="ti">Born Alive <strong style="color:var(--success)">13</strong></span>
+              <span class="ti">Stillborn <strong>0</strong></span>
+              <span class="ti">Mummy <strong>1</strong></span>
+            </div>
+            <div class="tl-actions"><button>View Record</button><button>Start Lactation</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Schedule -->
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><span class="card-title">📅 This Week Schedule</span></div>
+        <div class="card-body" style="padding:12px 18px">
+          <div class="schedule-item">
+            <div class="sch-date"><div class="day">19</div>Thu</div>
+            <div class="sch-info"><div class="sname">Breeding — Post-weaning group</div><div class="sdesc">12 sows · Barn C · 3:00 PM</div></div>
+            <div class="sch-count">12</div>
+          </div>
+          <div class="schedule-item">
+            <div class="sch-date"><div class="day">20</div>Fri</div>
+            <div class="sch-info"><div class="sname">Farrowing — #A-067</div><div class="sdesc">P5 · D113 · Crate D-14</div></div>
+            <div class="sch-count">1</div>
+          </div>
+          <div class="schedule-item">
+            <div class="sch-date"><div class="day">21</div>Sat</div>
+            <div class="sch-info"><div class="sname">Weaning — 3 sows</div><div class="sdesc">#A-018, #A-025, #A-039 · D21</div></div>
+            <div class="sch-count">3</div>
+          </div>
+          <div class="schedule-item">
+            <div class="sch-date"><div class="day">23</div>Mon</div>
+            <div class="sch-info"><div class="sname">Farrowing — #A-089</div><div class="sdesc">P2 · D114 · Crate D-08</div></div>
+            <div class="sch-count">1</div>
+          </div>
+          <div class="schedule-item">
+            <div class="sch-date"><div class="day">24</div>Tue</div>
+            <div class="sch-info"><div class="sname">Pregnancy Check — 8 sows</div><div class="sdesc">D28 ultrasound · Barn B</div></div>
+            <div class="sch-count">8</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Cycle Summary</span></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="background:var(--bg);border-radius:10px;padding:12px 14px;text-align:center">
+              <div style="font-size:10px;color:var(--text-3);margin-bottom:4px">Avg Gestation</div>
+              <div style="font-family:'JetBrains Mono';font-size:20px;font-weight:700">114.2d</div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:12px 14px;text-align:center">
+              <div style="font-size:10px;color:var(--text-3);margin-bottom:4px">Avg Litter Size</div>
+              <div style="font-family:'JetBrains Mono';font-size:20px;font-weight:700">12.4</div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:12px 14px;text-align:center">
+              <div style="font-size:10px;color:var(--text-3);margin-bottom:4px">Farrowing Rate</div>
+              <div style="font-family:'JetBrains Mono';font-size:20px;font-weight:700;color:var(--success)">88.2%</div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:12px 14px;text-align:center">
+              <div style="font-size:10px;color:var(--text-3);margin-bottom:4px">Stillbirth Rate</div>
+              <div style="font-family:'JetBrains Mono';font-size:20px;font-weight:700">6.8%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

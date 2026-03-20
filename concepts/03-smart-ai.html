@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — 03 Smart AI Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{--primary:#0D7C66;--primary-light:#E8F5F1;--primary-dark:#095C4B;--secondary:#64748B;--accent:#E8820E;--accent-light:#FFF4E5;--danger:#DC2626;--danger-light:#FEF2F2;--success:#16A34A;--success-light:#F0FDF4;--purple:#7C3AED;--purple-light:#F5F3FF;--blue:#2563EB;--blue-light:#EFF6FF;--bg:#F4F6F8;--surface:#FFFFFF;--border:#E2E8F0;--text-1:#0F172A;--text-2:#475569;--text-3:#94A3B8;--sidebar-w:240px;--topbar-h:56px;--radius:14px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-1);min-height:100vh}
+
+.sidebar{width:var(--sidebar-w);height:100vh;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;z-index:200;display:flex;flex-direction:column}
+.sidebar-brand{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sidebar-brand .logo{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),#10B981);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.sidebar-brand .name{font-size:14px;font-weight:700}.sidebar-brand .name span{color:var(--primary)}.sidebar-brand .ai-tag{font-size:8px;font-weight:700;background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;padding:2px 6px;border-radius:4px;margin-left:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:12px;font-weight:500;color:var(--text-2);cursor:pointer;transition:all .12s;margin:1px 8px;border-radius:8px}
+.nav-item:hover{background:var(--bg);color:var(--text-1)}
+.nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.nav-item .ni{width:18px;text-align:center;font-size:14px}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);padding:16px 16px 6px}
+
+.topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;position:fixed;top:0;left:var(--sidebar-w);right:0;z-index:100}
+.topbar h2{font-size:15px;font-weight:700}
+.top-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+
+.main{margin-left:var(--sidebar-w);margin-top:var(--topbar-h);padding:24px 28px 60px}
+
+/* ── AI Insight Banner ── */
+.ai-banner{background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);border-radius:16px;padding:24px 28px;margin-bottom:24px;color:#fff;display:flex;gap:24px;align-items:center}
+.ai-banner .ai-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.ai-banner .ai-content{flex:1}
+.ai-banner .ai-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--purple);opacity:.8;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.ai-banner .ai-label .pulse{width:6px;height:6px;border-radius:50%;background:var(--purple);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ai-banner .ai-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.ai-banner .ai-desc{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5}
+.ai-banner .ai-actions{display:flex;gap:8px;flex-shrink:0}
+.ai-banner .ai-actions button{font-family:inherit;font-size:11px;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer;border:none}
+.ai-btn-primary{background:var(--purple);color:#fff}
+.ai-btn-secondary{background:rgba(255,255,255,.1);color:#fff}
+
+/* ── KPI ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:all .15s}
+.kpi-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.kpi-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.kpi-ai-tag{font-size:8px;font-weight:700;background:var(--purple-light);color:var(--purple);padding:2px 6px;border-radius:4px}
+.kpi-value{font-family:'JetBrains Mono';font-size:24px;font-weight:700;margin-bottom:2px}
+.kpi-label{font-size:11px;color:var(--text-3)}
+.kpi-prediction{font-family:'JetBrains Mono';font-size:10px;color:var(--purple);margin-top:6px;display:flex;align-items:center;gap:4px}
+
+/* ── Grid ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.grid-main{display:grid;grid-template-columns:1fr 380px;gap:16px}
+
+/* ── Card ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:700}
+.card-body{padding:16px 18px}
+.chart-wrap{height:200px}
+
+/* ── AI Insight Cards ── */
+.insight-card{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;transition:all .15s;position:relative;overflow:hidden}
+.insight-card:last-child{margin-bottom:0}
+.insight-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.insight-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:2px}
+.insight-card.critical::before{background:var(--danger)}
+.insight-card.warning::before{background:var(--accent)}
+.insight-card.positive::before{background:var(--success)}
+.insight-card.prediction::before{background:var(--purple)}
+.insight-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.insight-header .itype{font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.5px;text-transform:uppercase}
+.insight-header .itime{font-family:'JetBrains Mono';font-size:9px;color:var(--text-3);margin-left:auto}
+.insight-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.insight-desc{font-size:11px;color:var(--text-2);line-height:1.6}
+.insight-recommendation{margin-top:10px;background:var(--bg);border-radius:8px;padding:10px 12px;display:flex;gap:8px;align-items:flex-start}
+.insight-recommendation .rec-icon{font-size:14px;flex-shrink:0}
+.insight-recommendation .rec-text{font-size:11px;font-weight:500;color:var(--text-1);line-height:1.5}
+.insight-actions{display:flex;gap:6px;margin-top:10px}
+.insight-actions button{font-family:inherit;font-size:10px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)}
+.insight-actions button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ── Anomaly Table ── */
+.anom-table{width:100%;border-collapse:collapse}
+.anom-table th{font-size:10px;font-weight:600;color:var(--text-3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.3px}
+.anom-table td{padding:10px;font-size:12px;border-bottom:1px solid var(--border)}
+.anom-table tr:hover td{background:var(--bg)}
+.anom-bar{height:6px;border-radius:3px;background:var(--border)}
+.anom-fill{height:100%;border-radius:3px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div></div>
+  <div class="nav-label">Intelligence</div>
+  <div class="nav-item active"><span class="ni">🧠</span> AI Dashboard</div>
+  <div class="nav-item"><span class="ni">⚡</span> Predictions</div>
+  <div class="nav-item"><span class="ni">🎯</span> Anomaly Detection</div>
+  <div class="nav-label">Management</div>
+  <div class="nav-item"><span class="ni">📊</span> Farm Overview</div>
+  <div class="nav-item"><span class="ni">🐷</span> Sow Mgmt</div>
+  <div class="nav-item"><span class="ni">🔄</span> Breeding</div>
+  <div class="nav-item"><span class="ni">🌾</span> Feed & Cost</div>
+  <div class="nav-item"><span class="ni">💊</span> Health</div>
+  <div class="nav-label">System</div>
+  <div class="nav-item"><span class="ni">📋</span> Reports</div>
+  <div class="nav-item"><span class="ni">⚙️</span> Settings</div>
+</aside>
+
+<header class="topbar">
+  <h2>AI-Powered Insights</h2>
+  <div class="top-right">
+    <span style="font-size:11px;color:var(--text-3)">한양그룹 · 8 farms</span>
+    <div style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer">🔔</div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- AI Banner -->
+  <div class="ai-banner">
+    <div class="ai-icon">🧠</div>
+    <div class="ai-content">
+      <div class="ai-label"><div class="pulse"></div> AI INSIGHT — CRITICAL</div>
+      <div class="ai-title">Health Risk Detected: 평택 위탁농</div>
+      <div class="ai-desc">Mortality pattern matches PRRS outbreak signature with 87% confidence. Sow mortality increased 68% in 14 days. Recommend immediate veterinary inspection and isolation protocol.</div>
+    </div>
+    <div class="ai-actions">
+      <button class="ai-btn-primary">View Details</button>
+      <button class="ai-btn-secondary">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--primary-light)">🐷</div><div class="kpi-ai-tag">AI Predicted</div></div>
+      <div class="kpi-value">24.3</div>
+      <div class="kpi-label">Current Group PSY</div>
+      <div class="kpi-prediction">🔮 Next month: 24.8 (+2.1%)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--accent-light)">🔄</div><div class="kpi-ai-tag">Forecast</div></div>
+      <div class="kpi-value">82.4%</div>
+      <div class="kpi-label">Farrowing Rate</div>
+      <div class="kpi-prediction">🔮 Trend: recovering to 84.1%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--danger-light)">💀</div><div class="kpi-ai-tag">Anomaly</div></div>
+      <div class="kpi-value" style="color:var(--danger)">8.2%</div>
+      <div class="kpi-label">Sow Mortality</div>
+      <div class="kpi-prediction" style="color:var(--danger)">⚠ 평택 outlier detected</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--success-light)">🌾</div><div class="kpi-ai-tag">Optimized</div></div>
+      <div class="kpi-value">2.68</div>
+      <div class="kpi-label">FCR</div>
+      <div class="kpi-prediction">💡 Savings potential: ₩12M/mo</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Predictive PSY Trend</span><span style="font-size:8px;font-weight:700;background:var(--purple-light);color:var(--purple);padding:2px 6px;border-radius:4px">AI FORECAST</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chartPredict"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Anomaly Detection — Mortality</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chartAnomaly"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="grid-main">
+    <!-- AI Insight Cards -->
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px">AI Recommendations</div>
+      <div class="insight-card critical">
+        <div class="insight-header"><span class="itype" style="background:var(--danger-light);color:var(--danger)">Critical</span><span class="itime">2 hours ago</span></div>
+        <div class="insight-title">🚨 PRRS Outbreak Risk — 평택 위탁농</div>
+        <div class="insight-desc">AI detected mortality pattern consistent with PRRS (87% confidence). 3 sows died in last 48h. Respiratory symptoms reported in Barn B.</div>
+        <div class="insight-recommendation"><span class="rec-icon">💡</span><span class="rec-text"><strong>Recommendation:</strong> Isolate Barn B immediately. Schedule PCR testing. Notify veterinary team. Enable quarantine protocol for adjacent farms.</span></div>
+        <div class="insight-actions"><button class="primary">Execute Protocol</button><button>View Details</button></div>
+      </div>
+      <div class="insight-card warning">
+        <div class="insight-header"><span class="itype" style="background:var(--accent-light);color:var(--accent)">Optimization</span><span class="itime">Today</span></div>
+        <div class="insight-title">🌾 Feed Adjustment — 안성 1농장</div>
+        <div class="insight-desc">FCR analysis suggests gestating sows in Barn A are overfed by ~8%. Current: 2.8kg/day. Optimal: 2.6kg/day based on body condition scores.</div>
+        <div class="insight-recommendation"><span class="rec-icon">💡</span><span class="rec-text"><strong>Recommendation:</strong> Reduce daily ration by 200g for 42 gestating sows. Est. savings: ₩840K/month with no production impact.</span></div>
+        <div class="insight-actions"><button class="primary">Apply Adjustment</button><button>Simulate Impact</button></div>
+      </div>
+      <div class="insight-card prediction">
+        <div class="insight-header"><span class="itype" style="background:var(--purple-light);color:var(--purple)">Prediction</span><span class="itime">Updated 1h ago</span></div>
+        <div class="insight-title">🔮 Farrowing Forecast — Next 14 Days</div>
+        <div class="insight-desc">23 sows predicted to farrow. Expected avg litter: 12.4 born alive. 3 high-risk sows identified (P7+, history of stillbirth).</div>
+        <div class="insight-recommendation"><span class="rec-icon">💡</span><span class="rec-text"><strong>Recommendation:</strong> Pre-assign foster mothers for #A-055, #A-078 (predicted 15+ litter). Schedule night watch for #B-012 (high-risk).</span></div>
+        <div class="insight-actions"><button class="primary">View Schedule</button><button>Adjust Forecast</button></div>
+      </div>
+      <div class="insight-card positive">
+        <div class="insight-header"><span class="itype" style="background:var(--success-light);color:var(--success)">Achievement</span><span class="itime">Yesterday</span></div>
+        <div class="insight-title">✅ 안성 1농장 — Top Performer</div>
+        <div class="insight-desc">PSY reached 27.1, ranking in national top 10%. Breeding efficiency improved 12% since protocol change in January.</div>
+      </div>
+    </div>
+
+    <!-- Anomaly Detection Panel -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Anomaly Monitor</span></div>
+      <div style="padding:0">
+        <table class="anom-table">
+          <thead><tr><th>Farm</th><th>Metric</th><th>Severity</th><th>Deviation</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:600;color:var(--danger)">평택 위탁</td>
+              <td>Mortality</td>
+              <td><span class="pill pill-bad" style="font-size:9px">Critical</span></td>
+              <td><div class="anom-bar" style="width:100px"><div class="anom-fill" style="width:92%;background:var(--danger)"></div></div></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">평택 위탁</td>
+              <td>NPD</td>
+              <td><span class="pill pill-bad" style="font-size:9px">High</span></td>
+              <td><div class="anom-bar" style="width:100px"><div class="anom-fill" style="width:78%;background:var(--danger)"></div></div></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">안성 2</td>
+              <td>Farrow Rate</td>
+              <td><span class="pill pill-warn" style="font-size:9px">Medium</span></td>
+              <td><div class="anom-bar" style="width:100px"><div class="anom-fill" style="width:45%;background:var(--accent)"></div></div></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">충남 홍성</td>
+              <td>FCR</td>
+              <td><span class="pill pill-warn" style="font-size:9px">Low</span></td>
+              <td><div class="anom-bar" style="width:100px"><div class="anom-fill" style="width:22%;background:var(--accent)"></div></div></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">베트남 1</td>
+              <td>Feed Cost</td>
+              <td><span class="pill pill-warn" style="font-size:9px">Low</span></td>
+              <td><div class="anom-bar" style="width:100px"><div class="anom-fill" style="width:18%;background:var(--accent)"></div></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// Prediction Chart
+new Chart(document.getElementById('chartPredict'),{
+  type:'line',
+  data:{
+    labels:['Oct','Nov','Dec','Jan','Feb','Mar','Apr*','May*','Jun*'],
+    datasets:[{
+      label:'Actual PSY',
+      data:[23.1,23.5,23.3,23.8,24.0,24.3,null,null,null],
+      borderColor:'#0D7C66',backgroundColor:'rgba(13,124,102,.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2
+    },{
+      label:'AI Forecast',
+      data:[null,null,null,null,null,24.3,24.8,25.1,25.4],
+      borderColor:'#7C3AED',borderDash:[6,3],backgroundColor:'rgba(124,58,237,.06)',fill:true,tension:.4,pointRadius:3,borderWidth:2,pointStyle:'triangle'
+    },{
+      label:'Industry Avg',
+      data:[22.1,22.1,22.1,22.1,22.1,22.1,22.1,22.1,22.1],
+      borderColor:'#94A3B8',borderDash:[4,4],borderWidth:1,pointRadius:0,fill:false
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10,family:'Inter'},usePointStyle:true}}},scales:{y:{min:20,max:28,grid:{color:'#E2E8F0'},ticks:{font:{size:10,family:'JetBrains Mono'}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
+});
+
+// Anomaly Chart
+new Chart(document.getElementById('chartAnomaly'),{
+  type:'bar',
+  data:{
+    labels:['안성1','충남홍성','안성2','평택위탁','베트남1'],
+    datasets:[{
+      label:'Mortality %',
+      data:[5.1,6.3,7.8,13.2,7.0],
+      backgroundColor:['#16A34A','#16A34A','#E8820E','#DC2626','#E8820E'],
+      borderRadius:6,barThickness:28
+    },{
+      label:'Threshold',
+      data:[6.5,6.5,6.5,6.5,6.5],
+      type:'line',borderColor:'#DC2626',borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10},usePointStyle:true}}},scales:{y:{beginAtZero:true,max:16,grid:{color:'#E2E8F0'},ticks:{font:{size:10,family:'JetBrains Mono'},callback:v=>v+'%'}},x:{grid:{display:false},ticks:{font:{size:10,weight:600}}}}}
+});
+</script>
+</body>
+</html>

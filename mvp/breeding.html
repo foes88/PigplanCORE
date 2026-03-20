@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — Today's Operations</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+/* Page-specific overrides */
+.main-grid{display:grid;grid-template-columns:1fr 320px;gap:14px}
+@media(max-width:1024px){.main-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">🐷</div>
+    <div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div>
+  </div>
+  <div class="nav-label">Today</div>
+  <a class="nav-item active" href="index.html"><span class="ni">📋</span> Today's Work</a>
+  <a class="nav-item" href="kpi.html"><span class="ni">📊</span> Dashboard</a>
+  <div class="nav-label">Breeding Cycle</div>
+  <a class="nav-item" href="breeding.html"><span class="ni">🔄</span> Pipeline View</a>
+  <a class="nav-item" href="record.html?event=mating"><span class="ni">💉</span> Breeding</a>
+  <a class="nav-item" href="#"><span class="ni">🤰</span> Gestation</a>
+  <a class="nav-item" href="record.html?event=farrowing"><span class="ni">🐖</span> Farrowing</a>
+  <a class="nav-item" href="#"><span class="ni">🍼</span> Lactation</a>
+  <a class="nav-item" href="record.html?event=weaning"><span class="ni">🌱</span> Weaning</a>
+  <div class="nav-label">Management</div>
+  <a class="nav-item" href="sows.html"><span class="ni">🐷</span> Sow Mgmt <span class="badge" style="background:var(--accent-light);color:var(--accent)">8</span></a>
+  <a class="nav-item" href="#"><span class="ni">🐗</span> Fattening</a>
+  <a class="nav-item" href="#"><span class="ni">🌾</span> Feed &amp; Cost</a>
+  <a class="nav-item" href="#"><span class="ni">💊</span> Health</a>
+  <a class="nav-item" href="#"><span class="ni">📦</span> Shipment</a>
+  <div class="nav-label">Intelligence</div>
+  <a class="nav-item" href="#"><span class="ni">🧠</span> AI Insights <span class="badge" style="background:var(--purple-light);color:var(--purple)">3</span></a>
+  <a class="nav-item" href="#"><span class="ni">⚡</span> Predictions</a>
+  <a class="nav-item" href="#"><span class="ni">🎯</span> Anomaly</a>
+  <div class="nav-label">Reports</div>
+  <a class="nav-item" href="#"><span class="ni">📋</span> Reports</a>
+  <a class="nav-item" href="#"><span class="ni">⚙️</span> Settings</a>
+  <div class="sidebar-footer">PigPlanCORE v1.0 · © 2026 Wiselake</div>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <h2>Today's Operations</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right">
+    <span class="top-date">2026.03.19 (Thu)</span>
+    <!-- Language & Unit Settings -->
+    <div class="settings-dropdown" id="settingsDropdown">
+      <div class="dd-trigger" onclick="toggleSettingsDropdown(event)">
+        <span class="lang-label">🌐 EN</span> ▾
+      </div>
+      <div class="dd-menu">
+        <div class="dd-section">
+          <div class="dd-section-label" data-i18n="language">Language</div>
+          <div class="dd-option lang-option active" data-lang="en" onclick="setLang('en')">🇺🇸 English <span class="check">✓</span></div>
+          <div class="dd-option lang-option" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어 <span class="check" style="display:none">✓</span></div>
+          <div class="dd-option lang-option" data-lang="vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt <span class="check" style="display:none">✓</span></div>
+        </div>
+        <div class="dd-divider"></div>
+        <div class="dd-section">
+          <div class="dd-section-label" data-i18n="unit_system">Unit System</div>
+          <div class="dd-option unit-option active" data-units="METRIC" onclick="setUnits('METRIC')">📏 Metric (kg, °C) <span class="check">✓</span></div>
+          <div class="dd-option unit-option" data-units="IMPERIAL" onclick="setUnits('IMPERIAL')">📐 Imperial (lb, °F) <span class="check" style="display:none">✓</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="top-btn">🔔<div class="notif-dot"></div></div>
+    <a href="record.html" class="btn btn-primary" data-i18n="record_event">＋ Record Event</a>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- AI Banner -->
+  <div class="ai-banner">
+    <div class="ai-icon">🧠</div>
+    <div class="ai-content">
+      <div class="ai-label"><div class="pulse"></div> AI INSIGHT — ACTION REQUIRED</div>
+      <div class="ai-title">Health Risk Detected: 평택 위탁농 — PRRS Suspected (87% confidence)</div>
+      <div class="ai-desc">Mortality pattern matches PRRS outbreak signature. 3 sows died in 48h. Recommend isolation &amp; PCR testing.</div>
+    </div>
+    <div class="ai-actions">
+      <button class="ai-btn-p">View Details</button>
+      <button class="ai-btn-s">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- Today Summary -->
+  <div class="today-strip">
+    <a href="record.html?event=mating" class="today-card"><div class="tc-icon">💉</div><div class="tc-value">12</div><div class="tc-label">Breeding Due</div></a>
+    <a href="#" class="today-card"><div class="tc-icon">🔍</div><div class="tc-value">8</div><div class="tc-label">Preg Check</div></a>
+    <a href="record.html?event=farrowing" class="today-card"><div class="tc-icon">🐖</div><div class="tc-value">5</div><div class="tc-label">Farrowing Due</div></a>
+    <a href="record.html?event=weaning" class="today-card"><div class="tc-icon">🌱</div><div class="tc-value">3</div><div class="tc-label">Weaning Due</div></a>
+    <a href="#" class="today-card"><div class="tc-icon">📦</div><div class="tc-value">1</div><div class="tc-label">Shipment</div></a>
+    <a href="#" class="today-card alert"><div class="tc-icon">🚨</div><div class="tc-value" style="color:var(--danger)">2</div><div class="tc-label" style="color:var(--danger)">Health Alerts</div></a>
+  </div>
+
+  <!-- Breeding Pipeline -->
+  <div class="pipeline">
+    <a href="record.html?event=mating" class="pipe-stage"><div class="ps-icon">💉</div><div class="ps-name">Breeding</div><div class="ps-count">12</div><div class="ps-sub">scheduled</div><div><span class="ps-tag" style="background:var(--blue-light);color:var(--blue)">Today 12</span></div><div class="pipe-arrow">→</div></a>
+    <a href="#" class="pipe-stage"><div class="ps-icon">🔍</div><div class="ps-name">Preg Check</div><div class="ps-count">8</div><div class="ps-sub">this week</div><div><span class="ps-tag" style="background:var(--accent-light);color:var(--accent)">4 overdue</span></div><div class="pipe-arrow">→</div></a>
+    <div class="pipe-stage active"><div class="ps-icon">🤰</div><div class="ps-name">Gestation</div><div class="ps-count">218</div><div class="ps-sub">in progress</div><div><span class="ps-tag" style="background:var(--success-light);color:var(--success)">On track</span></div><div class="pipe-arrow">→</div></div>
+    <a href="record.html?event=farrowing" class="pipe-stage"><div class="ps-icon">🐖</div><div class="ps-name">Farrowing</div><div class="ps-count">5</div><div class="ps-sub">due soon</div><div><span class="ps-tag" style="background:var(--danger-light);color:var(--danger)">1 overdue</span></div><div class="pipe-arrow">→</div></a>
+    <div class="pipe-stage"><div class="ps-icon">🍼</div><div class="ps-name">Lactation</div><div class="ps-count">85</div><div class="ps-sub">nursing</div><div><span class="ps-tag" style="background:var(--success-light);color:var(--success)">Avg D14</span></div><div class="pipe-arrow">→</div></div>
+    <a href="record.html?event=weaning" class="pipe-stage"><div class="ps-icon">🌱</div><div class="ps-name">Weaning</div><div class="ps-count">3</div><div class="ps-sub">this week</div><div><span class="ps-tag" style="background:var(--blue-light);color:var(--blue)">D21</span></div></a>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="main-grid">
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <!-- Tasks -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">📋 Today's Tasks</span><span class="card-badge" style="background:var(--primary-light);color:var(--primary)">2/7 done</span></div>
+        <div>
+          <div class="task-item"><div class="task-check done">✓</div><div class="task-info"><div class="tname done">Morning feed — Barn A, B, C</div><div class="tsub">Auto-feeder confirmed 06:30</div></div><div class="task-time">06:30</div><div class="task-priority" style="background:var(--success)"></div></div>
+          <div class="task-item"><div class="task-check done">✓</div><div class="task-info"><div class="tname done">Pregnancy check — 4 sows (D28)</div><div class="tsub">#A-015, #A-023, #A-031, #A-048 · All confirmed ✓</div></div><div class="task-time">08:00</div><div class="task-priority" style="background:var(--primary)"></div></div>
+          <a href="record.html?event=farrowing&sow=A-042" class="task-item" style="text-decoration:none;color:inherit"><div class="task-check"></div><div class="task-info"><div class="tname" style="color:var(--danger);font-weight:700">⚠ Farrowing — #A-042 (P3, D115 OVERDUE)</div><div class="tsub">Expected yesterday · Check sow immediately</div></div><div class="task-time" style="color:var(--danger)">ASAP</div><div class="task-priority" style="background:var(--danger)"></div></a>
+          <a href="record.html?event=mating" class="task-item" style="text-decoration:none;color:inherit"><div class="task-check"></div><div class="task-info"><div class="tname">Breeding — 12 sows (post-weaning group)</div><div class="tsub">Barn C · 3:00 PM · Technician assigned</div></div><div class="task-time">15:00</div><div class="task-priority" style="background:var(--primary)"></div></a>
+          <a href="record.html?event=weaning" class="task-item" style="text-decoration:none;color:inherit"><div class="task-check"></div><div class="task-info"><div class="tname">Weaning — 3 sows (D21)</div><div class="tsub">#A-018, #A-025, #A-039</div></div><div class="task-time">PM</div><div class="task-priority" style="background:var(--accent)"></div></a>
+          <div class="task-item"><div class="task-check"></div><div class="task-info"><div class="tname">Vaccine — PCV2 batch B-2026-11</div><div class="tsub">32 piglets · Nursery</div></div><div class="task-time">PM</div><div class="task-priority" style="background:var(--blue)"></div></div>
+          <div class="task-item"><div class="task-check"></div><div class="task-info"><div class="tname">Evening feed check + Bin #3 delivery</div><div class="tsub">Bin at 8% — delivery expected 4PM</div></div><div class="task-time">17:00</div><div class="task-priority" style="background:var(--accent)"></div></div>
+        </div>
+      </div>
+
+      <!-- Farrowing Due -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">🐖 Farrowing — Due &amp; Active</span><span class="card-action" onclick="location.href='breeding.html'">Pipeline →</span></div>
+        <div class="tl-mini">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--danger)"></div><div class="tl-content"><a href="sow-detail.html?id=A-042" class="sow-id" style="text-decoration:none">#A-042</a><div class="tl-meta">P3 · D115 · 분만사B-12</div></div><div class="tl-progress"><div class="fill" style="width:100%;background:var(--danger)"></div></div><div class="tl-status" style="background:var(--danger-light);color:var(--danger)">Overdue</div><a href="record.html?event=farrowing&sow=A-042" class="tl-action">Record →</a></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--accent)"></div><div class="tl-content"><a href="sow-detail.html?id=A-067" class="sow-id" style="text-decoration:none">#A-067</a><div class="tl-meta">P5 · D113 · 분만사B-14</div></div><div class="tl-progress"><div class="fill" style="width:99%;background:var(--accent)"></div></div><div class="tl-status" style="background:var(--accent-light);color:var(--accent)">Tomorrow</div><span class="tl-action">Prepare</span></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--primary)"></div><div class="tl-content"><a href="sow-detail.html?id=A-089" class="sow-id" style="text-decoration:none">#A-089</a><div class="tl-meta">P2 · D110 · 분만사B-08</div></div><div class="tl-progress"><div class="fill" style="width:96%;background:var(--primary)"></div></div><div class="tl-status" style="background:var(--primary-light);color:var(--primary)">4 days</div><span class="tl-action">View</span></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--success)"></div><div class="tl-content"><a href="sow-detail.html?id=B-018" class="sow-id" style="text-decoration:none">#B-018</a><div class="tl-meta">P5 · Born alive: 13 · Stillborn: 0</div></div><div class="tl-progress"><div class="fill" style="width:100%;background:var(--success)"></div></div><div class="tl-status" style="background:var(--success-light);color:var(--success)">✓ Done</div><span class="tl-action">View</span></div>
+        </div>
+      </div>
+
+      <!-- AI Recommendations -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">🧠 AI Recommendations</span><span class="card-badge" style="background:var(--purple-light);color:var(--purple)">3 new</span></div>
+        <div style="padding:4px 0">
+          <div class="insight-card warning"><div class="insight-header"><span class="itype" style="background:var(--accent-light);color:var(--accent)">Optimization</span><span class="itime">Today</span></div><div class="insight-title">🌾 Feed Adjustment — Barn A Gestating Sows</div><div class="insight-desc">FCR analysis: overfed by ~8%. Current 2.8kg/day → Optimal 2.6kg/day.</div><div class="insight-rec"><span class="ri">💡</span><span>Reduce ration by 200g for 42 sows. Est. savings: <strong>₩840K/month</strong>.</span></div><div class="insight-actions"><button class="primary">Apply</button><button>Simulate</button></div></div>
+          <div class="insight-card prediction"><div class="insight-header"><span class="itype" style="background:var(--purple-light);color:var(--purple)">Prediction</span><span class="itime">1h ago</span></div><div class="insight-title">🔮 Farrowing Forecast — 23 sows in 14 days</div><div class="insight-desc">Expected avg litter: 12.4. 3 high-risk sows identified (P7+).</div><div class="insight-rec"><span class="ri">💡</span><span>Pre-assign foster mothers for <strong>#A-055, #A-078</strong> (predicted 15+ litter).</span></div><div class="insight-actions"><button class="primary">View Schedule</button><button>Adjust</button></div></div>
+          <div class="insight-card positive"><div class="insight-header"><span class="itype" style="background:var(--success-light);color:var(--success)">Achievement</span><span class="itime">Yesterday</span></div><div class="insight-title">✅ 안성 1농장 PSY 27.1 — National Top 10%</div><div class="insight-desc">Breeding efficiency improved 12% since January protocol change.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Quick Actions</span></div>
+        <div class="action-grid">
+          <a href="record.html?event=mating" class="action-btn"><div class="ab-icon">💉</div><div class="ab-label">Breeding</div></a>
+          <a href="record.html?event=farrowing" class="action-btn"><div class="ab-icon">🐖</div><div class="ab-label">Farrowing</div></a>
+          <a href="record.html?event=weaning" class="action-btn"><div class="ab-icon">🌱</div><div class="ab-label">Weaning</div></a>
+          <a href="record.html?event=treatment" class="action-btn"><div class="ab-icon">💊</div><div class="ab-label">Treatment</div></a>
+          <a href="record.html?event=shipment" class="action-btn"><div class="ab-icon">📦</div><div class="ab-label">Shipment</div></a>
+          <a href="record.html?event=weight" class="action-btn"><div class="ab-icon">⚖️</div><div class="ab-label">Weight</div></a>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">🚨 Alerts</span><span class="card-badge" style="background:var(--danger-light);color:var(--danger)">2 critical</span></div>
+        <div>
+          <a href="record.html?event=farrowing&sow=A-042" class="alert-item" style="text-decoration:none;color:inherit"><div class="alert-dot" style="background:var(--danger-light)">🚨</div><div class="alert-info"><div class="atitle" style="color:var(--danger)">#A-042 Farrowing Overdue (D115)</div><div class="adesc">Expected yesterday. Check immediately.</div></div><div class="alert-time">2h</div></a>
+          <div class="alert-item"><div class="alert-dot" style="background:var(--purple-light)">🧠</div><div class="alert-info"><div class="atitle" style="color:var(--purple)">AI: 평택 PRRS Risk 87%</div><div class="adesc">Mortality pattern anomaly detected</div></div><div class="alert-time">2h</div></div>
+          <div class="alert-item"><div class="alert-dot" style="background:var(--accent-light)">⚠️</div><div class="alert-info"><div class="atitle">Feed Bin #3 — 8% remaining</div><div class="adesc">Auto-order placed. Delivery 4PM.</div></div><div class="alert-time">4h</div></div>
+          <a href="record.html?event=mating" class="alert-item" style="text-decoration:none;color:inherit"><div class="alert-dot" style="background:var(--blue-light)">💉</div><div class="alert-info"><div class="atitle">Breeding scheduled — 12 sows</div><div class="adesc">Barn C · 3PM · Technician assigned</div></div><div class="alert-time">now</div></a>
+          <a href="sows.html?filter=npd" class="alert-item" style="text-decoration:none;color:inherit"><div class="alert-dot" style="background:var(--primary-light)">🔄</div><div class="alert-info"><div class="atitle">NPD Alert — 8 sows > 30 days</div><div class="adesc">Consider re-breeding or cull review</div></div><div class="alert-time">today</div></a>
+        </div>
+      </div>
+
+      <!-- Herd Summary -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Herd Summary</span><span class="card-action" onclick="location.href='sows.html'">Detail →</span></div>
+        <div style="padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <a href="sows.html?status=GESTATING" style="background:var(--bg);border-radius:8px;padding:10px 12px;text-decoration:none;color:inherit"><div style="font-size:9px;color:var(--text-3)">Gestating</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700">218</div><div style="font-size:9px;color:var(--success)">Normal</div></a>
+          <a href="sows.html?status=LACTATING" style="background:var(--bg);border-radius:8px;padding:10px 12px;text-decoration:none;color:inherit"><div style="font-size:9px;color:var(--text-3)">Lactating</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700">85</div><div style="font-size:9px;color:var(--success)">Avg D14</div></a>
+          <a href="sows.html?filter=npd" style="background:var(--bg);border-radius:8px;padding:10px 12px;text-decoration:none;color:inherit"><div style="font-size:9px;color:var(--text-3)">Open/NPD</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--accent)">42</div><div style="font-size:9px;color:var(--accent)">8 over 30d ⚠</div></a>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:var(--text-3)">Finisher</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700">340</div><div style="font-size:9px;color:var(--success)">Ship ready</div></div>
+        </div>
+      </div>
+
+      <!-- AI Predictions -->
+      <div class="card" style="background:linear-gradient(135deg,#0F172A,#1E293B);border-color:#1E293B">
+        <div style="padding:14px 16px">
+          <div style="font-size:10px;font-weight:700;color:var(--purple);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">🧠 AI Predictions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:rgba(255,255,255,.4)">Next Month PSY</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:#fff">24.8</div><div style="font-size:9px;color:var(--success)">▲ +2.1%</div></div>
+            <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:rgba(255,255,255,.4)">Farrow Rate</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:#fff">84.1%</div><div style="font-size:9px;color:var(--success)">▲ recovering</div></div>
+            <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:rgba(255,255,255,.4)">Feed Savings</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--purple)">₩12M</div><div style="font-size:9px;color:rgba(255,255,255,.4)">/month potential</div></div>
+            <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:rgba(255,255,255,.4)">Anomalies</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--danger)">1</div><div style="font-size:9px;color:var(--danger)">평택 Critical</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="data/mock-data.js"></script>
+<script src="js/shared.js"></script>
+</body>
+</html>

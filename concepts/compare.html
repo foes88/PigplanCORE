@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — 시안 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#0F172A;color:#fff;min-height:100vh}
+
+/* ── Top Control Bar ── */
+.control-bar{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(15,23,42,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding:10px 24px;display:flex;align-items:center;gap:16px;
+}
+.control-bar h1{font-size:14px;font-weight:800;white-space:nowrap}
+.control-bar h1 span{color:#0D7C66}
+.layout-btns{display:flex;gap:4px;margin-left:16px}
+.layout-btns button{
+  font-family:inherit;font-size:11px;font-weight:600;
+  padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.12);
+  background:transparent;color:rgba(255,255,255,.5);cursor:pointer;transition:all .12s;
+}
+.layout-btns button:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+.layout-btns button.active{background:#0D7C66;color:#fff;border-color:#0D7C66}
+.scale-slider{display:flex;align-items:center;gap:8px;margin-left:auto}
+.scale-slider label{font-size:10px;color:rgba(255,255,255,.4)}
+.scale-slider input[type=range]{width:120px;accent-color:#0D7C66}
+.scale-slider .val{font-size:11px;font-weight:700;color:#0D7C66;min-width:32px}
+.fullscreen-hint{font-size:10px;color:rgba(255,255,255,.3);margin-left:12px}
+
+/* ── Frame Container ── */
+.frame-container{
+  margin-top:52px;padding:16px;
+  display:grid;gap:12px;
+  height:calc(100vh - 52px);
+  transition:all .3s ease;
+}
+.frame-container.grid-5{grid-template-columns:repeat(5,1fr)}
+.frame-container.grid-3{grid-template-columns:repeat(3,1fr)}
+.frame-container.grid-2{grid-template-columns:repeat(2,1fr)}
+.frame-container.grid-1{grid-template-columns:1fr}
+.frame-container.grid-3 .frame-box:nth-child(4),
+.frame-container.grid-3 .frame-box:nth-child(5){grid-column:span 1}
+
+/* ── Frame Box ── */
+.frame-box{
+  background:#1E293B;border:1.5px solid rgba(255,255,255,.06);
+  border-radius:12px;overflow:hidden;display:flex;flex-direction:column;
+  transition:all .2s;position:relative;min-height:0;
+}
+.frame-box:hover{border-color:#0D7C66;box-shadow:0 0 0 1px #0D7C66}
+.frame-box.expanded{
+  position:fixed;top:52px;left:0;right:0;bottom:0;z-index:500;
+  border-radius:0;border:none;margin:0;
+}
+.frame-label{
+  padding:8px 14px;background:rgba(15,23,42,.9);
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  flex-shrink:0;
+}
+.frame-label .num{
+  font-size:9px;font-weight:800;
+  background:#0D7C66;color:#fff;
+  padding:2px 6px;border-radius:4px;
+}
+.frame-label .name{font-size:11px;font-weight:700;flex:1}
+.frame-label .focus{font-size:9px;color:rgba(255,255,255,.35)}
+.frame-label .actions{display:flex;gap:4px}
+.frame-label .actions button{
+  width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,.1);
+  background:transparent;color:rgba(255,255,255,.4);cursor:pointer;
+  font-size:12px;display:flex;align-items:center;justify-content:center;
+  transition:all .1s;
+}
+.frame-label .actions button:hover{color:#fff;background:rgba(255,255,255,.08)}
+.frame-wrap{flex:1;min-height:0;overflow:hidden}
+.frame-wrap iframe{
+  width:100%;height:100%;border:none;
+  transform-origin:0 0;
+}
+
+/* ── Overlay for expanded close ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:499}
+.overlay.show{display:block}
+</style>
+</head>
+<body>
+
+<div class="control-bar">
+  <h1>🐷 PigPlan<span>CORE</span> — 시안 비교</h1>
+  <div class="layout-btns">
+    <button onclick="setLayout(5)" class="active" id="btn5">5분할</button>
+    <button onclick="setLayout(3)" id="btn3">3분할</button>
+    <button onclick="setLayout(2)" id="btn2">2분할</button>
+  </div>
+  <div class="scale-slider">
+    <label>Scale</label>
+    <input type="range" min="30" max="100" value="50" id="scaleRange" oninput="setScale(this.value)">
+    <span class="val" id="scaleVal">50%</span>
+  </div>
+  <span class="fullscreen-hint">클릭하면 확대 · ESC로 닫기</span>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeExpanded()"></div>
+
+<div class="frame-container grid-5" id="frameContainer">
+  <div class="frame-box" id="f1">
+    <div class="frame-label">
+      <span class="num">01</span>
+      <span class="name">Enterprise Dashboard</span>
+      <span class="focus">경영진 종합 현황</span>
+      <div class="actions">
+        <button onclick="toggleExpand('f1')" title="확대">⛶</button>
+        <button onclick="openNew('01-enterprise-dashboard.html')" title="새 탭">↗</button>
+      </div>
+    </div>
+    <div class="frame-wrap"><iframe src="01-enterprise-dashboard.html" loading="lazy"></iframe></div>
+  </div>
+  <div class="frame-box" id="f2">
+    <div class="frame-label">
+      <span class="num">02</span>
+      <span class="name">Farm Operations</span>
+      <span class="focus">현장 작업 중심</span>
+      <div class="actions">
+        <button onclick="toggleExpand('f2')" title="확대">⛶</button>
+        <button onclick="openNew('02-farm-operations.html')" title="새 탭">↗</button>
+      </div>
+    </div>
+    <div class="frame-wrap"><iframe src="02-farm-operations.html" loading="lazy"></iframe></div>
+  </div>
+  <div class="frame-box" id="f3">
+    <div class="frame-label">
+      <span class="num">03</span>
+      <span class="name">Smart AI</span>
+      <span class="focus">AI 예측·인사이트</span>
+      <div class="actions">
+        <button onclick="toggleExpand('f3')" title="확대">⛶</button>
+        <button onclick="openNew('03-smart-ai.html')" title="새 탭">↗</button>
+      </div>
+    </div>
+    <div class="frame-wrap"><iframe src="03-smart-ai.html" loading="lazy"></iframe></div>
+  </div>
+  <div class="frame-box" id="f4">
+    <div class="frame-label">
+      <span class="num">04</span>
+      <span class="name">Herd Management</span>
+      <span class="focus">돈군 그룹 관리</span>
+      <div class="actions">
+        <button onclick="toggleExpand('f4')" title="확대">⛶</button>
+        <button onclick="openNew('04-herd-management.html')" title="새 탭">↗</button>
+      </div>
+    </div>
+    <div class="frame-wrap"><iframe src="04-herd-management.html" loading="lazy"></iframe></div>
+  </div>
+  <div class="frame-box" id="f5">
+    <div class="frame-label">
+      <span class="num">05</span>
+      <span class="name">Breeding Workflow</span>
+      <span class="focus">번식 파이프라인</span>
+      <div class="actions">
+        <button onclick="toggleExpand('f5')" title="확대">⛶</button>
+        <button onclick="openNew('05-breeding-workflow.html')" title="새 탭">↗</button>
+      </div>
+    </div>
+    <div class="frame-wrap"><iframe src="05-breeding-workflow.html" loading="lazy"></iframe></div>
+  </div>
+</div>
+
+<script>
+var currentScale = 50;
+var expandedId = null;
+
+function setScale(v) {
+  currentScale = parseInt(v);
+  document.getElementById('scaleVal').textContent = v + '%';
+  applyScale();
+}
+
+function applyScale() {
+  var s = currentScale / 100;
+  document.querySelectorAll('.frame-wrap iframe').forEach(function(iframe) {
+    var box = iframe.closest('.frame-box');
+    if (box.classList.contains('expanded')) {
+      iframe.style.transform = 'scale(1)';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+    } else {
+      iframe.style.transform = 'scale(' + s + ')';
+      iframe.style.width = (100 / s) + '%';
+      iframe.style.height = (100 / s) + '%';
+    }
+  });
+}
+
+function setLayout(n) {
+  var c = document.getElementById('frameContainer');
+  c.className = 'frame-container grid-' + n;
+  document.querySelectorAll('.layout-btns button').forEach(function(b){ b.classList.remove('active') });
+  document.getElementById('btn' + n).classList.add('active');
+  setTimeout(applyScale, 50);
+}
+
+function toggleExpand(id) {
+  var box = document.getElementById(id);
+  var overlay = document.getElementById('overlay');
+  if (box.classList.contains('expanded')) {
+    closeExpanded();
+  } else {
+    if (expandedId) closeExpanded();
+    box.classList.add('expanded');
+    overlay.classList.add('show');
+    expandedId = id;
+    applyScale();
+  }
+}
+
+function closeExpanded() {
+  if (expandedId) {
+    document.getElementById(expandedId).classList.remove('expanded');
+    expandedId = null;
+  }
+  document.getElementById('overlay').classList.remove('show');
+  applyScale();
+}
+
+function openNew(url) {
+  window.open(url, '_blank');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeExpanded();
+});
+
+// Initial scale
+setTimeout(applyScale, 300);
+</script>
+</body>
+</html>

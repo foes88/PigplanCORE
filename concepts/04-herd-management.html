@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — 04 Herd Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#0D7C66;--primary-light:#E8F5F1;--accent:#E8820E;--accent-light:#FFF4E5;--danger:#DC2626;--danger-light:#FEF2F2;--success:#16A34A;--success-light:#F0FDF4;--blue:#2563EB;--blue-light:#EFF6FF;--bg:#F4F6F8;--surface:#FFFFFF;--border:#E2E8F0;--text-1:#0F172A;--text-2:#475569;--text-3:#94A3B8;--sidebar-w:240px;--topbar-h:56px;--radius:12px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-1);min-height:100vh}
+
+.sidebar{width:var(--sidebar-w);height:100vh;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;z-index:200;display:flex;flex-direction:column}
+.sidebar-brand{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sidebar-brand .logo{width:32px;height:32px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.sidebar-brand .name{font-size:14px;font-weight:700}.sidebar-brand .name span{color:var(--primary)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:12px;font-weight:500;color:var(--text-2);cursor:pointer;margin:1px 8px;border-radius:8px;transition:all .12s}
+.nav-item:hover{background:var(--bg)}
+.nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.nav-item .ni{width:18px;text-align:center;font-size:14px}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);padding:16px 16px 6px}
+
+.topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;position:fixed;top:0;left:var(--sidebar-w);right:0;z-index:100}
+.topbar h2{font-size:15px;font-weight:700}
+.top-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+
+.main{margin-left:var(--sidebar-w);margin-top:var(--topbar-h);padding:24px 28px 60px}
+
+/* ── Filter Bar ── */
+.filter-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.filter-chip{font-family:inherit;font-size:11px;font-weight:500;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:6px}
+.filter-chip:hover{border-color:var(--primary);color:var(--primary)}
+.filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.filter-chip select{font-family:inherit;font-size:11px;border:none;background:none;color:inherit;cursor:pointer;outline:none}
+.filter-search{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 14px;margin-left:auto}
+.filter-search input{border:none;background:none;font-family:inherit;font-size:11px;outline:none;width:180px}
+.view-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.view-toggle button{font-family:inherit;font-size:11px;font-weight:600;padding:7px 12px;border:none;background:var(--surface);color:var(--text-3);cursor:pointer}
+.view-toggle button.active{background:var(--primary);color:#fff}
+
+/* ── Summary Strip ── */
+.summary-strip{display:flex;gap:16px;margin-bottom:20px}
+.ss-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.ss-dot{width:8px;height:8px;border-radius:50%}
+.ss-value{font-family:'JetBrains Mono';font-weight:700}
+.ss-label{color:var(--text-3)}
+
+/* ── Herd Cards ── */
+.herd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.herd-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:all .15s;cursor:pointer}
+.herd-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.06);transform:translateY(-1px)}
+.herd-card.critical{border-left:3px solid var(--danger)}
+.herd-card.warning{border-left:3px solid var(--accent)}
+.herd-card.normal{border-left:3px solid var(--primary)}
+.herd-card.good{border-left:3px solid var(--success)}
+.hc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.hc-name{font-size:14px;font-weight:700}
+.hc-sub{font-size:10px;color:var(--text-3);margin-top:2px}
+.hc-status{font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px}
+.hc-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hc-stat{background:var(--bg);border-radius:8px;padding:8px 10px}
+.hc-stat .label{font-size:9px;color:var(--text-3);margin-bottom:2px}
+.hc-stat .value{font-family:'JetBrains Mono';font-size:14px;font-weight:700}
+.hc-bar{margin-top:10px}
+.hc-bar-label{display:flex;justify-content:space-between;font-size:9px;color:var(--text-3);margin-bottom:4px}
+.hc-bar-track{height:4px;background:var(--border);border-radius:2px}
+.hc-bar-fill{height:100%;border-radius:2px}
+.hc-indicators{display:flex;gap:4px;margin-top:10px;flex-wrap:wrap}
+.hc-ind{font-size:9px;font-weight:600;padding:2px 7px;border-radius:6px}
+
+/* ── Table View ── */
+.data-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.data-table th{font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--text-3);text-align:left;padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--border)}
+.data-table th.r{text-align:right}
+.data-table td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border)}
+.data-table tr:hover td{background:var(--bg)}
+.data-table td.r{text-align:right;font-family:'JetBrains Mono';font-size:11px}
+.pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span></div></div>
+  <div class="nav-label">Overview</div>
+  <div class="nav-item"><span class="ni">📊</span> Dashboard</div>
+  <div class="nav-label">Herd</div>
+  <div class="nav-item active"><span class="ni">🐷</span> Sow Groups</div>
+  <div class="nav-item"><span class="ni">🐗</span> Fattening Batches</div>
+  <div class="nav-item"><span class="ni">🔍</span> Individual Lookup</div>
+  <div class="nav-label">Operations</div>
+  <div class="nav-item"><span class="ni">🔄</span> Breeding</div>
+  <div class="nav-item"><span class="ni">🌾</span> Feed & Cost</div>
+  <div class="nav-item"><span class="ni">💊</span> Health</div>
+  <div class="nav-item"><span class="ni">📦</span> Shipment</div>
+  <div class="nav-label">Reports</div>
+  <div class="nav-item"><span class="ni">📋</span> Reports</div>
+  <div class="nav-item"><span class="ni">⚙️</span> Settings</div>
+</aside>
+
+<header class="topbar">
+  <h2>Sow Groups — 안성 1농장</h2>
+  <div class="top-right">
+    <select style="font-family:inherit;font-size:11px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface)"><option>안성 1농장</option><option>충남 홍성</option></select>
+    <div style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer">🔔</div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="filter-chip active">All Groups</div>
+    <div class="filter-chip">🔄 Breeding</div>
+    <div class="filter-chip">🤰 Gestating</div>
+    <div class="filter-chip">🐖 Farrowing</div>
+    <div class="filter-chip">🍼 Lactating</div>
+    <div class="filter-chip">⏸️ Open/NPD</div>
+    <div class="filter-chip">🐗 Fattening</div>
+    <div class="filter-search">🔍 <input placeholder="Search sow #, barn, batch..."></div>
+    <div class="view-toggle">
+      <button class="active">▦ Cards</button>
+      <button>☰ Table</button>
+    </div>
+  </div>
+
+  <!-- Summary Strip -->
+  <div class="summary-strip">
+    <div class="ss-item"><div class="ss-dot" style="background:var(--primary)"></div><span class="ss-value">680</span><span class="ss-label">Total Sows</span></div>
+    <div class="ss-item"><div class="ss-dot" style="background:var(--blue)"></div><span class="ss-value">218</span><span class="ss-label">Gestating</span></div>
+    <div class="ss-item"><div class="ss-dot" style="background:var(--success)"></div><span class="ss-value">85</span><span class="ss-label">Lactating</span></div>
+    <div class="ss-item"><div class="ss-dot" style="background:var(--accent)"></div><span class="ss-value">42</span><span class="ss-label">Open</span></div>
+    <div class="ss-item"><div class="ss-dot" style="background:var(--danger)"></div><span class="ss-value">3</span><span class="ss-label">Critical</span></div>
+  </div>
+
+  <!-- Herd Cards -->
+  <div class="herd-grid">
+    <div class="herd-card good">
+      <div class="hc-top">
+        <div><div class="hc-name">Gestation Barn A</div><div class="hc-sub">Barn A · 72 sows · Avg D68</div></div>
+        <div class="hc-status" style="background:var(--success-light);color:var(--success)">Normal</div>
+      </div>
+      <div class="hc-stats">
+        <div class="hc-stat"><div class="label">Avg Parity</div><div class="value">3.2</div></div>
+        <div class="hc-stat"><div class="label">Due This Week</div><div class="value">0</div></div>
+        <div class="hc-stat"><div class="label">Preg Confirmed</div><div class="value" style="color:var(--success)">98%</div></div>
+        <div class="hc-stat"><div class="label">Avg BCS</div><div class="value">3.4</div></div>
+      </div>
+      <div class="hc-bar"><div class="hc-bar-label"><span>Capacity</span><span>72 / 80 (90%)</span></div><div class="hc-bar-track"><div class="hc-bar-fill" style="width:90%;background:var(--success)"></div></div></div>
+    </div>
+
+    <div class="herd-card normal">
+      <div class="hc-top">
+        <div><div class="hc-name">Gestation Barn B</div><div class="hc-sub">Barn B · 68 sows · Avg D42</div></div>
+        <div class="hc-status" style="background:var(--primary-light);color:var(--primary)">Normal</div>
+      </div>
+      <div class="hc-stats">
+        <div class="hc-stat"><div class="label">Avg Parity</div><div class="value">2.8</div></div>
+        <div class="hc-stat"><div class="label">Preg Check Due</div><div class="value" style="color:var(--accent)">8</div></div>
+        <div class="hc-stat"><div class="label">Preg Confirmed</div><div class="value">85%</div></div>
+        <div class="hc-stat"><div class="label">Avg BCS</div><div class="value">3.2</div></div>
+      </div>
+      <div class="hc-bar"><div class="hc-bar-label"><span>Capacity</span><span>68 / 80 (85%)</span></div><div class="hc-bar-track"><div class="hc-bar-fill" style="width:85%;background:var(--primary)"></div></div></div>
+    </div>
+
+    <div class="herd-card warning">
+      <div class="hc-top">
+        <div><div class="hc-name">Gestation Barn C</div><div class="hc-sub">Barn C · 78 sows · Avg D98</div></div>
+        <div class="hc-status" style="background:var(--accent-light);color:var(--accent)">Crowded</div>
+      </div>
+      <div class="hc-stats">
+        <div class="hc-stat"><div class="label">Avg Parity</div><div class="value">4.1</div></div>
+        <div class="hc-stat"><div class="label">Farrowing Due</div><div class="value" style="color:var(--danger)">5</div></div>
+        <div class="hc-stat"><div class="label">Preg Confirmed</div><div class="value">92%</div></div>
+        <div class="hc-stat"><div class="label">Avg BCS</div><div class="value" style="color:var(--accent)">2.8</div></div>
+      </div>
+      <div class="hc-bar"><div class="hc-bar-label"><span>Capacity</span><span style="color:var(--accent)">78 / 75 (104%)</span></div><div class="hc-bar-track"><div class="hc-bar-fill" style="width:100%;background:var(--accent)"></div></div></div>
+      <div class="hc-indicators"><span class="hc-ind" style="background:var(--accent-light);color:var(--accent)">⚠ Over capacity</span><span class="hc-ind" style="background:var(--danger-light);color:var(--danger)">5 farrow due</span></div>
+    </div>
+
+    <div class="herd-card good">
+      <div class="hc-top">
+        <div><div class="hc-name">Farrowing House</div><div class="hc-sub">Building D · 48 crates · 42 occupied</div></div>
+        <div class="hc-status" style="background:var(--success-light);color:var(--success)">Active</div>
+      </div>
+      <div class="hc-stats">
+        <div class="hc-stat"><div class="label">Lactating</div><div class="value">42</div></div>
+        <div class="hc-stat"><div class="label">Weaning Due</div><div class="value">3</div></div>
+        <div class="hc-stat"><div class="label">Avg Litter</div><div class="value">11.8</div></div>
+        <div class="hc-stat"><div class="label">Pre-wean Mort</div><div class="value" style="color:var(--success)">4.2%</div></div>
+      </div>
+      <div class="hc-bar"><div class="hc-bar-label"><span>Occupancy</span><span>42 / 48 (88%)</span></div><div class="hc-bar-track"><div class="hc-bar-fill" style="width:88%;background:var(--success)"></div></div></div>
+    </div>
+
+    <div class="herd-card critical">
+      <div class="hc-top">
+        <div><div class="hc-name">Open / NPD Sows</div><div class="hc-sub">Mixed barns · 42 sows</div></div>
+        <div class="hc-status" style="background:var(--danger-light);color:var(--danger)">Attention</div>
+      </div>
+      <div class="hc-stats">
+        <div class="hc-stat"><div class="label">Avg NPD</div><div class="value" style="color:var(--danger)">18d</div></div>
+        <div class="hc-stat"><div class="label">NPD > 30d</div><div class="value" style="color:var(--danger)">8</div></div>
+        <div class="hc-stat"><div class="label">Breeding Ready</div><div class="value" style="color:var(--success)">12</div></div>
+        <div class="hc-stat"><div class="label">Cull Candidate</div><div class="value" style="color:var(--accent)">4</div></div>
+      </div>
+      <div class="hc-indicators">
+        <span class="hc-ind" style="background:var(--danger-light);color:var(--danger)">8 sows NPD >30d</span>
+        <span class="hc-ind" style="background:var(--accent-light);color:var(--accent)">4 cull review</span>
+      </div>
+    </div>
+
+    <div class="herd-card normal">
+      <div class="hc-top">
+        <div><div class="hc-name">Nursery — Batch 2026-10</div><div class="hc-sub">Nursery B · 180 piglets · D18</div></div>
+        <div class="hc-status" style="background:var(--primary-light);color:var(--primary)">Growing</div>
+      </div>
+      <div class="hc-stats">
+        <div class="hc-stat"><div class="label">Avg Weight</div><div class="value">8.2kg</div></div>
+        <div class="hc-stat"><div class="label">ADG</div><div class="value">280g</div></div>
+        <div class="hc-stat"><div class="label">Mortality</div><div class="value" style="color:var(--success)">1.1%</div></div>
+        <div class="hc-stat"><div class="label">FCR</div><div class="value">1.42</div></div>
+      </div>
+      <div class="hc-bar"><div class="hc-bar-label"><span>Growth Progress</span><span>8.2 / 25kg target</span></div><div class="hc-bar-track"><div class="hc-bar-fill" style="width:33%;background:var(--primary)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Table View Preview -->
+  <div style="font-size:13px;font-weight:700;margin-bottom:10px">Individual Sows — Open/NPD (42 sows)</div>
+  <table class="data-table">
+    <thead><tr><th>Sow #</th><th>Parity</th><th>Status</th><th class="r">NPD</th><th class="r">Last Event</th><th>Barn</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td style="font-family:'JetBrains Mono';font-weight:600">#A-015</td><td>P5</td><td><span class="pill" style="background:var(--danger-light);color:var(--danger)">NPD 42d</span></td><td class="r" style="color:var(--danger);font-weight:700">42d</td><td class="r">Weaned Feb 05</td><td>Barn E</td><td><span style="font-size:11px;font-weight:600;color:var(--primary);cursor:pointer">Breed →</span></td></tr>
+      <tr><td style="font-family:'JetBrains Mono';font-weight:600">#A-023</td><td>P7</td><td><span class="pill" style="background:var(--danger-light);color:var(--danger)">NPD 38d</span></td><td class="r" style="color:var(--danger);font-weight:700">38d</td><td class="r">Weaned Feb 09</td><td>Barn E</td><td><span style="font-size:11px;font-weight:600;color:var(--accent);cursor:pointer">Cull Review →</span></td></tr>
+      <tr><td style="font-family:'JetBrains Mono';font-weight:600">#A-048</td><td>P2</td><td><span class="pill" style="background:var(--success-light);color:var(--success)">Heat Detected</span></td><td class="r">6d</td><td class="r">Weaned Mar 13</td><td>Barn C</td><td><span style="font-size:11px;font-weight:600;color:var(--primary);cursor:pointer">Breed →</span></td></tr>
+      <tr><td style="font-family:'JetBrains Mono';font-weight:600">#A-055</td><td>P3</td><td><span class="pill" style="background:var(--accent-light);color:var(--accent)">Waiting</span></td><td class="r">12d</td><td class="r">Weaned Mar 07</td><td>Barn C</td><td><span style="font-size:11px;font-weight:600;color:var(--text-3);cursor:pointer">Monitor →</span></td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>

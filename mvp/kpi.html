@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — KPI Dashboard</title>
+<link rel="stylesheet" href="css/global.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:1024px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;border-top:3px solid var(--border);transition:all .15s}
+.kpi-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.06);transform:translateY(-1px)}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.kpi-pct{font-family:'JetBrains Mono';font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--bg);color:var(--text-3)}
+.kpi-value{font-family:'JetBrains Mono';font-size:22px;font-weight:700;margin-bottom:2px}
+.kpi-label{font-size:10px;color:var(--text-3)}
+.kpi-change{font-family:'JetBrains Mono';font-size:10px;margin-top:4px}
+.kpi-change.up{color:var(--success)}.kpi-change.down{color:var(--danger)}
+.kpi-compare{font-family:'JetBrains Mono';font-size:9px;color:var(--text-3);margin-top:3px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:1024px){.chart-grid{grid-template-columns:1fr}}
+.chart-wrap{height:220px;position:relative}
+.bench-table{width:100%;border-collapse:collapse}
+.bench-table th{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text-3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
+.bench-table td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border)}
+.bench-table tr:hover td{background:var(--bg)}
+.bench-table td.r{text-align:right;font-family:'JetBrains Mono';font-size:11px}
+.pct-bar{width:100px;height:6px;background:var(--border);border-radius:3px;display:inline-block;vertical-align:middle;margin-right:6px}
+.pct-fill{height:100%;border-radius:3px}
+.roi-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:center}
+.roi-item:last-child{border-bottom:none}
+.roi-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.roi-info{flex:1}
+.roi-info .rn{font-size:12px;font-weight:600;margin-bottom:2px}
+.roi-info .rd{font-size:10px;color:var(--text-2)}
+.roi-value{font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--success);text-align:right}
+.roi-value .rv-sub{font-size:9px;color:var(--text-3);font-weight:400}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1024px){.bottom-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div></div>
+  <div class="nav-label">Today</div>
+  <a class="nav-item" href="index.html"><span class="ni">📋</span> Today's Work</a>
+  <a class="nav-item active" href="kpi.html"><span class="ni">📊</span> Dashboard</a>
+  <div class="nav-label">Breeding Cycle</div>
+  <a class="nav-item" href="record.html?event=mating"><span class="ni">💉</span> Breeding</a>
+  <a class="nav-item" href="record.html?event=farrowing"><span class="ni">🐖</span> Farrowing</a>
+  <a class="nav-item" href="record.html?event=weaning"><span class="ni">🌱</span> Weaning</a>
+  <div class="nav-label">Management</div>
+  <a class="nav-item" href="sows.html"><span class="ni">🐷</span> Sow Mgmt</a>
+  <div class="nav-label">Intelligence</div>
+  <a class="nav-item" href="#"><span class="ni">🧠</span> AI Insights</a>
+  <div class="nav-label">Reports</div>
+  <a class="nav-item" href="#"><span class="ni">📋</span> Reports</a>
+  <a class="nav-item" href="#"><span class="ni">⚙️</span> Settings</a>
+  <div class="sidebar-footer">PigPlanCORE v1.0</div>
+</aside>
+
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <h2>KPI Dashboard</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right">
+    <button class="btn">📅 Mar 2026</button>
+    <button class="btn">⬇ Export</button>
+    <div class="settings-dropdown" id="settingsDropdown"><div class="dd-trigger" onclick="toggleSettingsDropdown(event)"><span class="lang-label">🌐 EN</span> ▾</div><div class="dd-menu"><div class="dd-section"><div class="dd-section-label">Language</div><div class="dd-option lang-option active" data-lang="en" onclick="setLang('en')">🇺🇸 English <span class="check">✓</span></div><div class="dd-option lang-option" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어 <span class="check" style="display:none">✓</span></div><div class="dd-option lang-option" data-lang="vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt <span class="check" style="display:none">✓</span></div></div><div class="dd-divider"></div><div class="dd-section"><div class="dd-section-label">Unit System</div><div class="dd-option unit-option active" data-units="METRIC" onclick="setUnits('METRIC')">📏 Metric (kg, °C) <span class="check">✓</span></div><div class="dd-option unit-option" data-units="IMPERIAL" onclick="setUnits('IMPERIAL')">📐 Imperial (lb, °F) <span class="check" style="display:none">✓</span></div></div></div></div>
+    <a href="record.html" class="btn btn-primary">＋ Record</a>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="border-top-color:var(--primary)">
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--primary-light)">🐷</div><div class="kpi-pct">65th</div></div>
+      <div class="kpi-value">24.3</div><div class="kpi-label">PSY (Pigs/Sow/Year)</div>
+      <div class="kpi-change up">▲ +1.2 vs last month</div><div class="kpi-compare">National avg: 21.9 · Top 10%: 32.5</div>
+    </div>
+    <div class="kpi-card" style="border-top-color:var(--accent)">
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--accent-light)">🔄</div><div class="kpi-pct">55th</div></div>
+      <div class="kpi-value">82.4%</div><div class="kpi-label">Farrowing Rate</div>
+      <div class="kpi-change down">▼ -1.1% vs target 85%</div><div class="kpi-compare">National avg: 80% · Top: 92%</div>
+    </div>
+    <div class="kpi-card" style="border-top-color:var(--blue)">
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--blue-light)">⏱</div><div class="kpi-pct">58th</div></div>
+      <div class="kpi-value">38d</div><div class="kpi-label">NPD (Non-Productive Days)</div>
+      <div class="kpi-change down">▼ +8d vs target 30d</div><div class="kpi-compare">Target: 30d · Limit: 40d</div>
+    </div>
+    <div class="kpi-card" style="border-top-color:var(--danger)">
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--danger-light)">💀</div><div class="kpi-pct">—</div></div>
+      <div class="kpi-value">14.2%</div><div class="kpi-label">Pre-wean Mortality</div>
+      <div class="kpi-change up">▲ Below benchmark 15%</div><div class="kpi-compare">US avg: 15.8% · Target: &lt;12%</div>
+    </div>
+    <div class="kpi-card" style="border-top-color:var(--success)">
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--success-light)">🌾</div><div class="kpi-pct">72nd</div></div>
+      <div class="kpi-value">2.68</div><div class="kpi-label">FCR (Feed Conversion)</div>
+      <div class="kpi-change up">▲ -0.03 improving</div><div class="kpi-compare">KR avg: 3.26 · Top: 2.60</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Monthly PSY Trend (12 months)</span><span class="card-action">AI Forecast ▾</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chartPSY"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Farrowing Rate vs NPD</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chartDual"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- Benchmark -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><span class="card-title">Benchmark Comparison — vs National Average</span></div>
+    <div style="padding:0">
+      <table class="bench-table">
+        <thead><tr><th>Metric</th><th class="r">Farm</th><th class="r">National Avg</th><th class="r">Top 10%</th><th>Percentile</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">PSY</td><td class="r" style="font-weight:700;color:var(--success)">24.3</td><td class="r">21.9</td><td class="r">32.5</td><td><div class="pct-bar"><div class="pct-fill" style="width:65%;background:var(--success)"></div></div>65th</td><td><span class="pill pill-good">Good</span></td></tr>
+          <tr><td style="font-weight:600">FCR</td><td class="r" style="font-weight:700;color:var(--success)">2.68</td><td class="r">3.26</td><td class="r">2.60</td><td><div class="pct-bar"><div class="pct-fill" style="width:72%;background:var(--success)"></div></div>72nd</td><td><span class="pill pill-good">Good</span></td></tr>
+          <tr><td style="font-weight:600">NPD</td><td class="r">38d</td><td class="r">40d</td><td class="r">30d</td><td><div class="pct-bar"><div class="pct-fill" style="width:58%;background:var(--accent)"></div></div>58th</td><td><span class="pill pill-warn">Watch</span></td></tr>
+          <tr><td style="font-weight:600">Farrowing Rate</td><td class="r">82.4%</td><td class="r">80.0%</td><td class="r">92.0%</td><td><div class="pct-bar"><div class="pct-fill" style="width:55%;background:var(--accent)"></div></div>55th</td><td><span class="pill pill-warn">Watch</span></td></tr>
+          <tr><td style="font-weight:600">Pre-wean Mortality</td><td class="r">14.2%</td><td class="r">15.0%</td><td class="r">9.0%</td><td><div class="pct-bar"><div class="pct-fill" style="width:60%;background:var(--success)"></div></div>60th</td><td><span class="pill pill-good">Good</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header"><span class="card-title">💰 ROI Insights</span></div>
+      <div class="card-body">
+        <div class="roi-item">
+          <div class="roi-icon" style="background:var(--success-light)">📈</div>
+          <div class="roi-info"><div class="rn">PSY Above National Average (+2.4)</div><div class="rd">24.3 vs 21.9 national avg × ₩50,000/piglet × 680 sows</div></div>
+          <div class="roi-value">₩81.6M<div class="rv-sub">/year extra</div></div>
+        </div>
+        <div class="roi-item">
+          <div class="roi-icon" style="background:var(--primary-light)">🌾</div>
+          <div class="roi-info"><div class="rn">FCR Improvement Potential</div><div class="rd">2.68 → 2.60 target · ₩17,595/head savings</div></div>
+          <div class="roi-value">₩12M<div class="rv-sub">/month saving</div></div>
+        </div>
+        <div class="roi-item">
+          <div class="roi-icon" style="background:var(--purple-light)">🧠</div>
+          <div class="roi-info"><div class="rn">AI Feed Optimization</div><div class="rd">Gestating sow ration adjustment identified</div></div>
+          <div class="roi-value" style="color:var(--purple)">₩840K<div class="rv-sub">/month saving</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">📊 Data Quality</span></div>
+      <div class="card-body">
+        <div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="font-weight:600">Completeness</span><span style="font-family:'JetBrains Mono';font-weight:700;color:var(--success)">94%</span></div>
+          <div style="height:6px;background:var(--border);border-radius:3px"><div style="height:100%;width:94%;background:var(--success);border-radius:3px"></div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-2);line-height:2">
+          Missing farrowing records: <strong>2</strong><br>
+          Missing weaning records: <strong>1</strong><br>
+          Unrecorded pregnancy checks: <strong>4</strong><br>
+          Last data sync: <strong style="color:var(--success)">5 min ago</strong>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:var(--success-light);border-radius:8px;font-size:10px;color:var(--success);font-weight:600">
+          ✅ Good data quality enables accurate KPI calculation
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+var chartColors = { primary: '#0D7C66', accent: '#E8820E', danger: '#DC2626', purple: '#7C3AED', gray: '#94A3B8', border: '#E2E8F0' };
+var months = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+
+new Chart(document.getElementById('chartPSY'), {
+  type: 'line',
+  data: {
+    labels: months.concat(['Apr*','May*','Jun*']),
+    datasets: [{
+      label: 'Actual PSY', data: [21.8,22.1,22.5,22.3,23.0,23.2,23.1,23.5,23.3,23.8,24.0,24.3,null,null,null],
+      borderColor: chartColors.primary, backgroundColor: 'rgba(13,124,102,.08)', fill: true, tension: .4, pointRadius: 3, borderWidth: 2
+    },{
+      label: 'AI Forecast', data: [null,null,null,null,null,null,null,null,null,null,null,24.3,24.8,25.1,25.4],
+      borderColor: chartColors.purple, borderDash: [6,3], backgroundColor: 'rgba(124,58,237,.05)', fill: true, tension: .4, pointRadius: 3, borderWidth: 2, pointStyle: 'triangle'
+    },{
+      label: 'National Avg', data: Array(15).fill(21.9),
+      borderColor: chartColors.gray, borderDash: [4,4], borderWidth: 1, pointRadius: 0, fill: false
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 10, family: 'Inter' }, usePointStyle: true } } },
+    scales: { y: { min: 20, max: 28, grid: { color: chartColors.border }, ticks: { font: { size: 10, family: 'JetBrains Mono' } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } }
+  }
+});
+
+new Chart(document.getElementById('chartDual'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Farrowing Rate %', data: [79.5,80.1,81.2,80.8,82.0,83.1,82.5,83.0,82.0,83.5,83.8,82.4],
+      backgroundColor: 'rgba(13,124,102,.6)', borderRadius: 4, yAxisID: 'y'
+    },{
+      label: 'NPD (days)', data: [42,41,40,41,39,38,39,37,38,36,37,38],
+      type: 'line', borderColor: chartColors.accent, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, tension: .3, yAxisID: 'y1'
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 10 }, usePointStyle: true } } },
+    scales: {
+      y: { min: 70, max: 95, grid: { color: chartColors.border }, ticks: { font: { size: 10, family: 'JetBrains Mono' }, callback: v => v + '%' }, title: { display: true, text: 'Farrowing Rate', font: { size: 9 } } },
+      y1: { position: 'right', min: 25, max: 50, grid: { display: false }, ticks: { font: { size: 10, family: 'JetBrains Mono' }, callback: v => v + 'd' }, title: { display: true, text: 'NPD', font: { size: 9 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+    }
+  }
+});
+</script>
+<script src="js/shared.js"></script>
+</body>
+</html>

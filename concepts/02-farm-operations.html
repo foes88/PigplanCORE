@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — 02 Farm Operations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#0D7C66;--primary-light:#E8F5F1;--primary-dark:#095C4B;--secondary:#64748B;--accent:#E8820E;--accent-light:#FFF4E5;--danger:#DC2626;--danger-light:#FEF2F2;--success:#16A34A;--success-light:#F0FDF4;--blue:#2563EB;--blue-light:#EFF6FF;--bg:#F4F6F8;--surface:#FFFFFF;--border:#E2E8F0;--text-1:#0F172A;--text-2:#475569;--text-3:#94A3B8;--sidebar-w:220px;--topbar-h:56px;--radius:12px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-1);min-height:100vh}
+
+.sidebar{width:var(--sidebar-w);height:100vh;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;z-index:200;display:flex;flex-direction:column}
+.sidebar-brand{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sidebar-brand .logo{width:30px;height:30px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.sidebar-brand .name{font-size:13px;font-weight:700}.sidebar-brand .name span{color:var(--primary)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:12px;font-weight:500;color:var(--text-2);cursor:pointer;border-left:3px solid transparent;transition:all .12s}
+.nav-item:hover{background:var(--bg);color:var(--text-1)}
+.nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:600;border-left-color:var(--primary)}
+.nav-item .ni{width:18px;text-align:center;font-size:14px}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);padding:16px 16px 6px}
+
+.topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;position:fixed;top:0;left:var(--sidebar-w);right:0;z-index:100}
+.topbar h2{font-size:15px;font-weight:700}
+.topbar .farm-tag{font-size:11px;font-weight:600;background:var(--primary-light);color:var(--primary);padding:4px 12px;border-radius:6px;margin-left:8px}
+.top-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.top-date{font-family:'JetBrains Mono';font-size:11px;color:var(--text-3)}
+
+.main{margin-left:var(--sidebar-w);margin-top:var(--topbar-h);padding:24px}
+
+/* ── Today Summary ── */
+.today-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:24px}
+.today-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center;transition:all .12s}
+.today-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);transform:translateY(-1px)}
+.today-card .tc-icon{font-size:20px;margin-bottom:6px}
+.today-card .tc-value{font-family:'JetBrains Mono';font-size:22px;font-weight:700}
+.today-card .tc-label{font-size:10px;color:var(--text-3);margin-top:2px}
+.today-card.alert{border-color:var(--danger);background:var(--danger-light)}
+
+/* ── Grid ── */
+.ops-grid{display:grid;grid-template-columns:1fr 1fr 340px;gap:16px}
+
+/* ── Card ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:700}
+.card-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--primary-light);color:var(--primary)}
+
+/* ── Task List ── */
+.task-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.task-item:last-child{border-bottom:none}
+.task-item:hover{background:var(--bg)}
+.task-check{width:20px;height:20px;border:2px solid var(--border);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px}
+.task-check.done{background:var(--success);border-color:var(--success);color:#fff}
+.task-info{flex:1}
+.task-info .tname{font-size:12px;font-weight:600}
+.task-info .tname.done{text-decoration:line-through;color:var(--text-3)}
+.task-info .tsub{font-size:10px;color:var(--text-2);margin-top:1px}
+.task-time{font-family:'JetBrains Mono';font-size:10px;color:var(--text-3)}
+.task-priority{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* ── Alert Card ── */
+.alert-item{padding:12px 16px;border-bottom:1px solid var(--border)}
+.alert-item:last-child{border-bottom:none}
+.alert-bar{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.alert-bar .aicon{font-size:14px}
+.alert-bar .alevel{font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px}
+.alert-bar .atime{font-family:'JetBrains Mono';font-size:9px;color:var(--text-3);margin-left:auto}
+.alert-title{font-size:12px;font-weight:600;margin-bottom:2px}
+.alert-desc{font-size:10px;color:var(--text-2);line-height:1.5}
+
+/* ── Status Cards ── */
+.herd-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}
+.herd-card{border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.herd-card .hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.herd-card .hc-title{font-size:11px;font-weight:600;color:var(--text-2)}
+.herd-card .hc-status{font-size:8px;font-weight:700;padding:2px 6px;border-radius:6px}
+.herd-card .hc-value{font-family:'JetBrains Mono';font-size:20px;font-weight:700}
+.herd-card .hc-sub{font-size:10px;color:var(--text-3);margin-top:2px}
+
+/* ── Big Action Button ── */
+.action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 16px}
+.action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);cursor:pointer;transition:all .12s;text-align:center}
+.action-btn:hover{border-color:var(--primary);background:var(--primary-light);transform:translateY(-1px)}
+.action-btn .ab-icon{font-size:24px}
+.action-btn .ab-label{font-size:10px;font-weight:700;color:var(--text-2)}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span></div></div>
+  <div class="nav-label">Main</div>
+  <div class="nav-item active"><span class="ni">📋</span> Today's Work</div>
+  <div class="nav-item"><span class="ni">📊</span> Dashboard</div>
+  <div class="nav-label">Operations</div>
+  <div class="nav-item"><span class="ni">🔄</span> Breeding</div>
+  <div class="nav-item"><span class="ni">🐷</span> Sow Mgmt</div>
+  <div class="nav-item"><span class="ni">🐗</span> Fattening</div>
+  <div class="nav-item"><span class="ni">🌾</span> Feeding</div>
+  <div class="nav-item"><span class="ni">💊</span> Health</div>
+  <div class="nav-item"><span class="ni">📦</span> Shipment</div>
+  <div class="nav-label">More</div>
+  <div class="nav-item"><span class="ni">📋</span> Reports</div>
+  <div class="nav-item"><span class="ni">⚙️</span> Settings</div>
+</aside>
+
+<header class="topbar">
+  <h2>Today's Operations</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right">
+    <span class="top-date">2026.03.19 (Thu)</span>
+    <div style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer">🔔</div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Today Summary Strip -->
+  <div class="today-strip">
+    <div class="today-card"><div class="tc-icon">💉</div><div class="tc-value">12</div><div class="tc-label">Breeding Due</div></div>
+    <div class="today-card"><div class="tc-icon">🔍</div><div class="tc-value">8</div><div class="tc-label">Pregnancy Check</div></div>
+    <div class="today-card"><div class="tc-icon">🐖</div><div class="tc-value">5</div><div class="tc-label">Farrowing Due</div></div>
+    <div class="today-card"><div class="tc-icon">🌱</div><div class="tc-value">3</div><div class="tc-label">Weaning Due</div></div>
+    <div class="today-card"><div class="tc-icon">📦</div><div class="tc-value">1</div><div class="tc-label">Shipment</div></div>
+    <div class="today-card alert"><div class="tc-icon">🚨</div><div class="tc-value" style="color:var(--danger)">2</div><div class="tc-label" style="color:var(--danger)">Health Alerts</div></div>
+  </div>
+
+  <div class="ops-grid">
+    <!-- Task List -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📋 Today's Tasks</span>
+        <span class="card-badge">18 tasks</span>
+      </div>
+      <div>
+        <div class="task-item">
+          <div class="task-check done">✓</div>
+          <div class="task-info"><div class="tname done">Morning feed — Barn A</div><div class="tsub">Auto-feeder confirmed 06:30</div></div>
+          <div class="task-time">06:30</div>
+          <div class="task-priority" style="background:var(--success)"></div>
+        </div>
+        <div class="task-item">
+          <div class="task-check done">✓</div>
+          <div class="task-info"><div class="tname done">Pregnancy check — 4 sows</div><div class="tsub">#A-015, #A-023, #A-031, #A-048</div></div>
+          <div class="task-time">08:00</div>
+          <div class="task-priority" style="background:var(--primary)"></div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-info"><div class="tname">Farrowing — #A-042 (P3, D114)</div><div class="tsub">Expected today · Farrowing barn ready</div></div>
+          <div class="task-time">AM</div>
+          <div class="task-priority" style="background:var(--danger)"></div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-info"><div class="tname">Breeding — 12 sows</div><div class="tsub">Post-weaning group · Barn C</div></div>
+          <div class="task-time">15:00</div>
+          <div class="task-priority" style="background:var(--primary)"></div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-info"><div class="tname">Weaning — 3 sows (D21)</div><div class="tsub">#A-018, #A-025, #A-039</div></div>
+          <div class="task-time">PM</div>
+          <div class="task-priority" style="background:var(--accent)"></div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-info"><div class="tname">Vaccine — PCV2 batch B-2026-11</div><div class="tsub">32 piglets · Nursery</div></div>
+          <div class="task-time">PM</div>
+          <div class="task-priority" style="background:var(--blue)"></div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-info"><div class="tname">Evening feed check</div><div class="tsub">Bin #3 low — delivery expected 4PM</div></div>
+          <div class="task-time">17:00</div>
+          <div class="task-priority" style="background:var(--accent)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Herd Status + Quick Actions -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Herd Status</span></div>
+        <div class="herd-grid">
+          <div class="herd-card">
+            <div class="hc-header"><span class="hc-title">Gestating</span><span class="hc-status" style="background:var(--primary-light);color:var(--primary)">Normal</span></div>
+            <div class="hc-value">218</div><div class="hc-sub">sows · avg D72</div>
+          </div>
+          <div class="herd-card">
+            <div class="hc-header"><span class="hc-title">Lactating</span><span class="hc-status" style="background:var(--success-light);color:var(--success)">Good</span></div>
+            <div class="hc-value">85</div><div class="hc-sub">sows · avg D14</div>
+          </div>
+          <div class="herd-card">
+            <div class="hc-header"><span class="hc-title">Open/NPD</span><span class="hc-status" style="background:var(--accent-light);color:var(--accent)">Watch</span></div>
+            <div class="hc-value">42</div><div class="hc-sub">sows · avg 12d</div>
+          </div>
+          <div class="herd-card">
+            <div class="hc-header"><span class="hc-title">Nursery</span><span class="hc-status" style="background:var(--primary-light);color:var(--primary)">Normal</span></div>
+            <div class="hc-value">480</div><div class="hc-sub">piglets · 3 batches</div>
+          </div>
+          <div class="herd-card">
+            <div class="hc-header"><span class="hc-title">Grower</span><span class="hc-status" style="background:var(--primary-light);color:var(--primary)">Normal</span></div>
+            <div class="hc-value">620</div><div class="hc-sub">pigs · avg 48kg</div>
+          </div>
+          <div class="herd-card">
+            <div class="hc-header"><span class="hc-title">Finisher</span><span class="hc-status" style="background:var(--success-light);color:var(--success)">Ship Ready</span></div>
+            <div class="hc-value">340</div><div class="hc-sub">pigs · avg 112kg</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Quick Actions</span></div>
+        <div class="action-grid">
+          <div class="action-btn"><div class="ab-icon">💉</div><div class="ab-label">Record Breeding</div></div>
+          <div class="action-btn"><div class="ab-icon">🐖</div><div class="ab-label">Record Farrowing</div></div>
+          <div class="action-btn"><div class="ab-icon">🌱</div><div class="ab-label">Record Weaning</div></div>
+          <div class="action-btn"><div class="ab-icon">💊</div><div class="ab-label">Record Treatment</div></div>
+          <div class="action-btn"><div class="ab-icon">📦</div><div class="ab-label">Record Shipment</div></div>
+          <div class="action-btn"><div class="ab-icon">⚖️</div><div class="ab-label">Record Weight</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">🚨 Alerts</span><span class="card-badge" style="background:var(--danger-light);color:var(--danger)">2 critical</span></div>
+      <div>
+        <div class="alert-item">
+          <div class="alert-bar"><span class="aicon">🚨</span><span class="alevel" style="background:var(--danger-light);color:var(--danger)">Critical</span><span class="atime">2h ago</span></div>
+          <div class="alert-title">#A-042 Farrowing Overdue</div>
+          <div class="alert-desc">Gestation day 115. Expected yesterday. Check sow condition immediately.</div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-bar"><span class="aicon">⚠️</span><span class="alevel" style="background:var(--accent-light);color:var(--accent)">Warning</span><span class="atime">4h ago</span></div>
+          <div class="alert-title">Feed Bin #3 — 8% Remaining</div>
+          <div class="alert-desc">Auto-order placed. Delivery expected 4PM today.</div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-bar"><span class="aicon">💉</span><span class="alevel" style="background:var(--blue-light);color:var(--blue)">Reminder</span><span class="atime">Today</span></div>
+          <div class="alert-title">Vaccine Due — PCV2</div>
+          <div class="alert-desc">Batch B-2026-11, 32 piglets. Lot #VX-20260315 expires Apr 30.</div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-bar"><span class="aicon">🔄</span><span class="alevel" style="background:var(--primary-light);color:var(--primary)">Info</span><span class="atime">Today</span></div>
+          <div class="alert-title">NPD Alert — 8 Sows > 30 days</div>
+          <div class="alert-desc">Consider re-breeding or culling evaluation.</div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-bar"><span class="aicon">📦</span><span class="alevel" style="background:var(--success-light);color:var(--success)">Scheduled</span><span class="atime">Tomorrow</span></div>
+          <div class="alert-title">Shipment — 45 head</div>
+          <div class="alert-desc">Finisher batch F-2026-08. Truck 8AM. Target: 115kg avg.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</body>
+</html>

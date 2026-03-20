@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE — Record Event</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+.record-grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+@media(max-width:1024px){.record-grid{grid-template-columns:1fr}}
+.sow-banner{background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:12px;padding:16px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;color:#fff}
+.sow-banner .sb-id{font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:#4ade80}
+.sow-banner .sb-info{font-size:10px;color:rgba(255,255,255,.5);margin-top:3px}
+.sow-banner .sb-status{font-size:9px;font-weight:700;padding:4px 10px;border-radius:8px}
+.event-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.ev-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);font-family:inherit;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;transition:all .12s}
+.ev-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+.ev-btn.active{border-color:var(--primary);color:#fff;background:var(--primary)}
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.form-section h3{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.single{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:11px;font-weight:600;color:var(--text-2)}
+.form-input,.form-select{font-family:inherit;font-size:12px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-1);outline:none;transition:border .15s}
+.form-input:focus,.form-select:focus{border-color:var(--primary)}
+.form-textarea{font-family:inherit;font-size:12px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;resize:vertical;min-height:60px;outline:none}
+.form-textarea:focus{border-color:var(--primary)}
+.form-hint{font-size:9px;color:var(--text-3)}
+.counter-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.counter-box{text-align:center;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:14px 8px}
+.counter-box .clabel{font-size:10px;font-weight:700;color:var(--text-3);margin-bottom:6px}
+.counter-box .cvalue{font-family:'JetBrains Mono';font-size:28px;font-weight:700;color:var(--text-1);min-height:36px}
+.counter-box .cvalue.danger{color:var(--danger)}
+.counter-btns{display:flex;gap:6px;justify-content:center;margin-top:8px}
+.counter-btns button{width:36px;height:30px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:16px;cursor:pointer;color:var(--text-2);transition:all .1s}
+.counter-btns button:hover{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+.counter-btns button:active{transform:scale(.95)}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg);border-radius:8px;margin-bottom:14px}
+.total-row .tl{font-size:11px;font-weight:600;color:var(--text-2)}
+.total-row .tv{font-family:'JetBrains Mono';font-size:16px;font-weight:700}
+.save-btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;background:var(--primary);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .12s;margin-top:8px}
+.save-btn:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.save-btn:active{transform:translateY(0)}
+.cancel-btn{display:block;width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text-2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;margin-top:8px;text-align:center}
+.rule-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-2)}
+.rule-item:last-child{border-bottom:none}
+.rule-item .ri{flex-shrink:0}
+.validation-msg{padding:10px 14px;border-radius:8px;font-size:11px;font-weight:600;margin-bottom:10px;display:none}
+.validation-msg.error{display:block;background:var(--danger-light);color:var(--danger)}
+.validation-msg.success{display:block;background:var(--success-light);color:var(--success)}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand"><div class="logo">🐷</div><div class="name">PigPlan<span>CORE</span> <span class="ai-tag">AI</span></div></div>
+  <div class="nav-label">Today</div>
+  <a class="nav-item" href="index.html"><span class="ni">📋</span> Today's Work</a>
+  <a class="nav-item" href="kpi.html"><span class="ni">📊</span> Dashboard</a>
+  <div class="nav-label">Breeding Cycle</div>
+  <a class="nav-item" href="record.html?event=mating"><span class="ni">💉</span> Breeding</a>
+  <a class="nav-item" href="record.html?event=farrowing"><span class="ni">🐖</span> Farrowing</a>
+  <a class="nav-item" href="record.html?event=weaning"><span class="ni">🌱</span> Weaning</a>
+  <div class="nav-label">Management</div>
+  <a class="nav-item" href="sows.html"><span class="ni">🐷</span> Sow Mgmt</a>
+  <div class="sidebar-footer">PigPlanCORE v1.0</div>
+</aside>
+
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <a href="javascript:history.back()" style="font-size:12px;color:var(--primary);text-decoration:none;font-weight:600">← Back</a>
+  <h2>Record Event</h2>
+  <span class="farm-tag">🐷 안성 1농장</span>
+  <div class="top-right"><span class="top-date">2026.03.19</span>
+    <div class="settings-dropdown" id="settingsDropdown"><div class="dd-trigger" onclick="toggleSettingsDropdown(event)"><span class="lang-label">🌐 EN</span> ▾</div><div class="dd-menu"><div class="dd-section"><div class="dd-section-label">Language</div><div class="dd-option lang-option active" data-lang="en" onclick="setLang('en')">🇺🇸 English <span class="check">✓</span></div><div class="dd-option lang-option" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어 <span class="check" style="display:none">✓</span></div><div class="dd-option lang-option" data-lang="vi" onclick="setLang('vi')">🇻🇳 Tiếng Việt <span class="check" style="display:none">✓</span></div></div><div class="dd-divider"></div><div class="dd-section"><div class="dd-section-label">Unit System</div><div class="dd-option unit-option active" data-units="METRIC" onclick="setUnits('METRIC')">📏 Metric (kg, °C) <span class="check">✓</span></div><div class="dd-option unit-option" data-units="IMPERIAL" onclick="setUnits('IMPERIAL')">📐 Imperial (lb, °F) <span class="check" style="display:none">✓</span></div></div></div></div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="record-grid">
+    <!-- Left: Form -->
+    <div>
+      <!-- Sow Search -->
+      <div class="form-section" style="padding:14px 18px">
+        <div class="form-group">
+          <label class="form-label">Select Sow</label>
+          <input class="form-input" type="text" id="sowSearch" placeholder="🔍 Type ear tag (e.g. A-042)..." value="" style="font-size:14px;padding:12px 14px">
+        </div>
+      </div>
+
+      <!-- Sow Banner (shown when sow selected) -->
+      <div class="sow-banner" id="sowBanner">
+        <div>
+          <div class="sb-id" id="bannerTag">#A-042</div>
+          <div class="sb-info" id="bannerInfo">Parity 3 · Gestating D115 · 분만사B-12</div>
+        </div>
+        <div class="sb-status" id="bannerStatus" style="background:var(--danger);color:#fff">Farrowing Overdue</div>
+      </div>
+
+      <!-- Event Type Selector -->
+      <div class="event-selector">
+        <button class="ev-btn" data-event="mating" onclick="selectEvent('mating',this)">💉 Breeding</button>
+        <button class="ev-btn active" data-event="farrowing" onclick="selectEvent('farrowing',this)">🐖 Farrowing</button>
+        <button class="ev-btn" data-event="weaning" onclick="selectEvent('weaning',this)">🌱 Weaning</button>
+        <button class="ev-btn" data-event="treatment" onclick="selectEvent('treatment',this)">💊 Treatment</button>
+        <button class="ev-btn" data-event="movement" onclick="selectEvent('movement',this)">📦 Movement</button>
+        <button class="ev-btn" data-event="removal" onclick="selectEvent('removal',this)">✂️ Removal</button>
+      </div>
+
+      <!-- Farrowing Form -->
+      <div id="form-farrowing" class="form-section">
+        <h3>🐖 Record Farrowing</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Farrowing Date</label>
+            <input class="form-input" type="date" value="2026-03-19">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Farrowing Time</label>
+            <input class="form-input" type="time" value="08:30">
+          </div>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--text-2);margin-bottom:8px">Litter Count</div>
+        <div class="counter-row">
+          <div class="counter-box">
+            <div class="clabel">Born Alive</div>
+            <div class="cvalue" id="alive">11</div>
+            <div class="counter-btns"><button onclick="adj('alive',-1)">−</button><button onclick="adj('alive',1)">＋</button></div>
+          </div>
+          <div class="counter-box">
+            <div class="clabel">Stillborn</div>
+            <div class="cvalue danger" id="still">2</div>
+            <div class="counter-btns"><button onclick="adj('still',-1)">−</button><button onclick="adj('still',1)">＋</button></div>
+          </div>
+          <div class="counter-box">
+            <div class="clabel">Mummified</div>
+            <div class="cvalue" id="mummy">0</div>
+            <div class="counter-btns"><button onclick="adj('mummy',-1)">−</button><button onclick="adj('mummy',1)">＋</button></div>
+          </div>
+        </div>
+
+        <div class="total-row">
+          <span class="tl">Total Born (auto-calculated)</span>
+          <span class="tv" id="totalBorn">13</span>
+        </div>
+
+        <div id="validationMsg" class="validation-msg"></div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Avg Birth Weight (kg)</label>
+            <input class="form-input" type="number" step="0.1" value="1.4" placeholder="kg">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Farrowing Type</label>
+            <select class="form-select">
+              <option selected>Normal</option>
+              <option>Assisted</option>
+              <option>C-section</option>
+              <option>Induced</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Cross-fostered In</label>
+            <input class="form-input" type="number" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cross-fostered Out</label>
+            <input class="form-input" type="number" value="2" min="0">
+          </div>
+        </div>
+
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea class="form-textarea" placeholder="Any observations, complications..."></textarea>
+          </div>
+        </div>
+
+        <button class="save-btn" onclick="handleSave()">🐖 Record Farrowing</button>
+        <a href="javascript:history.back()" class="cancel-btn">Cancel</a>
+      </div>
+
+      <!-- Mating Form -->
+      <div id="form-mating" class="form-section" style="display:none">
+        <h3>💉 Record Breeding</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Mating Date</label><input class="form-input" type="date" value="2026-03-19"></div>
+          <div class="form-group"><label class="form-label">Mating Type</label><select class="form-select"><option>AI (Artificial Insemination)</option><option>Natural Mating</option><option>Combined</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Semen Source / Boar</label><input class="form-input" value="PIC Korea" placeholder="Source"></div>
+          <div class="form-group"><label class="form-label">Semen Batch</label><input class="form-input" placeholder="Batch #"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Service Number</label><select class="form-select"><option>1st Service</option><option>2nd Service</option><option>3rd Service</option></select></div>
+          <div class="form-group"><label class="form-label">Technician</label><input class="form-input" placeholder="Name"></div>
+        </div>
+        <div class="form-row single"><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" placeholder=""></textarea></div></div>
+        <button class="save-btn">💉 Record Breeding</button>
+        <a href="javascript:history.back()" class="cancel-btn">Cancel</a>
+      </div>
+
+      <!-- Weaning Form -->
+      <div id="form-weaning" class="form-section" style="display:none">
+        <h3>🌱 Record Weaning</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Weaning Date</label><input class="form-input" type="date" value="2026-03-19"></div>
+          <div class="form-group"><label class="form-label">Weaning Age (auto)</label><input class="form-input" value="21 days" readonly style="background:var(--bg)"></div>
+        </div>
+        <div class="counter-row" style="grid-template-columns:1fr 1fr">
+          <div class="counter-box"><div class="clabel">Weaned Count</div><div class="cvalue" id="weanCount">11</div><div class="counter-btns"><button onclick="adjW('weanCount',-1)">−</button><button onclick="adjW('weanCount',1)">＋</button></div></div>
+          <div class="counter-box"><div class="clabel">Pre-wean Deaths</div><div class="cvalue danger" id="weanDeath">2</div><div class="counter-btns"><button onclick="adjW('weanDeath',-1)">−</button><button onclick="adjW('weanDeath',1)">＋</button></div></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Avg Weaning Weight (kg)</label><input class="form-input" type="number" step="0.1" value="6.8"></div>
+          <div class="form-group"><label class="form-label">Destination</label><select class="form-select"><option>Nursery</option><option>Sale</option><option>Other Farm</option></select></div>
+        </div>
+        <div class="form-row single"><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea"></textarea></div></div>
+        <button class="save-btn">🌱 Record Weaning</button>
+        <a href="javascript:history.back()" class="cancel-btn">Cancel</a>
+      </div>
+
+      <!-- Treatment Form -->
+      <div id="form-treatment" class="form-section" style="display:none">
+        <h3>💊 Record Treatment</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Treatment Date</label><input class="form-input" type="date" value="2026-03-19"></div>
+          <div class="form-group"><label class="form-label">Treatment Type</label><select class="form-select"><option>Medication</option><option>Vaccination</option><option>Diagnosis</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Drug / Vaccine Name</label><input class="form-input" placeholder="e.g. Amoxicillin"></div>
+          <div class="form-group"><label class="form-label">Active Substance</label><input class="form-input" placeholder="e.g. Amoxicillin trihydrate"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Dose (mg)</label><input class="form-input" type="number" placeholder="5000"></div>
+          <div class="form-group"><label class="form-label">Route</label><select class="form-select"><option>Injection</option><option>Oral</option><option>In-feed</option><option>In-water</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Treatment Days</label><input class="form-input" type="number" value="5"></div>
+          <div class="form-group"><label class="form-label">Withdrawal Days</label><input class="form-input" type="number" value="7"><div class="form-hint">Shipment restricted until withdrawal ends</div></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Prescribed By</label><input class="form-input" placeholder="Veterinarian name"></div>
+          <div class="form-group"><label class="form-label">Antibiotic?</label><select class="form-select"><option>Yes</option><option>No</option></select></div>
+        </div>
+        <div class="form-row single"><div class="form-group"><label class="form-label">Diagnosis / Notes</label><textarea class="form-textarea" placeholder="Symptoms, diagnosis..."></textarea></div></div>
+        <button class="save-btn">💊 Record Treatment</button>
+        <a href="javascript:history.back()" class="cancel-btn">Cancel</a>
+      </div>
+
+      <!-- Placeholder forms -->
+      <div id="form-movement" class="form-section" style="display:none"><h3>📦 Record Movement</h3><p style="color:var(--text-3);font-size:12px">Movement recording form (Phase 1.5)</p></div>
+      <div id="form-removal" class="form-section" style="display:none"><h3>✂️ Record Removal</h3><p style="color:var(--text-3);font-size:12px">Removal/culling form (Phase 1.5)</p></div>
+    </div>
+
+    <!-- Right: Context -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <!-- Sow Info -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Sow Info</span><a href="sow-detail.html?id=A-042" class="card-action">Full Profile →</a></div>
+        <div class="card-body" style="padding:12px 16px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <div style="font-size:10px;color:var(--text-3)">Status<div style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;color:var(--danger);margin-top:2px">Overdue D115</div></div>
+            <div style="font-size:10px;color:var(--text-3)">Parity<div style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;margin-top:2px">P3</div></div>
+            <div style="font-size:10px;color:var(--text-3)">Breed<div style="font-size:13px;font-weight:600;margin-top:2px">LY</div></div>
+            <div style="font-size:10px;color:var(--text-3)">Building<div style="font-size:13px;font-weight:600;margin-top:2px">분만사B-12</div></div>
+          </div>
+          <div style="font-size:10px;font-weight:600;color:var(--text-3);margin-bottom:4px">Recent Events</div>
+          <div style="font-size:10px;color:var(--text-2);line-height:1.8">
+            💉 Mating AI — Nov 25, 2025<br>
+            ✅ Preg Check + — Dec 23, 2025<br>
+            ⏳ Due Date — Mar 18, 2026
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto Alerts -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">⚠ Alerts</span></div>
+        <div class="card-body" style="padding:10px 14px">
+          <div class="rule-item"><span class="ri">🚨</span><span>This sow is <strong>1 day overdue</strong> (D115)</span></div>
+          <div class="rule-item"><span class="ri">📅</span><span>Expected farrowing: <strong>2026-03-18</strong></span></div>
+          <div class="rule-item"><span class="ri">🧠</span><span>AI: Historical farrowing at <strong>D113–D114</strong></span></div>
+        </div>
+      </div>
+
+      <!-- Business Rules -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">ℹ Auto-actions on Save</span></div>
+        <div class="card-body" style="padding:10px 14px">
+          <div class="rule-item"><span class="ri">✅</span><span>born_alive + stillborn + mummy = total_born</span></div>
+          <div class="rule-item"><span class="ri">🔄</span><span>Sow parity will increment to <strong>P4</strong></span></div>
+          <div class="rule-item"><span class="ri">📋</span><span>Status changes to <strong>LACTATING</strong></span></div>
+          <div class="rule-item"><span class="ri">📅</span><span>Weaning due: <strong>2026-04-09</strong> (D21)</span></div>
+          <div class="rule-item"><span class="ri">🔔</span><span>Weaning reminder at D18</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// Counter logic
+function adj(id, delta) {
+  var el = document.getElementById(id);
+  var v = Math.max(0, parseInt(el.textContent) + delta);
+  el.textContent = v;
+  el.className = 'cvalue' + (id === 'still' && v > 0 ? ' danger' : '');
+  updateTotal();
+}
+function adjW(id, delta) {
+  var el = document.getElementById(id);
+  el.textContent = Math.max(0, parseInt(el.textContent) + delta);
+}
+function updateTotal() {
+  var a = parseInt(document.getElementById('alive').textContent);
+  var s = parseInt(document.getElementById('still').textContent);
+  var m = parseInt(document.getElementById('mummy').textContent);
+  document.getElementById('totalBorn').textContent = a + s + m;
+}
+
+// Event type switching
+function selectEvent(type, btn) {
+  document.querySelectorAll('.ev-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('[id^="form-"]').forEach(f => f.style.display = 'none');
+  var form = document.getElementById('form-' + type);
+  if (form) form.style.display = '';
+}
+
+// Save handler
+function handleSave() {
+  var a = parseInt(document.getElementById('alive').textContent);
+  var s = parseInt(document.getElementById('still').textContent);
+  var m = parseInt(document.getElementById('mummy').textContent);
+  var msg = document.getElementById('validationMsg');
+  if (a === 0 && s === 0 && m === 0) {
+    msg.className = 'validation-msg error';
+    msg.textContent = '⚠ At least one count must be greater than 0';
+    return;
+  }
+  msg.className = 'validation-msg success';
+  msg.textContent = '✅ Farrowing recorded! Sow #A-042 → P4, Status: LACTATING. Weaning due: Apr 9.';
+  document.querySelector('.save-btn').disabled = true;
+  document.querySelector('.save-btn').textContent = '✓ Saved';
+  document.querySelector('.save-btn').style.background = 'var(--success)';
+}
+
+// URL param handling
+var params = new URLSearchParams(location.search);
+var eventType = params.get('event') || 'farrowing';
+var sowId = params.get('sow') || '';
+if (sowId) document.getElementById('sowSearch').value = '#' + sowId;
+document.querySelectorAll('.ev-btn').forEach(b => {
+  if (b.dataset.event === eventType) b.click();
+});
+</script>
+<script src="js/shared.js"></script>
+</body>
+</html>
