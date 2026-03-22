@@ -835,16 +835,27 @@
       <strong>권고: FastAPI(Python) 선택.</strong> AI 분석(질병 경보/최적 출하 예측) 기능을 만들려면 Python이 필수. 다른 기술로 시작하면 나중에 Python을 따로 붙여야 해서 이중 작업이 된다.
     </div>
 
-    <div class="sub-head">3.2 Java 전환 시점 판단 기준</div>
+    <div class="sub-head">3.2 왜 나중에 Java로 전환하는가?</div>
+    <div class="alert alert-blue">
+      <strong>한 줄 요약:</strong> Python은 빠르게 만들기 좋고, Java는 대규모로 버티기 좋다. 지금은 빠르게 만드는 게 먼저.
+    </div>
     <div class="code-block">
-      <span class="ok">Phase 1 (FastAPI):</span> 농장 수 ~300개, 동시 사용자 ~1,000명 이하<br>
-      <span class="ok">Phase 2 (FastAPI):</span> 농장 수 ~1,000개, 동시 사용자 ~5,000명 이하<br><br>
-      <span class="warn">전환 트리거 조건 (셋 중 하나라도 해당 시):</span><br>
-      &nbsp;&nbsp;- API 응답 P95 > 500ms 지속 (2주 이상)<br>
+      <span class="hl">왜 Java인가?</span><br>
+      &nbsp;&nbsp;- 대규모 트래픽 처리에 강함 (수천 농장 동시 접속)<br>
+      &nbsp;&nbsp;- 엔터프라이즈 안정성 (SLA 99.9% 보장 가능)<br>
+      &nbsp;&nbsp;- 대형 고객(인테그레이터)이 요구하는 기술 스택<br><br>
+      <span class="hl">왜 지금은 안 하는가?</span><br>
+      &nbsp;&nbsp;- Java로 시작하면 개발 속도가 2~3배 느려짐<br>
+      &nbsp;&nbsp;- Phase 1~2 규모에서는 Python으로 충분<br><br>
+      <span class="ok">Python으로 충분한 구간:</span><br>
+      &nbsp;&nbsp;Phase 1: 농장 ~300개, 동시 사용자 ~1,000명<br>
+      &nbsp;&nbsp;Phase 2: 농장 ~1,000개, 동시 사용자 ~5,000명<br><br>
+      <span class="warn">Java 전환 트리거 (셋 중 하나라도 해당 시):</span><br>
+      &nbsp;&nbsp;- API 응답이 느려지기 시작할 때 (P95 > 500ms, 2주 이상)<br>
       &nbsp;&nbsp;- 월간 활성 농장 2,000개 초과<br>
-      &nbsp;&nbsp;- Enterprise 계약 SLA 99.9% 보장 요구<br><br>
-      <span class="hl">&rarr; Java 전환은 "성능 문제 생기면"이 아니라</span><br>
-      <span class="hl">&nbsp;&nbsp;"성능 문제가 예측될 때" 미리 준비 시작</span>
+      &nbsp;&nbsp;- 대형 고객이 SLA 99.9% 계약을 요구할 때<br><br>
+      <span class="hl">&rarr; 전환 시점이 오면 이미 수익이 나고 있을 것.</span><br>
+      <span class="hl">&nbsp;&nbsp;DB/API/프론트는 그대로 쓰고 비즈니스 로직만 재작성.</span>
     </div>
 
     <div class="sub-head">3.3 PostgreSQL 설계 핵심 원칙</div>
