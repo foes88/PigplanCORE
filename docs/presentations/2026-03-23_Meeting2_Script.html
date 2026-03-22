@@ -105,7 +105,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <div class="sec-time">약 1분</div>
 
   <div class="script">
-    "대표님, 오늘 보고드릴 내용은 크게 <strong>3가지</strong>입니다.<br><br>
+    "오늘 보고드릴 내용은 크게 <strong>3가지</strong>입니다.<br><br>
 
     첫째, <strong>시장을 어떻게 봤는지</strong> — 경쟁사 9개를 전부 분석했습니다.<br>
     둘째, <strong>기술적으로 뭘 만들 건지</strong> — DB, API, 스펙이 다 나왔습니다.<br>
@@ -212,7 +212,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     아시아어, 무료, 단위 자동 전환, 아시아 규정 대응, 가격 투명 공개.<br>
     이건 구조적 공백이라서 경쟁사가 단기간에 따라오기 어렵습니다.<br><br>
 
-    <span class="pause">— 대표님 질문 예상 포인트 —</span>
+    <span class="pause">— 예상 질문 포인트 —</span>
 
     '무료로 주면 <strong>돈은 언제 버냐?</strong>'<br><br>
 
@@ -234,9 +234,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     "백엔드는 <span class="highlight">FastAPI(Python)</span>로 갑니다.<br><br>
 
     Java vs Python 고민이 있었는데, 결론은 명확합니다.<br>
-    AI/ML 분석 — 질병 경보, 최적 출하 예측 — 이게 Phase 2~3에 핵심인데,<br>
-    Python 생태계 없이는 <strong>별도 ML 서버 구축 비용이 2배</strong>입니다.<br>
-    그리고 피그플랜 기존 분석 로직을 <strong>바로 재사용</strong>할 수 있습니다."
+    AI 분석 기능을 만들려면 Python이 필수입니다.<br>
+    <strong>다른 기술로 시작하면 나중에 Python을 따로 붙여야 해서 이중 작업이 됩니다.</strong>"
   </div>
 
   <div class="tip">
@@ -321,13 +320,20 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   </table>
 
   <div class="script">
-    "MVP 프로토타입 화면도 만들어놨습니다.<br>
-    대시보드, 모돈 관리, 번식, KPI, 사료, 건강, 출하, AI 인사이트까지<br>
-    <strong>실제 화면으로 볼 수 있습니다.</strong>"
+    "웹 런칭 시 포함되는 기능입니다:<br><br>
+    <strong>1.</strong> 모돈 교배/분만/이유 기록<br>
+    <strong>2.</strong> PSY/NPD/FCR 대시보드 + 벤치마크<br>
+    <strong>3.</strong> 다국어 UI (영어/베트남어/태국어)<br>
+    <strong>4.</strong> 역할별 권한 4단계 — 농장주(전체), 수의사(건강·처방), 업체(읽기전용), 종사자(기록만)<br>
+    <strong>5.</strong> 핵심 리포트 — 월간 KPI, 번식 성적, 폐사 현황, 출하 실적<br>
+    <strong>6.</strong> 글로벌 질병 발생 경보<br>
+    <strong>7.</strong> 다사이트 통합 (여러 농장 한눈에)<br><br>
+
+    프로토타입 화면도 만들어놨습니다. <strong>실제 화면으로 볼 수 있습니다.</strong>"
   </div>
 
   <div class="alert-box green">
-    <strong>MVP 프로토타입:</strong> https://foes88.github.io/PigplanCORE/mvp/
+    <strong>프로토타입:</strong> https://foes88.github.io/PigplanCORE/mvp/
   </div>
 </div>
 
@@ -420,7 +426,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 <div class="section" id="s8">
   <div class="sec-label">APPENDIX</div>
   <div class="sec-title">예상 Q&A 대비</div>
-  <div class="sec-time">참고용 · 대표님 예상 질문 5개</div>
+  <div class="sec-time">참고용 · 예상 질문 5개</div>
 
   <div class="qa">
     <div class="qa-q">Q1. "다 좋은데 돈은 언제 버나?"</div>
@@ -466,7 +472,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="qa-q">Q5. "베트남 농장주가 앱을 실제로 쓸 수 있을까?"</div>
     <div class="qa-a">
       이게 MVP에서 검증해야 할 핵심 질문입니다.<br>
-      피그플랜 기준, 현장 작업자는 <strong>3개 화면</strong>만 씁니다:<br>
+      현장 작업자는 <strong>3개 화면</strong>만 씁니다:<br>
       <strong>교배 기록 / 분만 기록 / 이유 기록</strong><br>
       이 3개 화면을 최대한 단순하게 만드는 것이 MVP UX 목표입니다.
     </div>
