@@ -3,7 +3,7 @@ window.MOCK_DATA = {
   farm: {
     id: 'farm-001',
     farm_code: 'FARM-KR-001',
-    name: '안성 1농장',
+    name: 'Wiselake Farm',
     country: 'KR',
     unit_system: 'METRIC',
     active_sow_count: 680,
