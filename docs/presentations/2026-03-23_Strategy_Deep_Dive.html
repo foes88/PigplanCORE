@@ -158,7 +158,7 @@ footer{background:var(--brand);color:#6A8CAF;text-align:center;padding:20px;font
   <p>결정적 장점: <strong>번식 기록과 환경 데이터를 직접 JOIN</strong> — 분만 중 돈사 온도와 자돈 생존율 상관관계 분석 가능.</p>
 
   <h3>PowerSync — 오프라인 동기화</h3>
-  <p>CRDT는 구조화된 농장 데이터에 부적합(Cinapse가 CRDT→PowerSync 마이그레이션). <strong>PostgreSQL WAL 기반 논리 복제로 React Native 앱의 로컬 SQLite와 자동 동기화.</strong> 충돌 해결은 LWW 기본 + 서버 측 비즈니스 규칙 검증.</p>
+  <p>CRDT는 구조화된 농장 데이터에 부적합(Cinapse가 CRDT→PowerSync 마이그레이션). <strong>PostgreSQL WAL 기반 논리 복제로 네이티브 앱의 로컬 SQLite와 자동 동기화.</strong> 충돌 해결은 LWW 기본 + 서버 측 비즈니스 규칙 검증.</p>
 
   <div class="alert alert-green">
     <strong>성능 목표:</strong> API 응답 p95 <200ms(CRUD), <500ms(대시보드), 오프라인 연결 복구 후 <5초, 테넌트 간 데이터 누출 제로.

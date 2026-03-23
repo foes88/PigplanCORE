@@ -20,7 +20,7 @@
 |------|------|
 | Backend | FastAPI (Python) → Phase 2+ Spring Boot (Java 21) |
 | Frontend | Next.js + TypeScript |
-| Mobile | React Native (Android 우선) |
+| Mobile | Android Native + iOS Native |
 | DB | PostgreSQL 16+ (Schema-per-tenant) + TimescaleDB (IoT) |
 | Cache | Redis 7+ |
 | Infra | AWS (싱가포르 리전) + Docker + Kubernetes |
