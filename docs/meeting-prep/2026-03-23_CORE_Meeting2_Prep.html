@@ -715,7 +715,7 @@
     <div class="tbl-wrap"><table>
       <thead><tr><th>원칙</th><th>내용</th><th>이유</th></tr></thead>
       <tbody>
-        <tr><td><strong>Schema-per-tenant</strong></td><td>농장별 스키마 분리</td><td>데이터 완전 격리, 규정 준수, 농장 단위 백업</td></tr>
+        <tr><td><strong>멀티테넌시<br>(Schema-per-tenant)</strong></td><td>하나의 시스템에서 여러 농장을 운영하되,<br>각 농장의 데이터는 완전히 분리된 공간(스키마)에 저장</td><td>A농장 데이터가 B농장에 절대 보이지 않음.<br>규정 준수, 농장 단위 백업 가능</td></tr>
         <tr><td><strong>5개 권역 동시 대응</strong></td><td>country_configs로 지역별 설정</td><td>단일 스키마로 전 권역 커버</td></tr>
         <tr><td><strong>모듈형 구조</strong></td><td>11개 모듈 독립 배포</td><td>Phase별 점진 확장</td></tr>
         <tr><td><strong>오프라인 동기화</strong></td><td>sync_queue + LWW</td><td>인터넷 없는 농장 대응</td></tr>
