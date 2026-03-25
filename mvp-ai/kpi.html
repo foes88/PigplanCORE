@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE AI — Predictive KPI</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="shell">
+
+<nav class="side">
+  <div class="side-brand">PigPlan<span>CORE</span> <span class="ai-badge">AI</span></div>
+  <a href="index.html"><span class="i">🧠</span> AI Dashboard</a>
+  <a href="sows.html"><span class="i">🐷</span> Sow Intelligence</a>
+  <a href="record.html"><span class="i">✏️</span> Smart Record</a>
+  <a class="on" href="kpi.html"><span class="i">📊</span> Predictive KPI</a>
+  <a href="marketplace.html"><span class="i">🏪</span> Data Marketplace</a>
+  <div class="side-foot">AI-Powered Revenue System</div>
+</nav>
+
+<div class="main">
+
+  <div class="top">
+    <div>
+      <h1><span class="ai-pulse"></span>Predictive KPI</h1>
+      <div class="top-meta">Past performance + AI forecast + actionable recommendations</div>
+    </div>
+    <button class="btn btn-ghost">Export</button>
+  </div>
+
+  <!-- KPI Cards with AI prediction -->
+  <div class="stats">
+    <div class="stat" style="border-top:2px solid var(--primary)">
+      <div class="stat-label"><span class="ai-dot"></span> PSY</div>
+      <div class="stat-val">24.3</div>
+      <div class="stat-sub up">▲ +1.2 vs last month</div>
+      <div style="margin-top:8px;padding:6px 10px;background:rgba(139,92,246,.06);border-radius:6px;font-size:10px;color:var(--purple)">🔮 AI Forecast: <strong>24.8</strong> next month</div>
+    </div>
+    <div class="stat" style="border-top:2px solid var(--warning)">
+      <div class="stat-label"><span class="ai-dot"></span> Farrowing Rate</div>
+      <div class="stat-val">82.4%</div>
+      <div class="stat-sub down">▼ -1.1% vs target 85%</div>
+      <div style="margin-top:8px;padding:6px 10px;background:rgba(139,92,246,.06);border-radius:6px;font-size:10px;color:var(--purple)">🔮 AI: Recovering → <strong>84.1%</strong></div>
+    </div>
+    <div class="stat" style="border-top:2px solid var(--blue)">
+      <div class="stat-label"><span class="ai-dot"></span> NPD</div>
+      <div class="stat-val">38d</div>
+      <div class="stat-sub down">+8d vs target 30d</div>
+      <div style="margin-top:8px;padding:6px 10px;background:rgba(239,68,68,.06);border-radius:6px;font-size:10px;color:var(--danger)">⚠ AI: 8 sows causing 70% of NPD</div>
+    </div>
+    <div class="stat" style="border-top:2px solid var(--success)">
+      <div class="stat-label"><span class="ai-dot"></span> FCR</div>
+      <div class="stat-val">2.68</div>
+      <div class="stat-sub up">▲ -0.03 improving</div>
+      <div style="margin-top:8px;padding:6px 10px;background:rgba(34,197,94,.06);border-radius:6px;font-size:10px;color:var(--success)">💰 AI feed optimization saving ₩840K/mo</div>
+    </div>
+  </div>
+
+  <!-- AI Recommendations for KPI improvement -->
+  <div class="ai-bubble" style="margin-bottom:24px">
+    <div class="ai-label">AI KPI Analysis</div>
+    <p><strong>PSY is trending up</strong> — 12-month consecutive improvement driven by better breeding timing. <strong>NPD is the biggest opportunity</strong>: 8 sows account for 70% of non-productive days. Addressing these 8 sows would reduce NPD from 38d to <strong>31d</strong> (near target). <strong>FCR optimization</strong> is actively saving ₩840K/month. AI recommends maintaining current feed adjustments.</p>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head">PSY Trend + AI Forecast <span class="tag tag-purple">🔮 Predicted</span></div>
+      <div class="card-body"><div style="height:220px"><canvas id="c1"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">Farrowing Rate vs NPD</div>
+      <div class="card-body"><div style="height:220px"><canvas id="c2"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- Benchmark -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-head">Global Benchmark <span class="tag tag-purple">AI-powered ranking</span></div>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Metric</th><th style="text-align:right">Your Farm</th><th style="text-align:right">National Avg</th><th style="text-align:right">Top 10%</th><th>AI Assessment</th><th>AI Action</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:600">PSY</td><td class="mono" style="text-align:right;font-weight:700;color:var(--success)">24.3</td><td class="mono" style="text-align:right">21.9</td><td class="mono" style="text-align:right">32.5</td><td><span class="tag tag-green">Good</span></td><td style="font-size:11px;color:var(--text2)">Maintain breeding timing protocol</td></tr>
+        <tr><td style="font-weight:600">FCR</td><td class="mono" style="text-align:right;font-weight:700;color:var(--success)">2.68</td><td class="mono" style="text-align:right">3.26</td><td class="mono" style="text-align:right">2.60</td><td><span class="tag tag-green">Good</span></td><td style="font-size:11px;color:var(--success)">AI saving ₩840K/mo</td></tr>
+        <tr><td style="font-weight:600">NPD</td><td class="mono" style="text-align:right">38d</td><td class="mono" style="text-align:right">40d</td><td class="mono" style="text-align:right">30d</td><td><span class="tag tag-yellow">Watch</span></td><td style="font-size:11px;color:var(--warning)">Address 8 high-NPD sows → 31d</td></tr>
+        <tr><td style="font-weight:600">Farrowing Rate</td><td class="mono" style="text-align:right">82.4%</td><td class="mono" style="text-align:right">80.0%</td><td class="mono" style="text-align:right">92.0%</td><td><span class="tag tag-yellow">Watch</span></td><td style="font-size:11px;color:var(--purple)">AI forecast: recovering to 84.1%</td></tr>
+        <tr><td style="font-weight:600">Pre-wean Mortality</td><td class="mono" style="text-align:right">14.2%</td><td class="mono" style="text-align:right">15.0%</td><td class="mono" style="text-align:right">9.0%</td><td><span class="tag tag-green">Good</span></td><td style="font-size:11px;color:var(--text2)">Below benchmark</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- AI Revenue Optimization -->
+  <div class="card" style="border-color:rgba(201,168,76,.2)">
+    <div class="card-head" style="color:var(--gold)">💰 AI Revenue Optimization — What AI Found</div>
+    <div class="card-body">
+      <div class="grid-3">
+        <div style="background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.1);border-radius:8px;padding:14px;text-align:center">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Feed Saving</div>
+          <div style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--success)">₩840K</div>
+          <div style="font-size:10px;color:var(--text3)">/month</div>
+        </div>
+        <div style="background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.1);border-radius:8px;padding:14px;text-align:center">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Breeding Efficiency</div>
+          <div style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--success)">+7%</div>
+          <div style="font-size:10px;color:var(--text3)">conception rate</div>
+        </div>
+        <div style="background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.1);border-radius:8px;padding:14px;text-align:center">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Pending Revenue</div>
+          <div style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--gold)">₩1.2M</div>
+          <div style="font-size:10px;color:var(--text3)">optimal ship timing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+var g='#0D7C66',p='#8B5CF6',gy='rgba(255,255,255,.2)',bd='rgba(255,255,255,.05)';
+var months=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+
+new Chart(document.getElementById('c1'),{
+  type:'line',
+  data:{
+    labels:months.concat(['Apr*','May*','Jun*']),
+    datasets:[{
+      label:'Actual PSY',data:[21.8,22.1,22.5,22.3,23.0,23.2,23.1,23.5,23.3,23.8,24.0,24.3,null,null,null],
+      borderColor:g,backgroundColor:'rgba(13,124,102,.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2
+    },{
+      label:'AI Forecast',data:[null,null,null,null,null,null,null,null,null,null,null,24.3,24.8,25.1,25.4],
+      borderColor:p,borderDash:[6,3],backgroundColor:'rgba(139,92,246,.05)',fill:true,tension:.4,pointRadius:3,borderWidth:2,pointStyle:'triangle'
+    },{
+      label:'National Avg',data:Array(15).fill(21.9),
+      borderColor:gy,borderDash:[4,4],borderWidth:1,pointRadius:0,fill:false
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{font:{size:10},color:'#94A3B8',usePointStyle:true}}},
+    scales:{y:{min:20,max:28,grid:{color:bd},ticks:{font:{size:10,family:'JetBrains Mono'},color:'#64748B'}},x:{grid:{display:false},ticks:{font:{size:9},color:'#64748B'}}}
+  }
+});
+
+new Chart(document.getElementById('c2'),{
+  type:'bar',
+  data:{
+    labels:months,
+    datasets:[{
+      label:'Farrowing %',data:[79.5,80.1,81.2,80.8,82.0,83.1,82.5,83.0,82.0,83.5,83.8,82.4],
+      backgroundColor:'rgba(13,124,102,.5)',borderRadius:4,yAxisID:'y'
+    },{
+      label:'NPD (days)',data:[42,41,40,41,39,38,39,37,38,36,37,38],
+      type:'line',borderColor:'#F59E0B',borderWidth:2,pointRadius:3,tension:.3,yAxisID:'y1',fill:false
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{font:{size:10},color:'#94A3B8',usePointStyle:true}}},
+    scales:{
+      y:{min:70,max:95,grid:{color:bd},ticks:{font:{size:10,family:'JetBrains Mono'},color:'#64748B',callback:v=>v+'%'}},
+      y1:{position:'right',min:25,max:50,grid:{display:false},ticks:{font:{size:10,family:'JetBrains Mono'},color:'#64748B',callback:v=>v+'d'}},
+      x:{grid:{display:false},ticks:{font:{size:9},color:'#64748B'}}
+    }
+  }
+});
+</script>
+</body>
+</html>

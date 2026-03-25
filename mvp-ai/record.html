@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE AI — Smart Record</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="shell">
+
+<nav class="side">
+  <div class="side-brand">PigPlan<span>CORE</span> <span class="ai-badge">AI</span></div>
+  <a href="index.html"><span class="i">🧠</span> AI Dashboard</a>
+  <a href="sows.html"><span class="i">🐷</span> Sow Intelligence</a>
+  <a class="on" href="record.html"><span class="i">✏️</span> Smart Record</a>
+  <a href="kpi.html"><span class="i">📊</span> Predictive KPI</a>
+  <a href="marketplace.html"><span class="i">🏪</span> Data Marketplace</a>
+  <div class="side-foot">AI-Powered Revenue System</div>
+</nav>
+
+<div class="main">
+
+  <div class="top">
+    <div>
+      <h1><span class="ai-pulse"></span>Smart Record</h1>
+      <div class="top-meta">AI assists every record with real-time validation and suggestions</div>
+    </div>
+    <a href="index.html" class="btn btn-ghost">← Dashboard</a>
+  </div>
+
+  <!-- AI pre-fill suggestion -->
+  <div class="ai-bubble">
+    <div class="ai-label">AI Suggestion</div>
+    <p>Based on today's schedule, you should record: <strong>12 breedings</strong> (optimal window 14:30~16:00), <strong>1 farrowing</strong> (#A-042, overdue), and <strong>3 weanings</strong> (#A-018, #A-025, #A-039). AI has pre-filled recommended values below.</p>
+  </div>
+
+  <div class="grid-2">
+    <!-- Left: Form -->
+    <div>
+      <!-- Event Selector -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btn-mating" onclick="showForm('mating')">💉 Breeding</button>
+        <button class="btn btn-ghost" id="btn-farrowing" onclick="showForm('farrowing')">🐖 Farrowing</button>
+        <button class="btn btn-ghost" id="btn-weaning" onclick="showForm('weaning')">🌱 Weaning</button>
+        <button class="btn btn-ghost" id="btn-treatment" onclick="showForm('treatment')">💊 Treatment</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head">💉 Breeding Record <span class="tag tag-purple">AI-assisted</span></div>
+        <div class="card-body">
+
+          <!-- Mating form -->
+          <div id="form-mating">
+            <div class="ai-bubble" style="margin-bottom:16px">
+              <div class="ai-label">AI Optimal Timing</div>
+              <p>Best breeding window: <strong>14:30~16:00 today</strong>. Based on WEI analysis of 12 post-weaning sows. Expected conception: <strong>92%</strong>.</p>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Sow ID</label>
+                <select style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+                  <option>#A-048 (Heat detected — AI: 92% conception)</option>
+                  <option>#A-015 (NPD 42d — AI: 65% conception)</option>
+                  <option>#A-031 (NPD 22d — AI: 78% conception)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Date</label>
+                <input type="date" value="2026-03-23" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Service Type</label>
+                <select style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+                  <option>AI (Artificial)</option>
+                  <option>Natural</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Boar ID</label>
+                <select style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+                  <option>Duroc #D-001 (AI recommended)</option>
+                  <option>Yorkshire #Y-003</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.15);border-radius:8px;padding:12px;margin-bottom:16px">
+              <div style="font-size:10px;font-weight:700;color:var(--success);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">AI Prediction</div>
+              <div style="font-size:12px;color:var(--text2)">Conception probability: <strong style="color:var(--success)">92%</strong> · Expected farrowing: Jul 14 · Predicted litter: 12.8</div>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px">Save Record</button>
+          </div>
+
+          <!-- Farrowing form (hidden) -->
+          <div id="form-farrowing" style="display:none">
+            <div class="ai-bubble" style="margin-bottom:16px">
+              <div class="ai-label">AI Alert</div>
+              <p>#A-042 is <strong>overdue (D115)</strong>. AI predicts 87% complication risk. Record immediately after delivery.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Sow ID</label>
+                <select style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+                  <option style="color:#EF4444">#A-042 (D115 OVERDUE — AI CRITICAL)</option>
+                  <option>#A-067 (D113)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Date</label>
+                <input type="date" value="2026-03-23" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+              <div><label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Born Alive</label><input type="number" value="12" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px"></div>
+              <div><label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Stillborn</label><input type="number" value="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px"></div>
+              <div><label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Mummies</label><input type="number" value="0" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px"></div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px">Save Record</button>
+          </div>
+
+          <!-- Weaning form (hidden) -->
+          <div id="form-weaning" style="display:none">
+            <div class="ai-bubble" style="margin-bottom:16px">
+              <div class="ai-label">AI Analysis</div>
+              <p>3 sows at D21 ready for weaning. Average piglet weight <strong>6.8kg</strong> (on target). AI suggests immediate re-breeding after weaning — heat expected in 4-5 days.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Sow ID</label>
+                <select style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+                  <option>#A-018 (D21 — AI: ready)</option>
+                  <option>#A-025 (D21 — AI: ready)</option>
+                  <option>#A-039 (D21 — AI: ready)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Piglets Weaned</label>
+                <input type="number" value="11" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px">Save Record</button>
+          </div>
+
+          <!-- Treatment form (hidden) -->
+          <div id="form-treatment" style="display:none">
+            <div class="ai-bubble" style="margin-bottom:16px">
+              <div class="ai-label">AI Disease Detection</div>
+              <p>Satellite farm mortality pattern matches <strong>PRRS (87% confidence)</strong>. AI recommends isolation protocol + PCR test. Withdrawal period will be automatically calculated.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Animal ID</label>
+                <input placeholder="#A-042 or Pen F-06" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">AI Diagnosis</label>
+                <select style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px">
+                  <option>PRRS Suspected (AI: 87%)</option>
+                  <option>Lameness</option>
+                  <option>Respiratory</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px">Save Record</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: AI Context -->
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">🧠 AI Context for This Record</div>
+        <div class="card-body">
+          <div style="font-size:12px;color:var(--text2);line-height:1.8">
+            <strong style="color:var(--text)">Sow #A-048 History:</strong><br>
+            P2 · Landrace-Duroc · Last litter: 13 born alive<br>
+            WEI (Wean-to-Estrus): 4.2 days (fast)<br>
+            Lifetime conception rate: 94%<br><br>
+            <strong style="color:var(--text)">AI Boar Match:</strong><br>
+            Duroc #D-001 recommended — best genetic compatibility score (87/100) based on previous litter analysis.<br><br>
+            <strong style="color:var(--text)">Expected Outcome:</strong><br>
+            Conception: 92% · Litter: 12.8 · Farrowing: Jul 14
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">Recent AI-Validated Records</div>
+        <div class="card-body">
+          <div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;align-items:center;gap:8px">
+            <span class="tag tag-green">✓ Valid</span>
+            <span style="color:var(--text2)">#B-018 Farrowed — 13 alive, 0 stillborn</span>
+            <span style="margin-left:auto;color:var(--text3);font-size:10px">Today</span>
+          </div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;align-items:center;gap:8px">
+            <span class="tag tag-green">✓ Valid</span>
+            <span style="color:var(--text2)">Preg Check — 4 sows confirmed</span>
+            <span style="margin-left:auto;color:var(--text3);font-size:10px">Yesterday</span>
+          </div>
+          <div style="padding:8px 0;font-size:12px;display:flex;align-items:center;gap:8px">
+            <span class="tag tag-yellow">⚠ Flagged</span>
+            <span style="color:var(--text2)">Pen F-06 weight — AI: 15% below expected</span>
+            <span style="margin-left:auto;color:var(--text3);font-size:10px">Mar 18</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+var titles = { mating: '💉 Breeding Record', farrowing: '🐖 Farrowing Record', weaning: '🌱 Weaning Record', treatment: '💊 Treatment Record' };
+function showForm(type) {
+  ['mating','farrowing','weaning','treatment'].forEach(function(t) {
+    var el = document.getElementById('form-' + t);
+    if (el) el.style.display = t === type ? '' : 'none';
+    var btn = document.getElementById('btn-' + t);
+    if (btn) { btn.className = t === type ? 'btn btn-primary' : 'btn btn-ghost'; }
+  });
+  document.querySelector('.card-head').innerHTML = titles[type] + ' <span class="tag tag-purple">AI-assisted</span>';
+}
+var p = new URLSearchParams(location.search);
+if (p.get('event')) showForm(p.get('event'));
+</script>
+</body>
+</html>

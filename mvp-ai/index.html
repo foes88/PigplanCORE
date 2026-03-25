@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE AI — Dashboard</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="shell">
+
+<nav class="side">
+  <div class="side-brand">PigPlan<span>CORE</span> <span class="ai-badge">AI</span></div>
+  <a class="on" href="index.html"><span class="i">🧠</span> AI Dashboard</a>
+  <a href="sows.html"><span class="i">🐷</span> Sow Intelligence</a>
+  <a href="record.html"><span class="i">✏️</span> Smart Record</a>
+  <a href="kpi.html"><span class="i">📊</span> Predictive KPI</a>
+  <a href="marketplace.html"><span class="i">🏪</span> Data Marketplace</a>
+  <div class="side-foot">AI-Powered Revenue System</div>
+</nav>
+
+<div class="main">
+
+  <div class="top">
+    <div>
+      <h1><span class="ai-pulse"></span>AI Dashboard</h1>
+      <div class="top-meta">Wiselake Farm · 680 sows · AI analyzing in real-time</div>
+    </div>
+    <span class="farm-tag">🧠 AI Active</span>
+  </div>
+
+  <!-- AI Alert -->
+  <div class="alert-ai">
+    <div class="alert-icon">🚨</div>
+    <div class="alert-content">
+      <div class="alert-title">AI Alert: #A-042 Farrowing Overdue (D115) — Immediate Action Required</div>
+      <div class="alert-desc">AI detected abnormal gestation length. 87% probability of complications. Recommended: veterinary check within 2 hours.</div>
+    </div>
+    <button class="btn btn-primary" style="flex-shrink:0">Take Action</button>
+  </div>
+
+  <!-- Stats with AI indicators -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label"><span class="ai-dot"></span> PSY (AI Predicted)</div>
+      <div class="stat-val">24.3</div>
+      <div class="stat-sub up">▲ +1.2 · Next month forecast: 24.8</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label"><span class="ai-dot"></span> Revenue This Month</div>
+      <div class="stat-val" style="color:var(--gold)">₩298M</div>
+      <div class="stat-sub up">▲ +8.2% · AI saved ₩840K in feed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label"><span class="ai-dot"></span> AI Actions Today</div>
+      <div class="stat-val" style="color:var(--purple)">7</div>
+      <div class="stat-sub ai">3 critical · 2 high · 2 insight</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label"><span class="ai-dot"></span> Mortality Risk</div>
+      <div class="stat-val" style="color:var(--danger)">2.1%</div>
+      <div class="stat-sub down">▲ Up from 1.5% — PRRS suspected</div>
+    </div>
+  </div>
+
+  <!-- AI Pipeline -->
+  <div class="pipeline">
+    <a href="record.html" class="pipe"><div class="pipe-icon">💉</div><div class="pipe-count">12</div><div class="pipe-name">Breeding</div><div class="pipe-ai" title="AI optimal timing">🧠</div></a>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe"><div class="pipe-icon">🔍</div><div class="pipe-count">8</div><div class="pipe-name">Preg Check</div></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe active"><div class="pipe-icon">🤰</div><div class="pipe-count">218</div><div class="pipe-name">Gestation</div><div class="pipe-ai" title="AI monitoring">🧠</div></div>
+    <span class="pipe-arrow">→</span>
+    <a href="record.html" class="pipe"><div class="pipe-icon">🐖</div><div class="pipe-count">5</div><div class="pipe-name">Farrowing</div><div class="pipe-ai" title="AI risk alert" style="background:var(--danger)">!</div></a>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe"><div class="pipe-icon">🍼</div><div class="pipe-count">85</div><div class="pipe-name">Lactation</div></div>
+    <span class="pipe-arrow">→</span>
+    <a href="record.html" class="pipe"><div class="pipe-icon">🌱</div><div class="pipe-count">3</div><div class="pipe-name">Weaning</div></a>
+  </div>
+
+  <div class="grid-2">
+    <!-- AI Actions -->
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">🧠 AI Recommended Actions <span class="tag tag-purple">7 actions</span></div>
+      </div>
+
+      <div class="ai-action">
+        <div class="priority critical">🚨 Critical</div>
+        <div class="title">#A-042 Farrowing — Overdue D115</div>
+        <div class="desc">Gestation exceeds normal range. AI predicts 87% complication risk. Veterinary intervention recommended within 2 hours.</div>
+        <span class="impact negative">Risk: High</span>
+        <a href="record.html" class="action-btn">Record Farrowing →</a>
+      </div>
+
+      <div class="ai-action">
+        <div class="priority critical">🚨 Critical</div>
+        <div class="title">PRRS Suspected — Satellite Farm</div>
+        <div class="desc">Mortality pattern matches PRRS signature (87% AI confidence). 3 deaths in 48h. Isolation + PCR testing recommended.</div>
+        <span class="impact negative">Potential loss: ₩150M+</span>
+        <span class="action-btn">Execute Protocol →</span>
+      </div>
+
+      <div class="ai-action">
+        <div class="priority high">⚡ High</div>
+        <div class="title">Optimal Breeding Window — 12 Sows Today</div>
+        <div class="desc">AI analyzed WEI patterns. Optimal breeding time: 14:30~16:00 today. Expected conception rate: 92% (vs 85% random).</div>
+        <span class="impact">+7% conception rate</span>
+        <a href="record.html" class="action-btn">Start Breeding →</a>
+      </div>
+
+      <div class="ai-action">
+        <div class="priority high">⚡ High</div>
+        <div class="title">Ship Pen F-01 by Mar 22</div>
+        <div class="desc">Market price trending up ₩5,140/kg (+2.3%). AI predicts 5-7 more days of increase, then seasonal dip. Ship now for max revenue.</div>
+        <span class="impact">+₩1.2M extra revenue</span>
+        <span class="action-btn">Schedule Shipment →</span>
+      </div>
+
+      <div class="ai-action">
+        <div class="priority medium">💡 Optimization</div>
+        <div class="title">Feed Adjustment — Barn A Gestating</div>
+        <div class="desc">FCR analysis: Barn A gestating sows overfed by 8%. Current 2.8kg/day → AI recommends 2.6kg/day. No reproduction impact.</div>
+        <span class="impact">Save ₩840K/month</span>
+        <span class="action-btn">Apply →</span>
+      </div>
+
+      <div class="ai-action">
+        <div class="priority insight">🔮 Prediction</div>
+        <div class="title">Farrowing Forecast — 23 Sows in 14 Days</div>
+        <div class="desc">Expected avg litter: 12.4. 3 high-risk sows (P7+). Pre-assign foster mothers for #A-055, #A-078 (predicted 15+ litter).</div>
+        <span class="impact">~285 piglets expected</span>
+        <span class="action-btn">View Schedule →</span>
+      </div>
+
+      <div class="ai-action">
+        <div class="priority insight">🔮 Prediction</div>
+        <div class="title">NPD Alert — 8 Sows > 30 Days</div>
+        <div class="desc">AI recommends: 5 sows for re-breeding, 3 sows for cull review. Estimated NPD cost: ₩2.4M if not addressed this week.</div>
+        <span class="impact negative">₩2.4M NPD cost</span>
+        <a href="sows.html" class="action-btn">Review Sows →</a>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div>
+      <!-- AI Insight -->
+      <div class="ai-bubble">
+        <div class="ai-label">AI Daily Briefing</div>
+        <p>Your farm PSY reached <strong>24.3</strong> — now in the <strong>national top 35%</strong>. Main driver: breeding efficiency improved 12% since January protocol change. Key risk today: <strong>#A-042 overdue farrowing</strong> and <strong>satellite farm PRRS suspicion</strong>. Feed optimization is saving <strong>₩840K/month</strong>. Next month PSY forecast: <strong>24.8 (▲)</strong>.</p>
+      </div>
+
+      <!-- Herd Summary -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">Herd Status</div>
+        <div class="card-body">
+          <table>
+            <tr><td>Gestating</td><td class="mono" style="text-align:right;font-weight:700">218</td><td style="text-align:right"><span class="tag tag-green">Normal</span></td></tr>
+            <tr><td>Lactating</td><td class="mono" style="text-align:right;font-weight:700">85</td><td style="text-align:right"><span class="tag tag-green">Avg D14</span></td></tr>
+            <tr><td>Open / NPD</td><td class="mono" style="text-align:right;font-weight:700;color:var(--warning)">42</td><td style="text-align:right"><span class="tag tag-yellow">8 over 30d</span></td></tr>
+            <tr><td>Finisher</td><td class="mono" style="text-align:right;font-weight:700">340</td><td style="text-align:right"><span class="tag tag-green">58 ship ready</span></td></tr>
+            <tr><td>Critical</td><td class="mono" style="text-align:right;font-weight:700;color:var(--danger)">3</td><td style="text-align:right"><span class="tag tag-red">Action needed</span></td></tr>
+            <tr style="border-top:2px solid var(--border2)"><td style="font-weight:700">Total</td><td class="mono" style="text-align:right;font-weight:800;font-size:16px">680</td><td></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- AI Revenue Impact -->
+      <div class="card" style="border-color:rgba(201,168,76,.2)">
+        <div class="card-head" style="color:var(--gold)">💰 AI Revenue Impact (This Month)</div>
+        <div class="card-body">
+          <table>
+            <tr><td>Feed optimization</td><td class="mono" style="text-align:right;color:var(--success);font-weight:700">+₩840K saved</td></tr>
+            <tr><td>Breeding timing</td><td class="mono" style="text-align:right;color:var(--success);font-weight:700">+7% conception</td></tr>
+            <tr><td>Shipment timing</td><td class="mono" style="text-align:right;color:var(--success);font-weight:700">+₩1.2M pending</td></tr>
+            <tr><td>Disease prevention</td><td class="mono" style="text-align:right;color:var(--success);font-weight:700">₩150M+ at risk</td></tr>
+            <tr style="border-top:2px solid var(--border2)"><td style="font-weight:700;color:var(--gold)">Total AI Value</td><td class="mono" style="text-align:right;font-weight:800;font-size:14px;color:var(--gold)">₩152M+ impact</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

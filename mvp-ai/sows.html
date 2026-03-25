@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigPlanCORE AI — Sow Intelligence</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="shell">
+
+<nav class="side">
+  <div class="side-brand">PigPlan<span>CORE</span> <span class="ai-badge">AI</span></div>
+  <a href="index.html"><span class="i">🧠</span> AI Dashboard</a>
+  <a class="on" href="sows.html"><span class="i">🐷</span> Sow Intelligence</a>
+  <a href="record.html"><span class="i">✏️</span> Smart Record</a>
+  <a href="kpi.html"><span class="i">📊</span> Predictive KPI</a>
+  <a href="marketplace.html"><span class="i">🏪</span> Data Marketplace</a>
+  <div class="side-foot">AI-Powered Revenue System</div>
+</nav>
+
+<div class="main">
+
+  <div class="top">
+    <div>
+      <h1><span class="ai-pulse"></span>Sow Intelligence</h1>
+      <div class="top-meta">680 sows · AI monitoring all individuals</div>
+    </div>
+    <a href="record.html" class="btn btn-primary">+ Record Event</a>
+  </div>
+
+  <!-- AI Summary -->
+  <div class="ai-bubble">
+    <div class="ai-label">AI Sow Analysis</div>
+    <p><strong>3 sows need immediate attention.</strong> #A-042 is overdue (D115, 87% complication risk). 8 sows have NPD >30 days — AI recommends 5 for re-breeding and 3 for cull review. Overall herd health score: <strong>82/100</strong> (down from 89 last week due to satellite farm PRRS suspicion).</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="stat-label"><span class="ai-dot"></span> Total Sows</div><div class="stat-val">680</div></div>
+    <div class="stat"><div class="stat-label"><span class="ai-dot"></span> AI Alerts</div><div class="stat-val" style="color:var(--danger)">3</div><div class="stat-sub down">1 critical · 2 high</div></div>
+    <div class="stat"><div class="stat-label"><span class="ai-dot"></span> Herd Health Score</div><div class="stat-val" style="color:var(--warning)">82</div><div class="stat-sub down">▼ -7 from last week</div></div>
+    <div class="stat"><div class="stat-label"><span class="ai-dot"></span> NPD > 30d</div><div class="stat-val" style="color:var(--warning)">8</div><div class="stat-sub ai">AI: 5 breed, 3 cull</div></div>
+  </div>
+
+  <!-- Sow Table with AI annotations -->
+  <div class="card">
+    <div class="card-head">Sow List <span class="tag tag-purple">AI-enhanced</span></div>
+    <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr><th>Ear Tag</th><th>P</th><th>Status</th><th>Location</th><th>AI Risk</th><th>AI Recommendation</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr style="background:rgba(239,68,68,.05)">
+          <td class="mono" style="font-weight:700">#A-042</td><td>3</td>
+          <td><span class="tag tag-red">Overdue D115</span></td>
+          <td>Barn B-12</td>
+          <td><span class="tag tag-red">87% complication</span></td>
+          <td style="color:var(--danger);font-weight:600">Vet check within 2h</td>
+          <td><a href="record.html" class="btn btn-primary" style="padding:4px 10px;font-size:10px">Record</a></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-067</td><td>5</td>
+          <td><span class="tag tag-yellow">D113</span></td>
+          <td>Barn B-14</td>
+          <td><span class="tag tag-yellow">Watch</span></td>
+          <td style="color:var(--text2)">Monitor daily. Farrowing expected in 2 days.</td>
+          <td><span style="font-size:10px;color:var(--primary);font-weight:600">View</span></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-015</td><td>5</td>
+          <td><span class="tag tag-red">NPD 42d</span></td>
+          <td>Barn C</td>
+          <td><span class="tag tag-yellow">High NPD</span></td>
+          <td style="color:var(--warning);font-weight:600">AI: Re-breed. Estimated 65% conception.</td>
+          <td><a href="record.html" style="font-size:10px;color:var(--primary);font-weight:600">Breed</a></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-023</td><td>7</td>
+          <td><span class="tag tag-red">NPD 38d</span></td>
+          <td>Barn C</td>
+          <td><span class="tag tag-red">Cull candidate</span></td>
+          <td style="color:var(--danger);font-weight:600">AI: Cull recommended. P7 + declining litter size.</td>
+          <td><span style="font-size:10px;color:var(--warning);font-weight:600">Review</span></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-048</td><td>2</td>
+          <td><span class="tag tag-green">Heat Detected</span></td>
+          <td>Barn D</td>
+          <td><span class="tag tag-green">Optimal</span></td>
+          <td style="color:var(--success);font-weight:600">AI: Breed today 14:30~16:00. 92% conception rate.</td>
+          <td><a href="record.html" style="font-size:10px;color:var(--primary);font-weight:600">Breed</a></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-018</td><td>4</td>
+          <td><span class="tag tag-green">Lactating D21</span></td>
+          <td>Barn B-03</td>
+          <td><span class="tag tag-green">Normal</span></td>
+          <td style="color:var(--text2)">Weaning due today. Piglet weight on target.</td>
+          <td><a href="record.html" style="font-size:10px;color:var(--primary);font-weight:600">Wean</a></td>
+        </tr>
+        <tr>
+          <td class="mono" style="font-weight:600">#A-001</td><td>4</td>
+          <td><span class="tag tag-green">D82</span></td>
+          <td>Barn A</td>
+          <td><span class="tag tag-green">Normal</span></td>
+          <td style="color:var(--text2)">On track. Farrowing expected Apr 22.</td>
+          <td><span style="font-size:10px;color:var(--text3)">—</span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>
