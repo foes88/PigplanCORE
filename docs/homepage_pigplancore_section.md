@@ -103,23 +103,22 @@
 
 ## Image Prompts
 
-### 1. 메인 히어로 — AI Agent가 농장을 운영하는 느낌
-> **Prompt:** A futuristic isometric illustration of an AI-powered pig farm operations system. In the center, a glowing AI brain/agent icon connected to a holographic dashboard showing PSY, FCR, mortality charts. On the left, stylized farm buildings with data streams flowing upward into the AI. On the right, action arrows pointing to outcomes: a dollar sign (revenue up), a downward arrow (mortality down), a grain icon (feed optimized). Clean, minimal SaaS style. Color palette: dark navy (#0F172A), emerald green (#0D7C66), gold accents (#C9A84C). Dark background with subtle grid. No text.
+> 모든 이미지는 `grid lg:grid-cols-2`의 오른쪽 영역에 배치.
+> 비율: **16:9** (aspect-video) 또는 **4:3**.
+> 배경: 라운드 카드 안에 들어가므로 **rounded-2xl** 모서리에 맞게.
+> 기존 PigPlanSection(Stats 카드), InsightPigPlanSection(유튜브 영상)과 같은 자리.
 
-### 2. 데이터 → AI Agent → Action 플로우
-> **Prompt:** A horizontal flow illustration on dark background. Three stages connected by glowing lines. Stage 1 (left): Farm icons with data points floating up — temperature, pig silhouettes, feed bins. Stage 2 (center): A large glowing AI Agent hexagon processing data, with neural network patterns inside. Stage 3 (right): Action outputs — a calendar (breeding schedule), alert icon (disease warning), truck (optimal shipment timing), coin stack (revenue). Data particles flow left to right, transforming from raw (blue dots) to processed (gold dots). Futuristic, clean. Navy/green/gold palette. No text.
+### 1. 메인 섹션 Right — AI Agent 운영 시스템
+> **Prompt:** 16:9 aspect ratio, rounded corners. A futuristic illustration of an AI-powered pig farm operations system, designed to fit inside a card container on a website. Center: a glowing AI brain icon connected to a holographic dashboard showing abstract PSY/FCR charts. Left of center: small stylized farm building with green data streams flowing into the AI. Right of center: action output icons — dollar sign (revenue up), downward arrow (mortality down), grain (feed optimized). Composition weighted to center, with comfortable padding on all sides. Clean minimal SaaS marketing style. Dark navy (#0F172A) background with subtle grid. Emerald green (#0D7C66) data streams, gold (#C9A84C) accents on outcomes. No text. No border.
 
-### 3. 데이터 마켓플레이스 — API끼리 Agent끼리 장터
-> **Prompt:** An isometric dark-themed illustration of a data marketplace ecosystem. Center: a glowing circular platform/hub with the concept of a digital marketplace. Left side: multiple farm nodes sending green data streams into the hub, each with a small AI agent icon attached. Right side: corporate nodes (feed company with grain icon, genetics with DNA helix, pharma with molecule, research with chart) receiving gold data streams. AI agent robots travel along the connection lines, carrying data packets. The hub pulses with energy where data transforms into insights. Futuristic cyberpunk-lite aesthetic. Navy (#0F172A) background, green (#0D7C66) for farm data, gold (#C9A84C) for business insights. No text.
+### 2. 마켓플레이스 섹션 Right — 데이터 장터
+> **Prompt:** 16:9 aspect ratio, rounded corners. An illustration of a data marketplace ecosystem designed for a website card. Center: a glowing hexagonal hub. Left: 3 small farm nodes sending green data streams into the hub, each with a tiny AI agent robot icon. Right: 3 corporate nodes (grain icon for feed company, DNA helix for genetics, molecule for pharma) receiving gold data streams from the hub. AI agent icons travel along the lines carrying data packets. Compact composition fitting cleanly within the card frame. Dark navy (#0F172A) background. Green (#0D7C66) for farm data flows, gold (#C9A84C) for business insight flows. Futuristic but clean. No text. No border.
 
-### 4. SaaS vs AI 비교 — 전환 컨셉
-> **Prompt:** A split-screen comparison illustration. Left side (dimmer, grayscale-ish): Traditional SaaS — a person typing records into a computer, static spreadsheets, manual clipboard. Label area for "Records". Right side (vibrant, glowing): AI-powered system — an AI agent brain icon connected to automated dashboards, real-time alerts, money/revenue icons flowing. Label area for "Revenue". A dramatic arrow or transition effect from left to right. The right side radiates energy and movement while the left is static. Clean illustration style. Left: muted blue-gray. Right: vibrant navy + green + gold. No text.
+### 3. 대안 — 데이터→AI→Action 수평 플로우
+> **Prompt:** 16:9 aspect ratio, rounded corners. A horizontal three-stage flow illustration for a website card. Stage 1 (left third): farm building icon with small data dots floating up. Stage 2 (center third): a glowing AI Agent hexagon with neural patterns processing the data. Stage 3 (right third): three small output icons — calendar, alert bell, coin stack — representing scheduled actions, warnings, and revenue. Thin glowing lines connect all three stages left to right. Data particles transform from green (raw) to gold (processed) as they flow. Dark navy (#0F172A) background, emerald green (#0D7C66) and gold (#C9A84C). Compact, fits within card container. No text. No border.
 
-### 5. 글로벌 5개 시장 연결 — AI가 전 세계를 연결
-> **Prompt:** A dark globe illustration with 5 glowing hotspots for USA, China, Southeast Asia (Vietnam/Thailand), Latin America, and South Korea. Each hotspot has a small farm icon and an AI agent icon. Thin glowing green lines connect all hotspots through a central orbiting AI agent ring around the globe. Data particles travel along the lines between markets. The globe is semi-transparent with subtle country borders. Futuristic, premium feel. Navy background, green connection lines, gold accent on AI agents. No text.
-
-### 6. Outcome 기반 — 성과로 증명
-> **Prompt:** A clean dashboard-style illustration showing three outcome metrics as large glowing cards on a dark background. Card 1: Pig mortality icon with a large downward arrow and percentage (abstract). Card 2: Feed conversion icon with an efficiency gauge showing improvement. Card 3: Revenue/shipment icon with upward trending graph and coin symbols. Below the cards, a subtle timeline showing "Data In → AI Analysis → Action Taken → Outcome Achieved" as a horizontal flow. Premium SaaS analytics aesthetic. Dark navy background, green for positive metrics, gold for revenue. No text except abstract numbers/symbols.
+### 4. 대안 — SaaS vs AI 비교
+> **Prompt:** 16:9 aspect ratio, rounded corners. A split-screen comparison for a website card. Left half (dimmer, muted blue-gray): traditional SaaS icons — clipboard, spreadsheet, manual input, static charts. Right half (vibrant, glowing): AI system icons — brain/agent icon, automated dashboard, real-time data streams, revenue coins flowing. A subtle arrow transition from left to right in the center. Right side radiates energy, left side is static and faded. Clean illustration style. Fits within rounded card container. No text. No border.
 
 ---
 
@@ -130,29 +129,16 @@ pigplan/page.tsx:
 
 <PageHero namespace="pages.pigplan" />
 <PigPlanSection showHeader={false} />         ← 기존 피그플랜
-<PigPlanCoreSection />                        ← 새로 추가 (이 문서)
+<PigPlanCoreSection />                        ← 새로 추가
 <PartnerMarquee />
 <InsightPigPlanSection />
 <PigSignalSection />
 ```
 
-PigPlanCoreSection은 기존 PigPlanSection / InsightPigPlanSection과 동일한 `<Section>` 컴포넌트 사용. 동일한 `grid lg:grid-cols-2 gap-16 items-center` 레이아웃.
-
-**구성:**
-- Left: label + title + subtitle + desc + 4개 feature 카드 (2x2 grid)
-- Right: 메인 이미지 (히어로 또는 데이터→AI→Action 플로우)
-- Below (full-width): 데이터 마켓플레이스 섹션 (flow1→flow2→flow3→flow4 수평 플로우)
-- Stats: 4개 수치 카드 (5개 시장 / 5개 언어 / AI Agent / 성과 기반)
-- CTA: 자세히 보기 + 프로토타입 보기
-
----
-
-## 네이밍 후보 (참고)
-
-| 이름 | 포지셔닝 | 강점 |
-|------|----------|------|
-| **PigOS AI** | 농장 운영 체제 | 플랫폼 전략과 일치, 투자자 스토리에 강함 |
-| **PigOps AI** | 운영 최적화 실행 | B2B 현장 친화적, 실행/자동화 뉘앙스 |
-| **PigCore AI** | 핵심 플랫폼 + 확장성 | 장기 브랜드 내구성, 축산 확장 시에도 유효 |
-
-*최종 네이밍 미확정. 대외 브랜딩과 내부 제품명 분리 검토 중.*
+PigPlanCoreSection은 기존 PigPlanSection / InsightPigPlanSection과 **동일한 레이아웃**:
+- `<Section>` 컴포넌트
+- `grid lg:grid-cols-2 gap-16 items-center`
+- Left: 텍스트 (label + title + desc + features)
+- Right: 이미지 (`aspect-video rounded-2xl overflow-hidden` — 위 프롬프트 이미지)
+- Stats: 기존 StatCard 컴포넌트 재활용 (4개: 5개 시장 / 5개 언어 / AI Agent / 성과 기반)
+- CTA: Button 컴포넌트 (자세히 보기 + 프로토타입 보기)
