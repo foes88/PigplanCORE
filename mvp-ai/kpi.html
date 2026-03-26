@@ -121,7 +121,7 @@
 </div>
 
 <script>
-var g='#0D7C66',p='#8B5CF6',gy='rgba(255,255,255,.2)',bd='rgba(255,255,255,.05)';
+var g='#0D7C66',p='#8B5CF6',gy='#CBD5E1',bd='#F1F5F9';
 var months=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
 
 new Chart(document.getElementById('c1'),{
@@ -141,7 +141,7 @@ new Chart(document.getElementById('c1'),{
   },
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'top',labels:{font:{size:10},color:'#94A3B8',usePointStyle:true}}},
-    scales:{y:{min:20,max:28,grid:{color:bd},ticks:{font:{size:10,family:'JetBrains Mono'},color:'#64748B'}},x:{grid:{display:false},ticks:{font:{size:9},color:'#64748B'}}}
+    scales:{y:{min:20,max:28,grid:{color:bd},ticks:{font:{size:10,family:'JetBrains Mono'},color:'#94A3B8'}},x:{grid:{display:false},ticks:{font:{size:9},color:'#94A3B8'}}}
   }
 });
 
@@ -160,9 +160,9 @@ new Chart(document.getElementById('c2'),{
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'top',labels:{font:{size:10},color:'#94A3B8',usePointStyle:true}}},
     scales:{
-      y:{min:70,max:95,grid:{color:bd},ticks:{font:{size:10,family:'JetBrains Mono'},color:'#64748B',callback:v=>v+'%'}},
-      y1:{position:'right',min:25,max:50,grid:{display:false},ticks:{font:{size:10,family:'JetBrains Mono'},color:'#64748B',callback:v=>v+'d'}},
-      x:{grid:{display:false},ticks:{font:{size:9},color:'#64748B'}}
+      y:{min:70,max:95,grid:{color:bd},ticks:{font:{size:10,family:'JetBrains Mono'},color:'#94A3B8',callback:v=>v+'%'}},
+      y1:{position:'right',min:25,max:50,grid:{display:false},ticks:{font:{size:10,family:'JetBrains Mono'},color:'#94A3B8',callback:v=>v+'d'}},
+      x:{grid:{display:false},ticks:{font:{size:9},color:'#94A3B8'}}
     }
   }
 });
