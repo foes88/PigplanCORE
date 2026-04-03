@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigOS AI — DB Structure Guide v1.0</title>
+<style>
+  :root {
+    --primary: #0D7C66;
+    --primary-light: #e8f5f1;
+    --accent: #E8820E;
+    --danger: #DC2626;
+    --purple: #7C3AED;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+  /* Header */
+  .header { background: var(--primary); color: white; padding: 32px 0; margin-bottom: 32px; }
+  .header .container { display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 28px; font-weight: 700; }
+  .header .meta { font-size: 14px; opacity: 0.8; }
+
+  /* Navigation */
+  .nav { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .nav .container { display: flex; gap: 4px; padding: 8px 24px; overflow-x: auto; }
+  .nav a { padding: 8px 16px; border-radius: 6px; text-decoration: none; color: var(--muted); font-size: 13px; font-weight: 500; white-space: nowrap; transition: all 0.2s; }
+  .nav a:hover, .nav a.active { background: var(--primary-light); color: var(--primary); }
+
+  /* Cards */
+  .card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
+  .card h2 { font-size: 20px; margin-bottom: 16px; color: var(--primary); }
+  .card h3 { font-size: 16px; margin: 16px 0 8px; color: var(--text); }
+
+  /* Module cards */
+  .modules { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .module { background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; transition: transform 0.2s, box-shadow 0.2s; }
+  .module:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .module-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .module-badge { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white; }
+  .module-name { font-size: 16px; font-weight: 600; }
+  .module-phase { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .phase-1 { background: #dcfce7; color: #166534; }
+  .phase-2 { background: #fef9c3; color: #854d0e; }
+  .phase-3 { background: #fce7f3; color: #9d174d; }
+  .module-tables { margin-top: 8px; }
+  .module-tables .tbl { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; margin: 3px; border-radius: 6px; font-size: 12px; font-family: 'JetBrains Mono', 'Consolas', monospace; background: #f1f5f9; border: 1px solid var(--border); }
+  .tbl-core { background: var(--primary-light); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+  .tbl-new { background: #fef3c7; border-color: var(--accent); color: #92400e; font-weight: 600; }
+
+  /* ER Diagram */
+  .er-diagram { background: #1e293b; color: #e2e8f0; border-radius: 12px; padding: 24px; overflow-x: auto; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 13px; line-height: 1.8; white-space: pre; }
+  .er-diagram .highlight { color: #34d399; }
+  .er-diagram .fk { color: #fbbf24; }
+  .er-diagram .new { color: #f472b6; }
+  .er-diagram .comment { color: #64748b; }
+
+  /* Table detail */
+  .table-detail { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 12px 0; }
+  .table-detail-header { background: var(--primary); color: white; padding: 10px 16px; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; }
+  .table-detail table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table-detail th { background: #f1f5f9; padding: 8px 12px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+  .table-detail td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .table-detail tr:last-child td { border-bottom: none; }
+  .col-pk { color: var(--accent); font-weight: 700; }
+  .col-fk { color: var(--purple); }
+  .col-new { background: #fef3c7; }
+  .col-type { color: var(--muted); font-family: monospace; font-size: 12px; }
+  .badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-pk { background: #fef3c7; color: #92400e; }
+  .badge-fk { background: #ede9fe; color: #6d28d9; }
+  .badge-nn { background: #fee2e2; color: #991b1b; }
+  .badge-new { background: #fce7f3; color: #9d174d; }
+  .badge-check { background: #dcfce7; color: #166534; }
+
+  /* Flow diagram */
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 16px 0; }
+  .flow-step { background: white; border: 2px solid var(--primary); border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 600; text-align: center; min-width: 100px; }
+  .flow-step.active { background: var(--primary); color: white; }
+  .flow-step.new { border-color: var(--accent); background: #fef3c7; }
+  .flow-step.danger { border-color: var(--danger); }
+  .flow-arrow { font-size: 20px; color: var(--muted); }
+
+  /* Status matrix */
+  .matrix { overflow-x: auto; }
+  .matrix table { border-collapse: collapse; font-size: 12px; min-width: 600px; }
+  .matrix th, .matrix td { padding: 6px 10px; border: 1px solid var(--border); text-align: center; }
+  .matrix th { background: #f1f5f9; font-weight: 600; }
+  .matrix .allow { background: #dcfce7; color: #166534; }
+  .matrix .deny { background: #fee2e2; color: #991b1b; }
+  .matrix .na { background: #f1f5f9; color: #94a3b8; }
+
+  /* Section */
+  section { margin-bottom: 40px; }
+  section > h2 { font-size: 22px; color: var(--text); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--primary); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .stat-sub { font-size: 11px; color: var(--accent); margin-top: 2px; }
+
+  /* Legend */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0; padding: 12px; background: #f8fafc; border-radius: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .legend-color { width: 14px; height: 14px; border-radius: 3px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .modules { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="container">
+    <div>
+      <h1>PigOS AI — DB Structure Guide</h1>
+      <div class="meta">v2.0 Draft | 2026-03-31 | 53 Tables + 8 Views + Triggers</div>
+    </div>
+    <div class="meta" style="text-align:right">
+      PostgreSQL 16+<br>Schema-per-Tenant
+    </div>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="container">
+    <a href="#overview">Overview</a>
+    <a href="#modules">Modules</a>
+    <a href="#lifecycle">Breeding Lifecycle</a>
+    <a href="#er">ER Diagram</a>
+    <a href="#tables">Table Details</a>
+    <a href="#status">Status Machine</a>
+    <a href="#piglet">Piglet Tracking</a>
+    <a href="#npd">NPD 6 Components</a>
+    <a href="#constraints">Constraints</a>
+    <a href="#views">Views & KPI</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview">
+  <h2>Schema Overview</h2>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value">53</div>
+      <div class="stat-label">Tables</div>
+      <div class="stat-sub">v1: 49 + v2: 4 new</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">8</div>
+      <div class="stat-label">Views</div>
+      <div class="stat-sub">PSY, NPD (6), Inventory, Nursing</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">42</div>
+      <div class="stat-label">Integrity Rules</div>
+      <div class="stat-sub">HARD 22 / SOFT 9 / CALC 11</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">11</div>
+      <div class="stat-label">Modules</div>
+      <div class="stat-sub">Core 2 + Extension 5 + Independent 4</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">11</div>
+      <div class="stat-label">Countries</div>
+      <div class="stat-sub">KR/DK/DE/NL/ES/US/BR/VN/TH/PH/CN</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">42</div>
+      <div class="stat-label">Test Scenarios</div>
+      <div class="stat-sub">Simulation-ready</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Design Principles</h2>
+    <table style="width:100%; font-size:14px;">
+      <tr><td style="width:200px; font-weight:600;">Schema-per-Tenant</td><td>Each farm gets isolated schema. farm_id on every table for RLS fallback.</td></tr>
+      <tr><td style="font-weight:600;">Soft Delete</td><td><code>deleted_at TIMESTAMPTZ</code> on all operational tables. Never hard delete.</td></tr>
+      <tr><td style="font-weight:600;">Audit Trail</td><td>All CUD operations logged to <code>audit_log</code> with old/new JSONB.</td></tr>
+      <tr><td style="font-weight:600;">Offline Sync</td><td><code>sync_queue</code> + <code>offline_created_at</code> on event tables. LWW conflict resolution.</td></tr>
+      <tr><td style="font-weight:600;">Period Lock</td><td>Month-end closing via <code>period_locks</code>. Locked periods reject INSERT/UPDATE.</td></tr>
+      <tr><td style="font-weight:600;">Event-Driven Status</td><td>Sow status auto-transitions via triggers on event INSERT (mating/farrowing/weaning).</td></tr>
+      <tr><td style="font-weight:600;">i18n</td><td>Code tables (<code>code_groups/values/translations</code>) for all enumerated values.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ MODULES ============ -->
+<section id="modules">
+  <h2>Modules</h2>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-color" style="background:#0D7C66"></div> Core (always deployed together)</div>
+    <div class="legend-item"><div class="legend-color" style="background:#2563eb"></div> Extension (depends on Core)</div>
+    <div class="legend-item"><div class="legend-color" style="background:#7c3aed"></div> Independent (no Core dependency)</div>
+    <div class="legend-item"><div class="legend-color" style="background:var(--accent)"></div> v2 New Table</div>
+  </div>
+
+  <div class="modules">
+    <!-- Module 0 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-badge" style="background:#0D7C66">M0</div>
+        <div>
+          <div class="module-name">Platform</div>
+          <span class="module-phase phase-1">Phase 1 Core</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Multi-tenancy, Auth, Audit</div>
+      <div class="module-tables">
+        <span class="tbl tbl-core">organizations</span>
+        <span class="tbl tbl-core">farms</span>
+        <span class="tbl tbl-core">users</span>
+        <span class="tbl">user_farms</span>
+        <span class="tbl">audit_log</span>
+        <span class="tbl">sync_queue</span>
+        <span class="tbl">period_locks</span>
+        <span class="tbl tbl-new">farm_configs</span>
+      </div>
+    </div>
+
+    <!-- Module 1 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-badge" style="background:#0D7C66">M1</div>
+        <div>
+          <div class="module-name">Sow Management</div>
+          <span class="module-phase phase-1">Phase 1 Core</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Breeding Cycle Hub (8+4 tables)</div>
+      <div class="module-tables">
+        <span class="tbl">buildings</span>
+        <span class="tbl">boars</span>
+        <span class="tbl tbl-core">sows</span>
+        <span class="tbl tbl-core">matings</span>
+        <span class="tbl">pregnancy_checks</span>
+        <span class="tbl tbl-core">farrowings</span>
+        <span class="tbl tbl-core">weanings</span>
+        <span class="tbl">removals</span>
+        <span class="tbl tbl-new">breeding_cycles</span>
+        <span class="tbl tbl-new">reproductive_events</span>
+        <span class="tbl tbl-new">piglet_events</span>
+      </div>
+    </div>
+
+    <!-- Module 2 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-badge" style="background:#2563eb">M2</div>
+        <div>
+          <div class="module-name">Growing / Fattening</div>
+          <span class="module-phase phase-2">Phase 2</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Batch management, shipments</div>
+      <div class="module-tables">
+        <span class="tbl">animal_groups</span>
+        <span class="tbl">grow_records</span>
+        <span class="tbl">shipments</span>
+        <span class="tbl">carcass_records</span>
+      </div>
+    </div>
+
+    <!-- Module 3 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-badge" style="background:#2563eb">M3</div>
+        <div>
+          <div class="module-name">Feed</div>
+          <span class="module-phase phase-2">Phase 2</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Feed bins, formulas, deliveries</div>
+      <div class="module-tables">
+        <span class="tbl">feed_bins</span>
+        <span class="tbl">feed_formulas</span>
+        <span class="tbl">feed_deliveries</span>
+        <span class="tbl">feed_records</span>
+      </div>
+    </div>
+
+    <!-- Module 4 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-badge" style="background:#2563eb">M4</div>
+        <div>
+          <div class="module-name">Health</div>
+          <span class="module-phase phase-1">Phase 1</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Disease, vaccination, medication</div>
+      <div class="module-tables">
+        <span class="tbl">health_events</span>
+        <span class="tbl">vaccinations</span>
+        <span class="tbl">medications</span>
+      </div>
+    </div>
+
+    <!-- Module 5-7 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-badge" style="background:#2563eb">M5-7</div>
+        <div>
+          <div class="module-name">Genetics / Compliance / Environment</div>
+          <span class="module-phase phase-2">Phase 2-3</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Genetics, regulations, ESG, carbon</div>
+      <div class="module-tables">
+        <span class="tbl">genetics</span>
+        <span class="tbl">compliance_reports</span>
+        <span class="tbl">animal_movements</span>
+        <span class="tbl">welfare_certifications</span>
+        <span class="tbl">yellow_card_tracking</span>
+        <span class="tbl">environment_readings</span>
+        <span class="tbl">carbon_footprint</span>
+        <span class="tbl">amr_monitoring</span>
+      </div>
+    </div>
+
+    <!-- Module 8 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-badge" style="background:#2563eb">M8</div>
+        <div>
+          <div class="module-name">KPI Engine</div>
+          <span class="module-phase phase-1">Phase 1</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Snapshots, benchmarks, alerts</div>
+      <div class="module-tables">
+        <span class="tbl">kpi_snapshots</span>
+        <span class="tbl">benchmarks</span>
+        <span class="tbl">alert_rules</span>
+        <span class="tbl">alert_history</span>
+      </div>
+    </div>
+
+    <!-- Module 9-10 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-badge" style="background:#7c3aed">M9-10</div>
+        <div>
+          <div class="module-name">Market / Data / i18n</div>
+          <span class="module-phase phase-3">Phase 3</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Independent modules</div>
+      <div class="module-tables">
+        <span class="tbl">market_prices</span>
+        <span class="tbl">data_consent</span>
+        <span class="tbl">anonymized_datasets</span>
+        <span class="tbl">code_groups</span>
+        <span class="tbl">code_values</span>
+        <span class="tbl">code_translations</span>
+        <span class="tbl">country_configs</span>
+        <span class="tbl">attachments</span>
+        <span class="tbl">individual_pigs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LIFECYCLE ============ -->
+<section id="lifecycle">
+  <h2>Breeding Lifecycle</h2>
+
+  <div class="card">
+    <h3>Normal Cycle (정상 번식 사이클)</h3>
+    <div class="flow">
+      <div class="flow-step active">GILT<br><small>입식</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">Mating<br><small>교배</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="opacity:0.6">Preg Check<br><small>임신확인</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">Farrowing<br><small>분만 (114d)</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">Weaning<br><small>이유 (21d)</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">Re-Mating<br><small>재교배 (7d)</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="border-style:dashed">Repeat...<br><small>반복</small></div>
+    </div>
+
+    <h3>Failure Path (사고 경로)</h3>
+    <div class="flow">
+      <div class="flow-step">Mating</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step danger" style="border-color:var(--danger)">Return / Abort<br><small>재발정 / 유산</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step new">Re-Mating<br><small>mating_count+1</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">Farrowing<br><small>분만</small></div>
+    </div>
+
+    <h3>Nurse Sow Path (대리모 경로)</h3>
+    <div class="flow">
+      <div class="flow-step">Sow B<br><small>LACTATING</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step new">Nurse Wean<br><small>전체 이유</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">WEANED</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step new">Foster In<br><small>Sow A 자돈 받음</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step active">LACTATING<br><small>연장 포유</small></div>
+    </div>
+
+    <h3>Tables Involved Per Step</h3>
+    <table style="width:100%; font-size:13px; border-collapse:collapse;">
+      <tr style="background:#f1f5f9"><th style="padding:8px">Step</th><th>Tables Written</th><th>Status Change</th><th>Parity</th></tr>
+      <tr><td style="padding:8px">Entry (입식)</td><td><code>sows</code></td><td>&rarr; GILT (parity=0) or ACTIVE</td><td>stays</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Mating (교배)</td><td><code>matings</code>, <code>breeding_cycles</code></td><td>&rarr; GESTATING</td><td>stays</td></tr>
+      <tr><td style="padding:8px">Preg Check (임신확인)</td><td><code>pregnancy_checks</code></td><td>no change</td><td>stays</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Return/Abort (사고)</td><td><code>reproductive_events</code></td><td>&rarr; ACTIVE</td><td>stays</td></tr>
+      <tr><td style="padding:8px; font-weight:600; color:var(--primary)">Farrowing (분만)</td><td><code>farrowings</code></td><td>&rarr; LACTATING</td><td style="color:var(--accent); font-weight:700">+1</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Piglet Events</td><td><code>piglet_events</code></td><td>no change</td><td>stays</td></tr>
+      <tr><td style="padding:8px">Weaning (이유)</td><td><code>weanings</code></td><td>&rarr; WEANED</td><td>stays</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Removal (도태/폐사)</td><td><code>removals</code>, <code>sows.exit_date</code></td><td>&rarr; CULLED / DEAD</td><td>stays</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ ER DIAGRAM ============ -->
+<section id="er">
+  <h2>ER Diagram (Core Breeding Module)</h2>
+
+  <div class="er-diagram"><span class="comment">-- Core Breeding Chain (Module 0 + 1)</span>
+
+<span class="highlight">organizations</span> 1──N <span class="highlight">farms</span> 1──N <span class="highlight">users</span>
+                    │                │
+                    │                └──N <span class="highlight">user_farms</span>
+                    │
+        ┌───────────┼───────────────────────────────────────┐
+        │           │                                       │
+        ▼           ▼                                       ▼
+   <span class="highlight">buildings</span>     <span class="highlight">sows</span> ◄─────────────────────────── <span class="highlight">boars</span>
+        │       <span class="fk">│ PK: id</span>
+        │       <span class="fk">│ farm_id (FK→farms)</span>
+        │       <span class="fk">│ building_id (FK→buildings)</span>
+        │       <span class="fk">│ status: GILT|ACTIVE|GESTATING|LACTATING|WEANED|DRY|CULLED|DEAD</span>
+        │       <span class="fk">│ parity: 0~20 (increments on farrowing)</span>
+        │       <span class="fk">│ exit_date: NULL=active, DATE=removed</span>
+        │       │
+        │       ├──N <span class="highlight">matings</span> ─────────┐
+        │       │   <span class="fk">sow_id, boar_id</span>      │
+        │       │   <span class="fk">mating_date, type</span>     │
+        │       │                          │
+        │       ├──N <span class="highlight">pregnancy_checks</span>  │
+        │       │   <span class="fk">sow_id, mating_id</span>     │
+        │       │   <span class="fk">result: POS/NEG/UNC</span>   │
+        │       │                          │
+        │       ├──N <span class="new">reproductive_events</span> ◄─── <span class="comment">NEW v2</span>
+        │       │   <span class="fk">sow_id, mating_id</span>
+        │       │   <span class="fk">type: RETURN|ABORT|HEAT|SKIP|ANESTRUS|...</span>
+        │       │
+        │       ├──N <span class="highlight">farrowings</span> ─────────┐
+        │       │   <span class="fk">sow_id, mating_id</span>      │
+        │       │   <span class="fk">born_alive+still+mum</span>   │
+        │       │   <span class="fk">= total_born (CHECK)</span>   │
+        │       │                          │
+        │       │                     N────┤
+        │       │              <span class="new">piglet_events</span> ◄─── <span class="comment">NEW v2</span>
+        │       │              <span class="fk">farrowing_id</span>
+        │       │              <span class="fk">type: DEATH|FOSTER_IN|FOSTER_OUT|STILLBORN</span>
+        │       │              <span class="fk">piglet_count, reason</span>
+        │       │                          │
+        │       ├──N <span class="highlight">weanings</span> ◄────────────┘
+        │       │   <span class="fk">sow_id, farrowing_id</span>
+        │       │   <span class="fk">weaned_count, weaning_type</span>
+        │       │   <span class="fk">type: COMPLETE|PARTIAL|BATCH|NURSE_SOW</span>
+        │       │
+        │       ├──N <span class="highlight">removals</span>
+        │       │   <span class="fk">sow_id, removal_type, reason</span>
+        │       │
+        │       └──N <span class="new">breeding_cycles</span> ◄─── <span class="comment">NEW v2</span>
+        │           <span class="fk">sow_id, parity</span>
+        │           <span class="fk">cycle_status, mating_count</span>
+        │
+        └───────────────────────────────────────────────────────────
+                    <span class="comment">-- Extensions: health_events, vaccinations, medications,</span>
+                    <span class="comment">--   feed_records, genetics, animal_groups → all FK to sows/farms</span>
+</div>
+</section>
+
+<!-- ============ STATUS MACHINE ============ -->
+<section id="status">
+  <h2>Sow Status Machine</h2>
+
+  <div class="card">
+    <h3>Allowed Transitions (ST-01)</h3>
+    <div class="matrix">
+      <table>
+        <tr>
+          <th>From \ To</th>
+          <th>GILT</th><th>ACTIVE</th><th>GESTATING</th><th>LACTATING</th><th>WEANED</th><th>DRY</th><th>CULLED</th><th>DEAD</th>
+        </tr>
+        <tr>
+          <th>GILT</th>
+          <td class="na">-</td><td class="na">-</td><td class="allow">Mating</td><td class="na">-</td><td class="na">-</td><td class="na">-</td><td class="allow">Cull</td><td class="allow">Death</td>
+        </tr>
+        <tr>
+          <th>ACTIVE</th>
+          <td class="na">-</td><td class="na">-</td><td class="allow">Mating</td><td class="na">-</td><td class="na">-</td><td class="na">-</td><td class="allow">Cull</td><td class="allow">Death</td>
+        </tr>
+        <tr>
+          <th>GESTATING</th>
+          <td class="na">-</td><td class="allow">Return/Abort</td><td class="na">-</td><td class="allow">Farrow</td><td class="na">-</td><td class="na">-</td><td class="allow">Cull</td><td class="allow">Death</td>
+        </tr>
+        <tr>
+          <th>LACTATING</th>
+          <td class="na">-</td><td class="na">-</td><td class="deny">X</td><td class="na">-</td><td class="allow">Wean</td><td class="na">-</td><td class="allow">Cull</td><td class="allow">Death</td>
+        </tr>
+        <tr>
+          <th>WEANED</th>
+          <td class="na">-</td><td class="na">-</td><td class="allow">Mating</td><td class="allow">Nurse</td><td class="na">-</td><td class="allow">Dry</td><td class="allow">Cull</td><td class="allow">Death</td>
+        </tr>
+        <tr>
+          <th>DRY</th>
+          <td class="na">-</td><td class="na">-</td><td class="allow">Mating</td><td class="na">-</td><td class="na">-</td><td class="na">-</td><td class="allow">Cull</td><td class="allow">Death</td>
+        </tr>
+        <tr>
+          <th>CULLED</th>
+          <td class="deny">X</td><td class="deny">X</td><td class="deny">X</td><td class="deny">X</td><td class="deny">X</td><td class="deny">X</td><td class="na">-</td><td class="deny">X</td>
+        </tr>
+        <tr>
+          <th>DEAD</th>
+          <td class="deny">X</td><td class="deny">X</td><td class="deny">X</td><td class="deny">X</td><td class="deny">X</td><td class="deny">X</td><td class="deny">X</td><td class="na">-</td>
+        </tr>
+      </table>
+    </div>
+    <div class="legend" style="margin-top:12px">
+      <div class="legend-item"><div class="legend-color" style="background:#dcfce7"></div> Allowed (trigger auto-transitions)</div>
+      <div class="legend-item"><div class="legend-color" style="background:#fee2e2"></div> Blocked (raises exception)</div>
+      <div class="legend-item"><div class="legend-color" style="background:#f1f5f9"></div> N/A</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PIGLET TRACKING ============ -->
+<section id="piglet">
+  <h2>Piglet Head Count Flow</h2>
+
+  <div class="card">
+    <h3>Piglet Balance Equation</h3>
+    <div style="background:#1e293b; color:#e2e8f0; padding:20px; border-radius:8px; font-family:monospace; font-size:14px; line-height:2;">
+      <span style="color:#34d399">weaned_count</span> = <span style="color:#fbbf24">born_alive</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <span style="color:#f87171">STILLBORN_REMOVAL</span> (piglet_events)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <span style="color:#f87171">DEATH</span> (piglet_events)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;+ <span style="color:#60a5fa">FOSTER_IN</span> (piglet_events)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <span style="color:#60a5fa">FOSTER_OUT</span> (piglet_events)<br>
+      <br>
+      <span style="color:#94a3b8">-- Verified by: fn_verify_piglet_balance(farrowing_id)</span><br>
+      <span style="color:#94a3b8">-- Real-time view: v_current_nursing_piglets</span>
+    </div>
+
+    <h3 style="margin-top:20px">Example: Sow A-042, Parity 3</h3>
+    <table style="width:100%; font-size:13px; border-collapse:collapse; margin-top:8px;">
+      <tr style="background:#f1f5f9"><th style="padding:8px">Date</th><th>Event</th><th>Count</th><th>Running Total</th></tr>
+      <tr><td style="padding:8px">Mar 01</td><td>Farrowing (born_alive=14)</td><td style="color:var(--primary)">+14</td><td><strong>14</strong></td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Mar 02</td><td>STILLBORN_REMOVAL</td><td style="color:var(--danger)">-1</td><td><strong>13</strong></td></tr>
+      <tr><td style="padding:8px">Mar 03</td><td>FOSTER_OUT to Sow B</td><td style="color:#2563eb">-2</td><td><strong>11</strong></td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Mar 03</td><td>FOSTER_IN from Sow C</td><td style="color:#2563eb">+1</td><td><strong>12</strong></td></tr>
+      <tr><td style="padding:8px">Mar 08</td><td>DEATH (crushing)</td><td style="color:var(--danger)">-1</td><td><strong>11</strong></td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Mar 15</td><td>DEATH (scours)</td><td style="color:var(--danger)">-1</td><td><strong>10</strong></td></tr>
+      <tr style="background:#dcfce7"><td style="padding:8px; font-weight:600">Mar 22</td><td style="font-weight:600">Weaning (COMPLETE)</td><td style="font-weight:600; color:var(--primary)">10</td><td style="font-weight:600">10 = 14-1-2+1-1-1 &#10003;</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ NPD ============ -->
+<section id="npd">
+  <h2>NPD 6 Components</h2>
+
+  <div class="card">
+    <h3>Non-Productive Days Breakdown (Global Standard)</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
+
+      <div style="background:#fef3c7; padding:16px; border-radius:8px;">
+        <div style="font-weight:700; margin-bottom:8px; color:#92400e;">Gilt NPD (후보돈)</div>
+        <div style="font-size:13px;">
+          <strong>NPD-01</strong> Entry &rarr; 1st Mating<br>
+          <small style="color:#92400e">avg ~160 days | v_npd_gilt_entry</small><br><br>
+          <strong>NPD-02</strong> Entry &rarr; Removal (no mating)<br>
+          <small style="color:#92400e">100% wasted | v_npd_gilt_removal</small>
+        </div>
+      </div>
+
+      <div style="background:var(--primary-light); padding:16px; border-radius:8px;">
+        <div style="font-weight:700; margin-bottom:8px; color:var(--primary);">Sow NPD (경산돈)</div>
+        <div style="font-size:13px;">
+          <strong>NPD-03</strong> Weaning &rarr; 1st Mating (WEI)<br>
+          <small style="color:var(--primary)">target 4-7 days | v_sow_npd</small><br><br>
+          <strong>NPD-04</strong> Weaning &rarr; Removal (no mating)<br>
+          <small style="color:var(--primary)">v_npd_wean_to_removal</small><br><br>
+          <strong>NPD-05</strong> Service &rarr; Re-Service (preg fail)<br>
+          <small style="color:var(--primary)">~21d regular / ~42d double | v_npd_reservice</small><br><br>
+          <strong>NPD-06</strong> Service &rarr; Removal (preg fail + cull)<br>
+          <small style="color:var(--primary)">v_npd_service_to_removal</small>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px; padding:12px; background:#fee2e2; border-radius:8px; font-size:13px;">
+      <strong>Economic Impact:</strong> NPD 1 day = <strong>$3.24 USD</strong> (US) / <strong>&#8361;8,500 KRW</strong> (KR)<br>
+      Top herds: ~36 NPD/year | Bottom herds: ~72 NPD/year | Gap = ~$117/sow/year
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONSTRAINTS ============ -->
+<section id="constraints">
+  <h2>Key Constraints Summary</h2>
+
+  <div class="card">
+    <h3>HARD Rules (DB rejects invalid data)</h3>
+    <table style="width:100%; font-size:13px; border-collapse:collapse;">
+      <tr style="background:#f1f5f9"><th style="padding:8px;text-align:left">Rule</th><th>Type</th><th>Enforcement</th></tr>
+      <tr><td style="padding:8px">total_born = born_alive + stillborn + mummified</td><td>CHECK</td><td>farrowings</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">born_alive >= 0, total_born <= 30</td><td>CHECK</td><td>farrowings</td></tr>
+      <tr><td style="padding:8px">Farrowing requires prior mating</td><td>TRIGGER</td><td>trg_farrowing_seq_check</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Weaning requires prior farrowing</td><td>TRIGGER</td><td>trg_weaning_seq_check</td></tr>
+      <tr><td style="padding:8px">One active breeding cycle per sow</td><td>UNIQUE</td><td>idx_sow_one_active_cycle</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Status transitions follow matrix</td><td>TRIGGER</td><td>trg_sow_status_transition</td></tr>
+      <tr><td style="padding:8px">Event auto-transitions status</td><td>TRIGGER</td><td>trg_matings/farrowings/weanings_status</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Farrowing sow = Mating sow</td><td>TRIGGER</td><td>trg_farrowing_sow_match</td></tr>
+      <tr><td style="padding:8px">1 Complete Wean per farrowing</td><td>UNIQUE</td><td>idx_one_complete_weaning</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">No events on CULLED/DEAD sow</td><td>TRIGGER</td><td>validate_sow_is_active()</td></tr>
+      <tr><td style="padding:8px">Event date >= entry_date</td><td>TRIGGER</td><td>validate_event_after_entry()</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">farm_id consistency across chain</td><td>TRIGGER</td><td>validate_farm_consistency()</td></tr>
+    </table>
+
+    <h3 style="margin-top:20px">SOFT Rules (API warns, allows data)</h3>
+    <table style="width:100%; font-size:13px; border-collapse:collapse;">
+      <tr style="background:#f1f5f9"><th style="padding:8px;text-align:left">Rule</th><th>Normal Range</th><th>Hard Reject</th></tr>
+      <tr><td style="padding:8px">Gestation period</td><td>112-118 days</td><td>&lt;100 or &gt;130 days</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">Nursing period</td><td>14-35 days (EU: min 28)</td><td>&lt;10 or &gt;60 days</td></tr>
+      <tr><td style="padding:8px">Wean-to-Service interval</td><td>4-10 days</td><td>&gt;60 days = flag</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px">born_alive count</td><td>8-16</td><td>&gt;20 = confirm</td></tr>
+      <tr><td style="padding:8px">Weaned count balance</td><td>= expected from piglet_events</td><td>Warn if mismatch</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ VIEWS ============ -->
+<section id="views">
+  <h2>Views & KPI Calculations</h2>
+
+  <div class="card">
+    <table style="width:100%; font-size:13px; border-collapse:collapse;">
+      <tr style="background:#f1f5f9"><th style="padding:8px;text-align:left">View</th><th>Purpose</th><th>Key Formula</th></tr>
+      <tr><td style="padding:8px"><code>v_farm_psy</code></td><td>PSY (Pigs per Sow per Year)</td><td>SUM(weaned) / AVG(active sows) [rolling 12m]</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px"><code>v_sow_npd</code></td><td>NPD-03: Wean-to-Service</td><td>LATERAL JOIN closest mating after weaning</td></tr>
+      <tr><td style="padding:8px"><code>v_sow_inventory</code></td><td>Status breakdown per farm</td><td>COUNT by status WHERE exit_date IS NULL</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px"><code>v_current_nursing_piglets</code></td><td>Real-time piglet count</td><td>born_alive - events + foster_in - foster_out</td></tr>
+      <tr><td style="padding:8px"><code>v_npd_gilt_entry</code></td><td>NPD-01: Gilt entry to 1st mating</td><td>MIN(mating_date) - entry_date</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px"><code>v_npd_gilt_removal</code></td><td>NPD-02: Gilt wasted (no mating)</td><td>exit_date - entry_date WHERE no matings</td></tr>
+      <tr><td style="padding:8px"><code>v_npd_wean_to_removal</code></td><td>NPD-04: Wean to cull</td><td>exit_date - last_weaning WHERE no mating after</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px"><code>v_npd_reservice</code></td><td>NPD-05: Service to re-service</td><td>m2.date - m1.date WHERE no farrowing between</td></tr>
+      <tr><td style="padding:8px"><code>v_npd_service_to_removal</code></td><td>NPD-06: Service to cull</td><td>exit_date - last_mating WHERE no farrowing after</td></tr>
+      <tr style="background:#f8fafc"><td style="padding:8px"><code>v_npd_farm_total</code></td><td>Farm-level NPD summary</td><td>AVG of all 6 components</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<div style="text-align:center; padding:40px; color:var(--muted); font-size:13px;">
+  <strong>PigOS AI</strong> &mdash; Global Swine Farm Management Platform<br>
+  DB Structure Guide v2.0 Draft | 2026-03-31<br>
+  Based on: PigPlan 27yr legacy + PigCHAMP/MetaFarms/Cloudfarms/Agriness/Porcitec global standards
+</div>
+
+</div>
+</body>
+</html>

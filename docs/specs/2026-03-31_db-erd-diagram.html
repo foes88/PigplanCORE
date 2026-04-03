@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PigOS AI — DB ERD & Relationship Diagram</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --primary: #0D7C66;
+    --primary-light: #e8f5f1;
+    --accent: #E8820E;
+    --danger: #DC2626;
+    --purple: #7C3AED;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+
+  /* Header */
+  .header { background: var(--primary); color: white; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 22px; }
+  .header .meta { font-size: 13px; opacity: 0.8; }
+
+  /* Tabs */
+  .tabs { background: white; border-bottom: 2px solid var(--border); display: flex; gap: 0; overflow-x: auto; position: sticky; top: 0; z-index: 100; }
+  .tab { padding: 14px 24px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab:hover { color: var(--primary); background: var(--primary-light); }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
+
+  /* Content */
+  .content { padding: 24px; max-width: 100%; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Mermaid */
+  .mermaid-wrap { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; overflow-x: auto; margin-bottom: 24px; }
+  .mermaid-wrap h2 { font-size: 18px; color: var(--primary); margin-bottom: 16px; }
+  .mermaid { width: 100%; }
+
+  /* Legend */
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; padding: 16px; background: white; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 24px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .legend-dot { width: 16px; height: 16px; border-radius: 4px; }
+
+  /* Info cards */
+  .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 16px; margin-top: 20px; }
+  .info-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .info-card h3 { font-size: 14px; color: var(--primary); margin-bottom: 8px; }
+  .info-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .info-card code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+
+  /* Zoom controls */
+  .zoom-controls { position: fixed; bottom: 24px; right: 24px; display: flex; gap: 8px; z-index: 200; }
+  .zoom-btn { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .zoom-btn:hover { background: var(--primary-light); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>PigOS AI — DB ERD & Relationship Diagram</h1>
+    <div class="meta">v2.0 Draft | 53 Tables + 8 Views | PostgreSQL 16+</div>
+  </div>
+  <div class="meta" style="text-align:right">
+    2026-03-31<br>
+    Interactive Mermaid Diagrams
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPanel('core')">Core Breeding (M0+M1)</div>
+  <div class="tab" onclick="showPanel('full')">Full Schema Overview</div>
+  <div class="tab" onclick="showPanel('lifecycle')">Breeding Lifecycle</div>
+  <div class="tab" onclick="showPanel('status')">Status Machine</div>
+  <div class="tab" onclick="showPanel('piglet')">Piglet Flow</div>
+  <div class="tab" onclick="showPanel('npd')">NPD Components</div>
+  <div class="tab" onclick="showPanel('modules')">Module Dependencies</div>
+</div>
+
+<div class="content">
+
+<!-- ==================== CORE BREEDING ==================== -->
+<div id="core" class="panel active">
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#0D7C66"></div> Core Table (v1)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#E8820E"></div> New Table (v2)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7C3AED"></div> Support Table</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div> Extension Table</div>
+    <div class="legend-item">|| = PK &nbsp; | = FK &nbsp; o = nullable</div>
+  </div>
+
+  <div class="mermaid-wrap">
+    <h2>Core Breeding Module (M0 Platform + M1 Sow Management)</h2>
+    <pre class="mermaid">
+erDiagram
+    organizations ||--o{ farms : "has"
+    farms ||--o{ users : "employs"
+    farms ||--o{ buildings : "contains"
+    farms ||--o{ boars : "owns"
+    farms ||--o{ sows : "manages"
+    farms ||--o{ farm_configs : "configured by"
+
+    sows ||--o{ matings : "mated"
+    sows ||--o{ farrowings : "farrows"
+    sows ||--o{ weanings : "weans"
+    sows ||--o{ removals : "removed"
+    sows ||--o{ breeding_cycles : "cycles through"
+    sows ||--o{ reproductive_events : "experiences"
+    sows ||--o{ pregnancy_checks : "checked"
+
+    boars ||--o{ matings : "sires"
+    buildings ||--o{ sows : "houses"
+    buildings ||--o{ farrowings : "farrowing in"
+
+    matings ||--o{ pregnancy_checks : "verified by"
+    matings ||--o{ farrowings : "results in"
+    matings ||--o{ reproductive_events : "may fail"
+
+    farrowings ||--o{ weanings : "leads to"
+    farrowings ||--o{ piglet_events : "tracked by"
+
+    breeding_cycles ||--o{ matings : "contains"
+    breeding_cycles ||--o{ farrowings : "contains"
+    breeding_cycles ||--o{ weanings : "contains"
+
+    organizations {
+        uuid id PK
+        varchar name
+        char country
+        varchar timezone
+    }
+
+    farms {
+        uuid id PK
+        uuid org_id FK
+        varchar farm_code UK
+        varchar name
+        char country
+        varchar unit_system
+        varchar language
+        varchar currency
+    }
+
+    farm_configs {
+        uuid id PK
+        uuid farm_id FK
+        varchar config_key
+        varchar config_value
+    }
+
+    buildings {
+        uuid id PK
+        uuid farm_id FK
+        varchar name
+        varchar building_type
+        int capacity
+    }
+
+    boars {
+        uuid id PK
+        uuid farm_id FK
+        varchar ear_tag UK
+        varchar breed
+        varchar status
+    }
+
+    sows {
+        uuid id PK
+        uuid farm_id FK
+        uuid building_id FK
+        varchar ear_tag UK
+        int parity
+        varchar status
+        varchar entry_type
+        date entry_date
+        date exit_date
+    }
+
+    breeding_cycles {
+        uuid id PK
+        uuid farm_id FK
+        uuid sow_id FK
+        int parity
+        varchar cycle_status
+        int mating_count
+        date started_at
+        date ended_at
+    }
+
+    matings {
+        uuid id PK
+        uuid farm_id FK
+        uuid sow_id FK
+        uuid boar_id FK
+        date mating_date
+        varchar mating_type
+        int mating_number
+    }
+
+    pregnancy_checks {
+        uuid id PK
+        uuid farm_id FK
+        uuid sow_id FK
+        uuid mating_id FK
+        date check_date
+        varchar result
+    }
+
+    reproductive_events {
+        uuid id PK
+        uuid farm_id FK
+        uuid sow_id FK
+        uuid mating_id FK
+        date event_date
+        varchar event_type
+    }
+
+    farrowings {
+        uuid id PK
+        uuid farm_id FK
+        uuid sow_id FK
+        uuid mating_id FK
+        date farrowing_date
+        int parity_at_birth
+        int total_born
+        int born_alive
+        int stillborn
+        int mummified
+    }
+
+    piglet_events {
+        uuid id PK
+        uuid farm_id FK
+        uuid farrowing_id FK
+        uuid sow_id FK
+        date event_date
+        varchar event_type
+        int piglet_count
+        varchar reason
+    }
+
+    weanings {
+        uuid id PK
+        uuid farm_id FK
+        uuid sow_id FK
+        uuid farrowing_id FK
+        date weaning_date
+        int weaned_count
+        varchar weaning_type
+    }
+
+    removals {
+        uuid id PK
+        uuid farm_id FK
+        uuid sow_id FK
+        date removal_date
+        varchar removal_type
+        varchar reason_category
+    }
+    </pre>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>sows (Core Entity)</h3>
+      <p>
+        <strong>Status:</strong> GILT / ACTIVE / GESTATING / LACTATING / WEANED / DRY / CULLED / DEAD<br>
+        <strong>Parity:</strong> 0 (gilt) ~ 20+ (increments on farrowing only)<br>
+        <strong>exit_date:</strong> NULL = active, DATE = removed<br>
+        <strong>Triggers:</strong> Status auto-transitions on event INSERT
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>breeding_cycles (v2 New)</h3>
+      <p>
+        Groups matings/farrowings/weanings per parity cycle.<br>
+        <code>UNIQUE(sow_id, parity)</code><br>
+        <code>mating_count</code>: tracks re-services (1=first, 2+=retry)<br>
+        One active cycle per sow enforced by partial UNIQUE index.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>reproductive_events (v2 New)</h3>
+      <p>
+        8 event types: RETURN_TO_ESTRUS, ABORTION, EMPTY, INFERTILE,
+        HEAT_DETECTED, SKIP_HEAT, ANESTRUS, NOT_IN_PIG<br>
+        Essential for NPD 6-component calculation.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>piglet_events (v2 New)</h3>
+      <p>
+        Tracks daily piglet changes during lactation:<br>
+        DEATH, FOSTER_IN, FOSTER_OUT, STILLBORN_REMOVAL<br>
+        Enables: <code>fn_verify_piglet_balance()</code><br>
+        View: <code>v_current_nursing_piglets</code>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FULL SCHEMA ==================== -->
+<div id="full" class="panel">
+  <div class="mermaid-wrap">
+    <h2>Full Schema — All 11 Modules</h2>
+    <pre class="mermaid">
+erDiagram
+    farms ||--o{ sows : "M1"
+    farms ||--o{ boars : "M1"
+    farms ||--o{ buildings : "M1"
+    farms ||--o{ animal_groups : "M2"
+    farms ||--o{ feed_bins : "M3"
+    farms ||--o{ health_events : "M4"
+    farms ||--o{ vaccinations : "M4"
+    farms ||--o{ medications : "M4"
+    farms ||--o{ kpi_snapshots : "M8"
+    farms ||--o{ alert_rules : "M8"
+    farms ||--o{ compliance_reports : "M6"
+    farms ||--o{ environment_readings : "M7"
+    farms ||--o{ data_consent : "M10"
+
+    sows ||--o{ matings : "breed"
+    sows ||--o{ farrowings : "farrow"
+    sows ||--o{ weanings : "wean"
+    sows ||--o{ removals : "remove"
+    sows ||--o{ health_events : "health"
+    sows ||--o{ vaccinations : "vaccinate"
+    sows ||--o{ medications : "medicate"
+    sows ||--o{ feed_records : "feed"
+    sows ||--o{ genetics : "M5"
+
+    animal_groups ||--o{ grow_records : "track"
+    animal_groups ||--o{ shipments : "ship"
+    animal_groups ||--o{ feed_records : "feed"
+    animal_groups ||--o{ health_events : "health"
+
+    shipments ||--o{ carcass_records : "grade"
+
+    farrowings ||--o{ weanings : "wean"
+    farrowings ||--o{ piglet_events : "events"
+    matings ||--o{ farrowings : "result"
+
+    farms {
+        uuid id PK
+        varchar name
+        char country
+    }
+    sows {
+        uuid id PK
+        varchar status
+        int parity
+    }
+    animal_groups {
+        uuid id PK
+        varchar group_type
+        int current_count
+    }
+    health_events {
+        uuid id PK
+        varchar disease_code
+        varchar severity
+    }
+    kpi_snapshots {
+        uuid id PK
+        decimal psy
+        decimal npd_days
+    }
+    </pre>
+  </div>
+</div>
+
+<!-- ==================== LIFECYCLE ==================== -->
+<div id="lifecycle" class="panel">
+  <div class="mermaid-wrap">
+    <h2>Breeding Lifecycle — State Diagram</h2>
+    <pre class="mermaid">
+stateDiagram-v2
+    [*] --> GILT : Entry (parity=0)
+    [*] --> ACTIVE : Entry (parity>0, purchased)
+
+    GILT --> GESTATING : 1st Mating
+    ACTIVE --> GESTATING : Mating
+    GESTATING --> LACTATING : Farrowing (parity+1)
+    GESTATING --> ACTIVE : Return / Abortion
+    LACTATING --> WEANED : Complete Wean
+    LACTATING --> WEANED : Nurse Sow Wean
+    WEANED --> GESTATING : Re-Mating
+    WEANED --> LACTATING : Nurse Sow (foster-in)
+    WEANED --> DRY : Extended rest
+    DRY --> GESTATING : Mating
+
+    GILT --> CULLED : Cull before mating
+    GILT --> DEAD : Death before mating
+    ACTIVE --> CULLED : Cull
+    ACTIVE --> DEAD : Death
+    GESTATING --> CULLED : Cull during pregnancy
+    GESTATING --> DEAD : Death during pregnancy
+    LACTATING --> CULLED : Cull during lactation
+    LACTATING --> DEAD : Death during lactation
+    WEANED --> CULLED : Cull after weaning
+    WEANED --> DEAD : Death after weaning
+    DRY --> CULLED : Cull
+    DRY --> DEAD : Death
+
+    CULLED --> [*]
+    DEAD --> [*]
+
+    note right of GESTATING
+        Duration: ~114 days
+        Check: Preg check at D+25
+    end note
+
+    note right of LACTATING
+        Duration: ~21 days (EU min 28)
+        Track: piglet_events daily
+    end note
+
+    note right of WEANED
+        Target: Re-mate within 7 days
+        NPD starts counting here
+    end note
+    </pre>
+  </div>
+
+  <div class="mermaid-wrap">
+    <h2>Normal Cycle Timeline</h2>
+    <pre class="mermaid">
+gantt
+    title Sow Breeding Cycle (1 parity, ~150 days)
+    dateFormat YYYY-MM-DD
+    axisFormat %b %d
+
+    section Cycle
+    Mating (D0)           :milestone, m1, 2026-01-01, 0d
+    Gestation (114d)      :active, gest, 2026-01-01, 114d
+    Preg Check (D+25)     :milestone, pc, 2026-01-26, 0d
+    Farrowing             :milestone, fw, 2026-04-25, 0d
+    Lactation (21d)       :crit, lact, 2026-04-25, 21d
+    Weaning               :milestone, wn, 2026-05-16, 0d
+    WEI Rest (7d)         :done, wei, 2026-05-16, 7d
+    Next Mating           :milestone, m2, 2026-05-23, 0d
+    </pre>
+  </div>
+</div>
+
+<!-- ==================== STATUS MACHINE ==================== -->
+<div id="status" class="panel">
+  <div class="mermaid-wrap">
+    <h2>Status Transition — Detailed Flow</h2>
+    <pre class="mermaid">
+flowchart LR
+    GILT([GILT\nparity=0])
+    ACTIVE([ACTIVE\nparity>0])
+    GEST([GESTATING\n임신])
+    LACT([LACTATING\n포유])
+    WEAN([WEANED\n이유])
+    DRY([DRY\n건기])
+    CULL([CULLED\n도태])
+    DEAD_S([DEAD\n폐사])
+
+    GILT -->|Mating| GEST
+    ACTIVE -->|Mating| GEST
+    GEST -->|Farrowing\nparity+1| LACT
+    GEST -->|Return/Abort| ACTIVE
+    LACT -->|Weaning| WEAN
+    WEAN -->|Mating| GEST
+    WEAN -->|Nurse Sow\nFoster In| LACT
+    WEAN -->|Long Rest| DRY
+    DRY -->|Mating| GEST
+
+    GILT -->|Cull| CULL
+    GILT -->|Death| DEAD_S
+    ACTIVE -->|Cull| CULL
+    ACTIVE -->|Death| DEAD_S
+    GEST -->|Cull| CULL
+    GEST -->|Death| DEAD_S
+    LACT -->|Cull| CULL
+    LACT -->|Death| DEAD_S
+    WEAN -->|Cull| CULL
+    WEAN -->|Death| DEAD_S
+    DRY -->|Cull| CULL
+    DRY -->|Death| DEAD_S
+
+    style GILT fill:#fef3c7,stroke:#E8820E,stroke-width:2px
+    style ACTIVE fill:#e8f5f1,stroke:#0D7C66,stroke-width:2px
+    style GEST fill:#dbeafe,stroke:#2563eb,stroke-width:2px
+    style LACT fill:#dcfce7,stroke:#16a34a,stroke-width:2px
+    style WEAN fill:#ede9fe,stroke:#7c3aed,stroke-width:2px
+    style DRY fill:#f1f5f9,stroke:#64748b,stroke-width:2px
+    style CULL fill:#fee2e2,stroke:#DC2626,stroke-width:2px
+    style DEAD_S fill:#fecaca,stroke:#991b1b,stroke-width:2px
+    </pre>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>Auto-Transitions (Triggers)</h3>
+      <p>
+        <code>matings INSERT</code> &rarr; sow.status = GESTATING<br>
+        <code>farrowings INSERT</code> &rarr; sow.status = LACTATING, parity+1<br>
+        <code>weanings INSERT</code> &rarr; sow.status = WEANED<br>
+        <code>removals INSERT</code> &rarr; sow.status = CULLED/DEAD, exit_date set
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Blocked Transitions</h3>
+      <p>
+        CULLED &rarr; ANY (terminal, no recovery)<br>
+        DEAD &rarr; ANY (terminal)<br>
+        LACTATING &rarr; GESTATING (must wean first)<br>
+        GILT &rarr; LACTATING (must mate + farrow first)
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PIGLET FLOW ==================== -->
+<div id="piglet" class="panel">
+  <div class="mermaid-wrap">
+    <h2>Piglet Head Count Flow</h2>
+    <pre class="mermaid">
+flowchart TB
+    FARROW[/"Farrowing\ntotal_born = 14\nborn_alive = 12\nstillborn = 1\nmummified = 1"/]
+
+    FARROW --> ALIVE["born_alive = 12"]
+
+    ALIVE --> SR["STILLBORN_REMOVAL\n-1"]
+    SR --> D11["= 11"]
+
+    D11 --> FO["FOSTER_OUT to Sow B\n-2"]
+    FO --> D9["= 9"]
+
+    D9 --> FI["FOSTER_IN from Sow C\n+1"]
+    FI --> D10["= 10"]
+
+    D10 --> DEATH1["DEATH (crushing)\n-1"]
+    DEATH1 --> D9b["= 9"]
+
+    D9b --> DEATH2["DEATH (scours)\n-1"]
+    DEATH2 --> D8["= 8"]
+
+    D8 --> WEAN[/"Weaning\nweaned_count = 8\n12-1-2+1-1-1 = 8 ✓"/]
+
+    style FARROW fill:#dbeafe,stroke:#2563eb,stroke-width:2px
+    style WEAN fill:#dcfce7,stroke:#16a34a,stroke-width:2px
+    style SR fill:#fee2e2,stroke:#DC2626
+    style DEATH1 fill:#fee2e2,stroke:#DC2626
+    style DEATH2 fill:#fee2e2,stroke:#DC2626
+    style FO fill:#ede9fe,stroke:#7c3aed
+    style FI fill:#ede9fe,stroke:#7c3aed
+    </pre>
+  </div>
+
+  <div class="mermaid-wrap">
+    <h2>Foster (Cross-Nursing) — Bidirectional</h2>
+    <pre class="mermaid">
+flowchart LR
+    subgraph SowA["Sow A (born_alive=16, large litter)"]
+        A_START["16 piglets"] --> A_FO["FOSTER_OUT -4"]
+        A_FO --> A_REMAIN["12 piglets nursing"]
+    end
+
+    subgraph SowB["Sow B (Nurse Sow, weaned own litter)"]
+        B_WEAN["Own litter weaned"] --> B_FI["FOSTER_IN +4"]
+        B_FI --> B_NURSE["4 piglets nursing\n(extended lactation)"]
+    end
+
+    A_FO -.->|"4 piglets\ntransfer"| B_FI
+
+    style SowA fill:#dbeafe,stroke:#2563eb
+    style SowB fill:#fef3c7,stroke:#E8820E
+    </pre>
+  </div>
+</div>
+
+<!-- ==================== NPD ==================== -->
+<div id="npd" class="panel">
+  <div class="mermaid-wrap">
+    <h2>NPD 6 Components — Where Non-Productive Days Occur</h2>
+    <pre class="mermaid">
+flowchart TB
+    subgraph GILT_NPD["Gilt NPD (후보돈)"]
+        direction LR
+        GE["Entry\n입식"] -->|"NPD-01\n~160 days"| G1M["1st Mating\n첫교배"]
+        GE2["Entry"] -->|"NPD-02\n100% wasted"| GCULL["Removal\n(no mating)"]
+    end
+
+    subgraph SOW_NPD["Sow NPD (경산돈)"]
+        direction LR
+        WN["Weaning\n이유"] -->|"NPD-03 WEI\ntarget 4-7d"| M1["Mating\n교배"]
+        WN2["Weaning"] -->|"NPD-04\nwean-to-cull"| SCULL["Removal\n(no mating)"]
+        M2["Mating"] -->|"NPD-05\n~21d or ~42d"| RM["Re-Mating\n(preg fail)"]
+        M3["Mating"] -->|"NPD-06\nservice-to-cull"| SCULL2["Removal\n(preg fail)"]
+    end
+
+    subgraph PRODUCTIVE["Productive Days (NOT NPD)"]
+        direction LR
+        PREG["Gestation\n~114 days"]
+        LACT["Lactation\n~21 days"]
+    end
+
+    style GILT_NPD fill:#fef3c7,stroke:#E8820E,stroke-width:2px
+    style SOW_NPD fill:#fee2e2,stroke:#DC2626,stroke-width:2px
+    style PRODUCTIVE fill:#dcfce7,stroke:#16a34a,stroke-width:2px
+    </pre>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>NPD-01: Gilt Entry → 1st Mating</h3>
+      <p>View: <code>v_npd_gilt_entry</code><br>Average: ~160 days<br>Warning if &gt;210 days (late maturation)</p>
+    </div>
+    <div class="info-card">
+      <h3>NPD-02: Gilt Entry → Removal</h3>
+      <p>View: <code>v_npd_gilt_removal</code><br>100% wasted investment<br>Tracks reason: leg, health, infertility</p>
+    </div>
+    <div class="info-card">
+      <h3>NPD-03: WEI (Wean-to-Estrus)</h3>
+      <p>View: <code>v_sow_npd</code><br>Target: 4-7 days<br>&gt;14 days = anestrus flag</p>
+    </div>
+    <div class="info-card">
+      <h3>NPD-04: Wean → Removal</h3>
+      <p>View: <code>v_npd_wean_to_removal</code><br>Sow culled after weaning without re-mating</p>
+    </div>
+    <div class="info-card">
+      <h3>NPD-05: Service → Re-Service</h3>
+      <p>View: <code>v_npd_reservice</code><br>Regular return: ~21d<br>Double return: ~42d<br>Irregular: investigate</p>
+    </div>
+    <div class="info-card">
+      <h3>NPD-06: Service → Removal</h3>
+      <p>View: <code>v_npd_service_to_removal</code><br>Pregnancy failed, then culled<br>Most expensive NPD type</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODULE DEPENDENCIES ==================== -->
+<div id="modules" class="panel">
+  <div class="mermaid-wrap">
+    <h2>Module Dependency Graph</h2>
+    <pre class="mermaid">
+flowchart TB
+    subgraph CORE["CORE (Always Together)"]
+        M0["M0: Platform\n8 tables\norg, farm, user, audit"]
+        M1["M1: Sow Management\n11 tables\nsow, mating, farrowing..."]
+    end
+
+    subgraph EXT["EXTENSIONS (Depends on Core)"]
+        M2["M2: Growing\n4 tables"]
+        M3["M3: Feed\n4 tables"]
+        M4["M4: Health\n3 tables"]
+        M5["M5: Genetics\n1 table"]
+        M8["M8: KPI\n4 tables"]
+    end
+
+    subgraph IND["INDEPENDENT"]
+        M6["M6: Compliance\n4 tables"]
+        M7["M7: Environment\n3 tables"]
+        M9["M9: Market\n1 table"]
+        M10["M10: Data\n2 tables"]
+    end
+
+    M0 --> M1
+    M1 --> M2
+    M1 --> M3
+    M1 --> M4
+    M1 --> M5
+    M1 --> M8
+    M0 --> M6
+    M0 --> M7
+    M0 --> M10
+
+    style CORE fill:#e8f5f1,stroke:#0D7C66,stroke-width:3px
+    style EXT fill:#dbeafe,stroke:#2563eb,stroke-width:2px
+    style IND fill:#ede9fe,stroke:#7c3aed,stroke-width:2px
+    style M0 fill:#0D7C66,color:white
+    style M1 fill:#0D7C66,color:white
+    style M9 fill:#f1f5f9,stroke:#94a3b8
+    </pre>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>Core (M0 + M1) — 19 tables</h3>
+      <p>
+        Must always be deployed together.<br>
+        M1 (Sow) is the hub — 5 modules depend on <code>sows</code> table FK.<br>
+        Cannot be split into microservices without API indirection.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Extensions (M2-M5, M8) — 16 tables</h3>
+      <p>
+        All reference <code>sows</code> or <code>animal_groups</code> via FK.<br>
+        Can be feature-flagged on/off per farm.<br>
+        Phase 1: M4 (Health) + M8 (KPI) only.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Independent (M6, M7, M9, M10) — 10 tables</h3>
+      <p>
+        Only reference <code>farms</code> table.<br>
+        Can be deployed/scaled independently.<br>
+        M9 (Market) has zero FK dependencies.
+      </p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- Zoom Controls -->
+<div class="zoom-controls">
+  <button class="zoom-btn" onclick="zoom(1.2)" title="Zoom In">+</button>
+  <button class="zoom-btn" onclick="zoom(0.8)" title="Zoom Out">-</button>
+  <button class="zoom-btn" onclick="zoom(1, true)" title="Reset">&#8634;</button>
+</div>
+
+<script>
+  // Tab switching
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+    // Re-render mermaid for newly visible panels
+    setTimeout(() => mermaid.run(), 100);
+  }
+
+  // Zoom
+  let currentZoom = 1;
+  function zoom(factor, reset) {
+    if (reset) { currentZoom = 1; } else { currentZoom *= factor; }
+    currentZoom = Math.max(0.3, Math.min(3, currentZoom));
+    document.querySelectorAll('.mermaid svg').forEach(svg => {
+      svg.style.transform = `scale(${currentZoom})`;
+      svg.style.transformOrigin = 'top left';
+    });
+  }
+
+  // Init mermaid
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    themeVariables: {
+      primaryColor: '#e8f5f1',
+      primaryBorderColor: '#0D7C66',
+      primaryTextColor: '#1e293b',
+      lineColor: '#64748b',
+      secondaryColor: '#dbeafe',
+      tertiaryColor: '#fef3c7'
+    },
+    flowchart: { curve: 'basis', htmlLabels: true },
+    er: { layoutDirection: 'TB' }
+  });
+</script>
+
+</body>
+</html>
