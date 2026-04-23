@@ -126,6 +126,10 @@ GET /farms/{id}/kpi?period=2026-07
 
 ---
 
+### Week 5~6 추가: 반응형·iPad·i18n
+- 반응형 웹 (모바일·태블릿·iPad)
+- 7개 언어 i18n 구축: en / ko / vi / th / pt / zh / da
+
 ### Week 7~8: 대시보드 + Rule Engine + Claude API
 
 **대시보드 API (Layer 2 — Insight):**
@@ -197,6 +201,8 @@ response = anthropic.messages.create(
 | 기준값 비교 (avg/top25/target) | ✅ |
 | 이상 감지 알림 | ✅ |
 | 월간 AI 분석 리포트 (Claude) | ✅ |
+| 7개 언어 i18n (en/ko/vi/th/pt/zh/da) | ✅ |
+| 반응형 웹 + iPad 최적화 | ✅ |
 | FCR / Advisor / Autopilot | ❌ (애드온 8월~) |
 | 모바일 앱 | ✅ Android + iOS 동시 출시 |
 
